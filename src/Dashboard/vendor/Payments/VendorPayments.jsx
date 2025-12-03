@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const COLORS = {
   primary: "#C62828",           // Primary Red (Buttons, Logo, Menu Icon)
   primaryDark: "#B71C1C",       // Dark Red / Logo Text Accent
-  // pageBg: "#F7EFE9",           // Light Beige Background
   white: "#FFFFFF",             // Pure White
   black: "#000000",             // Black Text
   text: "#4A4A4A",             // Dark Gray Text
@@ -73,6 +72,19 @@ const EmployeeVendorPayments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Track window width for responsive adjustments
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Responsive breakpoints
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
 
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = payment.paidBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,7 +114,7 @@ const EmployeeVendorPayments = () => {
 
   // Export PDF function
   const handleExportPDF = () => {
-    // Create a simple HTML representation of the payment data
+    // Create a simple HTML representation of payment data
     let htmlContent = `
       <html>
         <head>
@@ -178,9 +190,9 @@ const EmployeeVendorPayments = () => {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // In a real implementation, you would parse the file and update the payments state
+        // In a real implementation, you would parse file and update payments state
         // For this example, we'll just show an alert
-        alert(`File "${file.name}" would be processed here. In a real implementation, this would parse the file and update the payments data.`);
+        alert(`File "${file.name}" would be processed here. In a real implementation, this would parse file and update payments data.`);
       }
     };
     
@@ -191,24 +203,48 @@ const EmployeeVendorPayments = () => {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: COLORS.pageBg,
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: isMobile ? "15px" : "20px" }}>
         {/* Header Section */}
-        <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ 
+          marginBottom: isMobile ? "20px" : "24px", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: isMobile ? "flex-start" : "center",
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? "15px" : "0"
+        }}>
           <div>
-            <h1 style={{ fontSize: "28px", fontWeight: 700, margin: 0, color: COLORS.black }}>
+            <h1 style={{ 
+              fontSize: isMobile ? "24px" : "28px", 
+              fontWeight: 700, 
+              margin: 0, 
+              color: COLORS.black 
+            }}>
               My Payments
             </h1>
-            <p style={{ fontSize: "16px", color: COLORS.text, marginTop: "8px" }}>
+            <p style={{ 
+              fontSize: isMobile ? "14px" : "16px", 
+              color: COLORS.text, 
+              marginTop: "8px" 
+            }}>
               View and manage all your received payments
             </p>
           </div>
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div style={{ 
+            display: "flex", 
+            gap: isMobile ? "8px" : "12px",
+            width: isMobile ? "100%" : "auto"
+          }}>
             <button
-              style={actionBtn}
+              style={{
+                ...actionBtn,
+                flex: isMobile ? 1 : "auto",
+                padding: isMobile ? "8px 12px" : "10px 16px",
+                fontSize: isMobile ? "13px" : "14px"
+              }}
               onClick={handleImportPDF}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "8px" }}>
@@ -216,10 +252,15 @@ const EmployeeVendorPayments = () => {
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
               </svg>
-              Import PDF
+              {isMobile ? "Import" : "Import PDF"}
             </button>
             <button
-              style={actionBtn}
+              style={{
+                ...actionBtn,
+                flex: isMobile ? 1 : "auto",
+                padding: isMobile ? "8px 12px" : "10px 16px",
+                fontSize: isMobile ? "13px" : "14px"
+              }}
               onClick={handleExportPDF}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "8px" }}>
@@ -227,13 +268,18 @@ const EmployeeVendorPayments = () => {
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              Export PDF
+              {isMobile ? "Export" : "Export PDF"}
             </button>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: isMobile ? "1fr" : (isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)"), 
+          gap: isMobile ? "12px" : "16px", 
+          marginBottom: isMobile ? "20px" : "24px" 
+        }}>
           <div style={statsCard}>
             <div style={{ ...statsIcon, backgroundColor: COLORS.chartLine + "20", color: COLORS.chartLine }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -272,8 +318,41 @@ const EmployeeVendorPayments = () => {
         </div>
 
         {/* Filters Section */}
-        <div style={{ backgroundColor: COLORS.white, borderRadius: "12px", padding: "20px", marginBottom: "24px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "end" }}>
+        <div style={{ 
+          backgroundColor: COLORS.white, 
+          borderRadius: "12px", 
+          padding: isMobile ? "15px" : "20px", 
+          marginBottom: isMobile ? "20px" : "24px", 
+          boxShadow: "0 2px 8px rgba(0,0,0,0.05)" 
+        }}>
+          {/* Mobile Filter Toggle */}
+          {isMobile && (
+            <button
+              style={{
+                ...actionBtn,
+                width: "100%",
+                marginBottom: "15px",
+                backgroundColor: COLORS.lightGray,
+                color: COLORS.text,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+            >
+              <span>Filters</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          )}
+          
+          <div style={{
+            display: isMobile ? (showMobileFilters ? "block" : "none") : "grid",
+            gridTemplateColumns: isTablet ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(200px, 1fr))", 
+            gap: isMobile ? "15px" : "16px", 
+            alignItems: "end"
+          }}>
             <div>
               <label style={filterLabel}>Search</label>
               <input
@@ -331,76 +410,164 @@ const EmployeeVendorPayments = () => {
         </div>
 
         {/* Payments Table */}
-        <div style={{ backgroundColor: COLORS.white, borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", overflow: "hidden" }}>
-          <div style={{ padding: "20px", borderBottom: `1px solid ${COLORS.border}` }}>
-            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: 0, color: COLORS.black }}>Payments Received</h2>
+        <div style={{ 
+          backgroundColor: COLORS.white, 
+          borderRadius: "12px", 
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)", 
+          overflow: "hidden" 
+        }}>
+          <div style={{ 
+            padding: isMobile ? "15px" : "20px", 
+            borderBottom: `1px solid ${COLORS.border}` 
+          }}>
+            <h2 style={{ 
+              fontSize: isMobile ? "18px" : "20px", 
+              fontWeight: 600, 
+              margin: 0, 
+              color: COLORS.black 
+            }}>
+              Payments Received
+            </h2>
           </div>
           
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ backgroundColor: COLORS.lightGray }}>
-                  <th style={{ ...th, textAlign: "left" }}>Date</th>
-                  <th style={{ ...th, textAlign: "left" }}>Paid By</th>
-                  <th style={{ ...th, textAlign: "left" }}>Reference</th>
-                  <th style={{ ...th, textAlign: "left" }}>Status</th>
-                  <th style={{ ...th, textAlign: "right" }}>Amount</th>
-                  <th style={{ ...th, textAlign: "center" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPayments.map((payment, index) => (
-                  <tr 
-                    key={payment.id} 
-                    style={{ 
-                      backgroundColor: index % 2 === 0 ? COLORS.white : COLORS.lightGray, 
-                      transition: "background-color 0.2s ease" 
-                    }}
-                  >
-                    <td style={{ ...td, fontWeight: 500 }}>{formatDate(payment.date)}</td>
-                    <td style={{ ...td, fontWeight: 600 }}>{payment.paidBy}</td>
-                    <td style={{ ...td, color: COLORS.text }}>{payment.reference}</td>
-                    <td style={{ ...td }}>
-                      <span style={{
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        backgroundColor: getStatusColor(payment.status) + "20",
-                        color: getStatusColor(payment.status)
-                      }}>
-                        {payment.status}
-                      </span>
-                    </td>
-                    <td style={{ ...td, textAlign: "right", fontWeight: 600, color: COLORS.oliveLabel }}>
+          {isMobile ? (
+            // Mobile Card View
+            <div style={{ padding: isMobile ? "15px" : "20px" }}>
+              {filteredPayments.map((payment) => (
+                <div 
+                  key={payment.id} 
+                  style={{
+                    backgroundColor: COLORS.lightGray,
+                    borderRadius: "8px",
+                    padding: "15px",
+                    marginBottom: "15px",
+                    border: `1px solid ${COLORS.border}`
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                    <div style={{ fontWeight: 600, color: COLORS.black }}>{payment.paidBy}</div>
+                    <span style={{
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      backgroundColor: getStatusColor(payment.status) + "20",
+                      color: getStatusColor(payment.status)
+                    }}>
+                      {payment.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "14px", color: COLORS.text, marginBottom: "5px" }}>
+                    {payment.reference}
+                  </div>
+                  <div style={{ fontSize: "14px", color: COLORS.text, marginBottom: "10px" }}>
+                    {formatDate(payment.date)}
+                  </div>
+                  <div style={{ 
+                    display: "flex", 
+                    justifyContent: "space-between", 
+                    alignItems: "center" 
+                  }}>
+                    <div style={{ 
+                      fontSize: "18px", 
+                      fontWeight: 700, 
+                      color: COLORS.oliveLabel 
+                    }}>
                       ${payment.amount.toLocaleString()}
-                    </td>
-                    <td style={{ ...td, textAlign: "center" }}>
-                      <button
-                        style={{ ...viewBtn, backgroundColor: COLORS.blueLabel }}
-                        onClick={() => setSelectedPayment(payment)}
-                        title="View Details"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                          <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        View
-                      </button>
-                    </td>
+                    </div>
+                    <button
+                      style={{ ...viewBtn, backgroundColor: COLORS.primary }}
+                      onClick={() => setSelectedPayment(payment)}
+                      title="View Details"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Desktop Table View
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ backgroundColor: COLORS.lightGray }}>
+                    <th style={{ ...th, textAlign: "left" }}>Date</th>
+                    <th style={{ ...th, textAlign: "left" }}>Paid By</th>
+                    <th style={{ ...th, textAlign: "left" }}>Reference</th>
+                    <th style={{ ...th, textAlign: "left" }}>Status</th>
+                    <th style={{ ...th, textAlign: "right" }}>Amount</th>
+                    <th style={{ ...th, textAlign: "center" }}>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredPayments.map((payment, index) => (
+                    <tr 
+                      key={payment.id} 
+                      style={{ 
+                        backgroundColor: index % 2 === 0 ? COLORS.white : COLORS.lightGray, 
+                        transition: "background-color 0.2s ease" 
+                      }}
+                    >
+                      <td style={{ ...td, fontWeight: 500 }}>{formatDate(payment.date)}</td>
+                      <td style={{ ...td, fontWeight: 600 }}>{payment.paidBy}</td>
+                      <td style={{ ...td, color: COLORS.text }}>{payment.reference}</td>
+                      <td style={{ ...td }}>
+                        <span style={{
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          backgroundColor: getStatusColor(payment.status) + "20",
+                          color: getStatusColor(payment.status)
+                        }}>
+                          {payment.status}
+                        </span>
+                      </td>
+                      <td style={{ ...td, textAlign: "right", fontWeight: 600, color: COLORS.oliveLabel }}>
+                        ${payment.amount.toLocaleString()}
+                      </td>
+                      <td style={{ ...td, textAlign: "center" }}>
+                        <button
+                          style={{ ...viewBtn, backgroundColor: COLORS.primary }}
+                          onClick={() => setSelectedPayment(payment)}
+                          title="View Details"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Payment Details Modal */}
         {selectedPayment && (
           <div style={overlay}>
-            <div style={modal}>
+            <div style={{
+              ...modal,
+              width: isMobile ? "95%" : "500px",
+              maxHeight: isMobile ? "90vh" : "auto",
+              overflow: isMobile ? "auto" : "visible"
+            }}>
               <div style={modalHeader}>
-                <h2 style={{ margin: 0, fontWeight: 600, fontSize: "20px", color: COLORS.black }}>
+                <h2 style={{ 
+                  margin: 0, 
+                  fontWeight: 600, 
+                  fontSize: isMobile ? "18px" : "20px", 
+                  color: COLORS.black 
+                }}>
                   Payment Details
                 </h2>
                 <button
@@ -429,7 +596,12 @@ const EmployeeVendorPayments = () => {
                 </div>
                 <div style={detailRow}>
                   <span style={detailLabel}>Amount</span>
-                  <span style={{ ...detailValue, fontSize: "18px", fontWeight: 700, color: COLORS.oliveLabel }}>
+                  <span style={{ 
+                    ...detailValue, 
+                    fontSize: isMobile ? "16px" : "18px", 
+                    fontWeight: 700, 
+                    color: COLORS.oliveLabel 
+                  }}>
                     ${selectedPayment.amount.toLocaleString()}
                   </span>
                 </div>
@@ -453,9 +625,16 @@ const EmployeeVendorPayments = () => {
                 </div>
               </div>
 
-              <div style={footer}>
+              <div style={{
+                ...footer,
+                flexDirection: isMobile ? "column" : "row",
+                gap: isMobile ? "10px" : "12px"
+              }}>
                 <button
-                  style={runBtn}
+                  style={{
+                    ...runBtn,
+                    width: isMobile ? "100%" : "auto"
+                  }}
                   onClick={() => alert("Run payment functionality")}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "8px" }}>
@@ -464,7 +643,10 @@ const EmployeeVendorPayments = () => {
                   Run
                 </button>
                 <button
-                  style={saveBtn}
+                  style={{
+                    ...saveBtn,
+                    width: isMobile ? "100%" : "auto"
+                  }}
                   onClick={() => setSelectedPayment(null)}
                 >
                   Close
@@ -501,6 +683,7 @@ const overlay = {
   justifyContent: "center",
   alignItems: "center",
   zIndex: 99,
+  padding: "20px"
 };
 const modal = {
   background: COLORS.white,
