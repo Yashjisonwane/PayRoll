@@ -16,7 +16,7 @@ import AdminDashboard from "./Dashboard/Admin/AdminDashboard";
 import AddCredit from "./Dashboard/Admin/AddCredit";
 import AllTransactions from "./Dashboard/Admin/AllTransactions";
 // import AssignCredit from "./Dashboard/Admin/AssignCredit";
-import AssignCredit from "./Dashboard/Admin/AssignCredit";
+import AssignCredit from "./Dashboard/Admin/Employers";
 import JobPortal from "./Dashboard/Admin/JobPortal";
 import BillCompanies from "./Dashboard/Admin/BillCompanies";
 

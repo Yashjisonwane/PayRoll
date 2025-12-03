@@ -153,7 +153,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Add Credit Button */}
-      <div className="d-flex justify-content-end mb-4">
+      {/* <div className="d-flex justify-content-end mb-4">
         <button
           onClick={() => setShowAddCredit(true)}
           className="btn text-white fw-semibold"
@@ -161,7 +161,7 @@ const AdminDashboard = () => {
         >
           <FaPlus className="me-2" /> Add Credits
         </button>
-      </div>
+      </div> */}
 
       {/* GRAPH SECTION */}
       <div className="row g-4 mb-4">
