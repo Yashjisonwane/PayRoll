@@ -25,7 +25,8 @@ export default function JobPortal() {
       description: "We are looking for an experienced Frontend Developer with expertise in React, Redux, and modern CSS.", 
       status: "Active",
       postedDate: "2023-10-15",
-      salary: "₹12-18 LPA"
+      salary: "₹12-18 LPA",
+      employer: "Tech Solutions Pvt Ltd"
     },
     { 
       id: 2, 
@@ -35,7 +36,8 @@ export default function JobPortal() {
       description: "5+ years of experience in recruitment and employee relations. MBA in HR is preferred.", 
       status: "Active",
       postedDate: "2023-10-10",
-      salary: "₹8-12 LPA"
+      salary: "₹8-12 LPA",
+      employer: "PeopleFirst HR"
     },
     { 
       id: 3, 
@@ -45,7 +47,8 @@ export default function JobPortal() {
       description: "PMP certified with a track record of delivering projects on time. Experience in Agile methodologies is required.", 
       status: "Closed",
       postedDate: "2023-09-25",
-      salary: "₹15-20 LPA"
+      salary: "₹15-20 LPA",
+      employer: "Digital Innovations"
     },
   ]);
 
@@ -89,8 +92,8 @@ export default function JobPortal() {
   ]);
 
   // UI state management
+  const [modalType, setModalType] = useState(null);
   const [selectedVacancy, setSelectedVacancy] = useState(null);
-  const [modalType, setModalType] = useState(null); // Controls which modal is open
   const [selectedJobSeeker, setSelectedJobSeeker] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
@@ -116,10 +119,6 @@ export default function JobPortal() {
     return jobSeekers.find(js => js.id === id);
   };
 
-  const getVacancyById = (id) => {
-    return vacancies.find(v => v.id === id);
-  };
-
   // Modal handlers
   const openModal = (type, data = null) => {
     setModalType(type);
@@ -135,6 +134,7 @@ export default function JobPortal() {
   const closeModal = () => {
     setModalType(null);
     setSelectedJobSeeker(null);
+    setSelectedVacancy(null);
   };
 
   // Action handlers
@@ -149,6 +149,7 @@ export default function JobPortal() {
       status: "Active",
       postedDate: new Date().toISOString().split('T')[0],
       salary: e.target.salary.value,
+      employer: e.target.employer.value,
     };
     setVacancies([...vacancies, newVacancy]);
     closeModal();
@@ -191,7 +192,7 @@ export default function JobPortal() {
   // Filter vacancies based on search and status
   const filteredVacancies = vacancies.filter(v => {
     const matchesSearch = v.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         v.department.toLowerCase().includes(searchTerm.toLowerCase());
+                         v.employer.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "All" || v.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -200,7 +201,6 @@ export default function JobPortal() {
     <div style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif', minHeight: '100vh' }}>
       {/* Header */}
       <header style={{ 
-        backgroundColor: colors.white, 
         borderBottom: `1px solid ${colors.lightGray}`, 
         padding: isMobileView ? '0.5rem 1rem' : '0.75rem 1.5rem', 
         display: 'flex', 
@@ -236,9 +236,8 @@ export default function JobPortal() {
       {/* Mobile Menu */}
       {isMobileView && showMobileMenu && (
         <div style={{
-          backgroundColor: colors.white,
-          padding: '1rem',
           borderBottom: `1px solid ${colors.lightGray}`,
+          padding: '1rem',
           display: 'flex',
           flexDirection: 'column',
           gap: '10px'
@@ -250,222 +249,208 @@ export default function JobPortal() {
 
       {/* Main Content */}
       <main style={{ 
-        display: isMobileView ? 'block' : 'flex', 
-        padding: isMobileView ? '0.5rem' : '1rem', 
-        gap: '1rem' 
+        padding: isMobileView ? '0.5rem' : '1rem'
       }}>
-        {/* Left Panel: Vacancies List */}
-        <aside style={{ 
-          flex: '1', 
-          maxWidth: isMobileView ? '100%' : '350px',
-          marginBottom: isMobileView ? '1rem' : '0'
+        {/* Section Title */}
+        <div style={{ 
+          marginBottom: '1.5rem',
+          padding: isMobileView ? '1rem' : '1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
         }}>
-          <div style={{ marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <input 
-              type="text" 
-              placeholder="Search vacancies..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}}
-            />
-            <select 
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}}
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Closed">Closed</option>
-            </select>
-          </div>
-          
-          <h2 style={{ color: colors.black, borderBottom: `2px solid ${colors.primary}`, paddingBottom: '0.5rem', fontSize: isMobileView ? '1rem' : '1.1rem' }}>Vacancies</h2>
-          {filteredVacancies.length > 0 ? (
-            filteredVacancies.map(v => {
-              const appCount = getApplicationsForVacancy(v.id).length;
-              return (
-                <div 
-                  key={v.id} 
-                  onClick={() => setSelectedVacancy(v)} 
-                  style={{ 
-                    ...styles.vacancyCard, 
-                    backgroundColor: selectedVacancy?.id === v.id ? colors.primary : colors.white, 
-                    color: selectedVacancy?.id === v.id ? colors.white : colors.black,
-                    padding: isMobileView ? '0.75rem' : '0.75rem',
-                    marginBottom: '0.5rem'
-                  }}
-                >
-                  <h3 style={{ margin: '0 0 0.25rem', fontSize: isMobileView ? '0.9rem' : '0.95rem' }}>{v.title}</h3>
-                  <p style={{ margin: '0 0 0.1rem', fontSize: isMobileView ? '0.75rem' : '0.8rem', color: selectedVacancy?.id === v.id ? colors.white : colors.gray }}>
-                    {v.department} • {v.location}
-                  </p>
-                  <p style={{ margin: 0, fontSize: isMobileView ? '0.75rem' : '0.8rem', color: selectedVacancy?.id === v.id ? colors.white : colors.gray }}>
-                    {appCount} Applications • {v.status}
-                  </p>
+          <h2 style={{ 
+            color: colors.primary, 
+            margin: 0, 
+            fontSize: isMobileView ? '1.2rem' : '1.5rem',
+            fontWeight: 'bold',
+            textAlign: 'center'
+          }}>
+            Vacancies
+          </h2>
+        </div>
+
+        {/* Search and Filter */}
+        <div style={{ 
+          marginBottom: '1rem', 
+          display: 'flex', 
+          gap: '1rem',
+          flexDirection: isMobileView ? 'column' : 'row'
+        }}>
+          <input 
+            type="text" 
+            placeholder="Search vacancies..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              ...styles.input(colors.lightGray),
+              flex: 1,
+              padding: isMobileView ? '0.75rem' : '0.75rem',
+              fontSize: isMobileView ? '0.9rem' : '1rem'
+            }}
+          />
+          <select 
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{
+              ...styles.input(colors.lightGray),
+              width: isMobileView ? '100%' : '200px',
+              padding: isMobileView ? '0.75rem' : '0.75rem',
+              fontSize: isMobileView ? '0.9rem' : '1rem'
+            }}
+          >
+            <option value="All">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+
+        {/* Vacancies Table/List */}
+        <div style={{ 
+          borderRadius: '8px', 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+          overflow: 'hidden'
+        }}>
+          {isMobileView ? (
+            // Mobile Card View
+            <div style={{ padding: '1rem' }}>
+              {filteredVacancies.length > 0 ? (
+                filteredVacancies.map(v => {
+                  const appCount = getApplicationsForVacancy(v.id).length;
+                  return (
+                    <div key={v.id} style={{ 
+                      border: `1px solid ${colors.lightGray}`, 
+                      borderRadius: '8px', 
+                      padding: '1rem', 
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{ marginBottom: '0.75rem' }}>
+                        <h3 style={{ 
+                          margin: 0, 
+                          color: colors.primary, 
+                          fontSize: '1.1rem',
+                          fontWeight: 'bold'
+                        }}>
+                          {v.title}
+                        </h3>
+                        <p style={{ 
+                          margin: '0.25rem 0 0', 
+                          color: colors.gray, 
+                          fontSize: '0.9rem' 
+                        }}>
+                          {v.employer}
+                        </p>
+                      </div>
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        marginBottom: '0.75rem'
+                      }}>
+                        <span style={{ 
+                          fontSize: '0.9rem', 
+                          color: colors.gray 
+                        }}>
+                          {appCount} Applicants
+                        </span>
+                        <span style={{ 
+                          padding: '0.25rem 0.75rem', 
+                          borderRadius: '20px', 
+                          fontSize: '0.8rem', 
+                          fontWeight: 'bold',
+                          backgroundColor: v.status === 'Active' ? '#e8f5e9' : '#f3f3f3', 
+                          color: v.status === 'Active' ? colors.success : colors.gray 
+                        }}>
+                          {v.status}
+                        </span>
+                      </div>
+                      <button 
+                        onClick={() => openModal('addJobSeeker', v)}
+                        style={styles.button(colors.primary, colors.white, 'small')}
+                      >
+                        + Add Job Seeker
+                      </button>
+                    </div>
+                  )
+                })
+              ) : (
+                <div style={{ padding: '2rem', textAlign: 'center', color: colors.gray }}>
+                  No vacancies found matching your criteria.
                 </div>
-              )
-            })
-          ) : (
-            <div style={{ padding: '0.75rem', textAlign: 'center', color: colors.gray, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}>
-              No vacancies found matching your criteria.
+              )}
             </div>
-          )}
-        </aside>
-
-        {/* Right Panel: Vacancy Details & Actions */}
-        <section style={{ flex: '2' }}>
-          {selectedVacancy ? (
-            <div style={{ backgroundColor: colors.white, padding: isMobileView ? '0.75rem' : '1rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: isMobileView ? 'column' : 'row' }}>
-                <div style={{ flex: 1, marginBottom: isMobileView ? '1rem' : '0' }}>
-                  <h2 style={{ color: colors.primary, marginTop: 0, fontSize: isMobileView ? '1.1rem' : '1.3rem' }}>{selectedVacancy.title}</h2>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobileView ? '0.5rem' : '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ margin: 0, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Department:</strong> {selectedVacancy.department}</p>
-                    <p style={{ margin: 0, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Location:</strong> {selectedVacancy.location}</p>
-                    <p style={{ margin: 0, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Salary:</strong> {selectedVacancy.salary}</p>
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobileView ? '0.5rem' : '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ margin: 0, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Posted:</strong> {selectedVacancy.postedDate}</p>
-                    <p style={{ margin: 0, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Status:</strong> <span style={{ color: selectedVacancy.status === 'Active' ? colors.success : colors.gray }}>{selectedVacancy.status}</span></p>
-                  </div>
-                </div>
-                <div>
-                  <span style={{ 
-                    padding: '0.2rem 0.5rem', 
-                    borderRadius: '20px', 
-                    fontSize: isMobileView ? '0.7rem' : '0.75rem', 
-                    backgroundColor: selectedVacancy.status === 'Active' ? '#e8f5e9' : '#f3f3f3', 
-                    color: selectedVacancy.status === 'Active' ? colors.success : colors.gray 
-                  }}>
-                    {selectedVacancy.status}
-                  </span>
-                </div>
-              </div>
-              
-              <div style={{ marginTop: '0.75rem' }}>
-                <h3 style={{ margin: '0 0 0.25rem', fontSize: isMobileView ? '0.9rem' : '1rem' }}>Job Description</h3>
-                <p style={{ margin: 0, lineHeight: '1.4', fontSize: isMobileView ? '0.8rem' : '0.85rem' }}>{selectedVacancy.description}</p>
-              </div>
-              
-              <div style={{ marginTop: '1rem', display: 'flex', gap: '10px' }}>
-                <button onClick={() => openModal('addJobSeeker', selectedVacancy)} style={styles.button(colors.primary, colors.white, 'small')}>+ Add Job Seeker</button>
-              </div>
-
-              <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ borderBottom: `1px solid ${colors.lightGray}`, paddingBottom: '0.5rem', fontSize: isMobileView ? '0.9rem' : '1rem' }}>Applications</h3>
-                {getApplicationsForVacancy(selectedVacancy.id).length > 0 ? (
-                  isMobileView ? (
-                    // Mobile card view for applications
-                    <div style={{ marginTop: '0.75rem' }}>
-                      {getApplicationsForVacancy(selectedVacancy.id).map(app => {
-                        const seeker = getJobSeekerById(app.jobSeekerId);
-                        return (
-                          <div key={app.id} style={{ 
-                            border: `1px solid ${colors.lightGray}`, 
-                            borderRadius: '8px', 
-                            padding: '0.75rem', 
-                            marginBottom: '0.75rem',
-                            backgroundColor: colors.white
-                          }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                              <button 
-                                onClick={() => openModal('jobSeekerDetails', seeker)}
-                                style={{ background: 'none', border: 'none', color: colors.primary, cursor: 'pointer', textDecoration: 'underline', fontSize: '0.9rem', fontWeight: 'bold' }}
-                              >
-                                {seeker.name}
-                              </button>
-                              <button 
-                                onClick={() => openModal('jobSeekerDetails', seeker)}
-                                style={{ background: 'none', border: 'none', color: colors.primary, cursor: 'pointer', fontSize: '0.8rem' }}
-                              >
-                                View
-                              </button>
-                            </div>
-                            <div style={{ fontSize: '0.8rem', color: colors.gray, marginBottom: '0.5rem' }}>
-                              Date: {app.date}
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                              <span style={{ fontSize: '0.8rem', marginRight: '0.5rem' }}>Status:</span>
-                              <select 
-                                value={app.status} 
-                                onChange={(e) => handleUpdateApplicationStatus(app.id, e.target.value)}
-                                style={{ padding: '0.2rem', borderRadius: '4px', border: `1px solid ${colors.lightGray}`, fontSize: '0.8rem' }}
-                              >
-                                <option value="Applied">Applied</option>
-                                <option value="Shortlisted">Shortlisted</option>
-                                <option value="Interview">Interview</option>
-                                <option value="Offered">Offered</option>
-                                <option value="Rejected">Rejected</option>
-                              </select>
+          ) : (
+            // Desktop Table View
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: colors.primary, color: colors.white }}>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Employer</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Job Title</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Applicants</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Status</th>
+                  <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 'bold' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredVacancies.length > 0 ? (
+                  filteredVacancies.map(v => {
+                    const appCount = getApplicationsForVacancy(v.id).length;
+                    return (
+                      <tr key={v.id} style={{ borderBottom: `1px solid ${colors.lightGray}` }}>
+                        <td style={{ padding: '1rem', color: colors.black }}>{v.employer}</td>
+                        <td style={{ padding: '1rem' }}>
+                          <div>
+                            <strong style={{ color: colors.primary }}>{v.title}</strong>
+                            <div style={{ fontSize: '0.85rem', color: colors.gray, marginTop: '0.25rem' }}>
+                              {v.location} • {v.salary}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    // Desktop table view for applications
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '0.75rem', fontSize: '0.85rem' }}>
-                      <thead>
-                        <tr style={{ borderBottom: `1px solid ${colors.lightGray}` }}>
-                          <th style={{ textAlign: 'left', padding: '0.4rem' }}>Name</th>
-                          <th style={{ textAlign: 'left', padding: '0.4rem' }}>Date</th>
-                          <th style={{ textAlign: 'left', padding: '0.4rem' }}>Status</th>
-                          <th style={{ textAlign: 'left', padding: '0.4rem' }}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {getApplicationsForVacancy(selectedVacancy.id).map(app => {
-                          const seeker = getJobSeekerById(app.jobSeekerId);
-                          return (
-                            <tr key={app.id} style={{ borderBottom: `1px solid ${colors.lightGray}` }}>
-                              <td style={{ padding: '0.4rem' }}>
-                                <button 
-                                  onClick={() => openModal('jobSeekerDetails', seeker)}
-                                  style={{ background: 'none', border: 'none', color: colors.primary, cursor: 'pointer', textDecoration: 'underline', fontSize: '0.85rem' }}
-                                >
-                                  {seeker.name}
-                                </button>
-                              </td>
-                              <td style={{ padding: '0.4rem' }}>{app.date}</td>
-                              <td style={{ padding: '0.4rem' }}>
-                                <select 
-                                  value={app.status} 
-                                  onChange={(e) => handleUpdateApplicationStatus(app.id, e.target.value)}
-                                  style={{ padding: '0.2rem', borderRadius: '4px', border: `1px solid ${colors.lightGray}`, fontSize: '0.8rem' }}
-                                >
-                                  <option value="Applied">Applied</option>
-                                  <option value="Shortlisted">Shortlisted</option>
-                                  <option value="Interview">Interview</option>
-                                  <option value="Offered">Offered</option>
-                                  <option value="Rejected">Rejected</option>
-                                </select>
-                              </td>
-                              <td style={{ padding: '0.4rem' }}>
-                                <button 
-                                  onClick={() => openModal('jobSeekerDetails', seeker)}
-                                  style={{ background: 'none', border: 'none', color: colors.primary, cursor: 'pointer', fontSize: '0.8rem' }}
-                                >
-                                  View
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  )
+                        </td>
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{ 
+                            padding: '0.25rem 0.75rem', 
+                            borderRadius: '20px', 
+                            fontSize: '0.9rem',
+                            backgroundColor: colors.lightGray,
+                            color: colors.black,
+                            fontWeight: 'bold'
+                          }}>
+                            {appCount}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{ 
+                            padding: '0.25rem 0.75rem', 
+                            borderRadius: '20px', 
+                            fontSize: '0.85rem', 
+                            fontWeight: 'bold',
+                            backgroundColor: v.status === 'Active' ? '#e8f5e9' : '#f3f3f3', 
+                            color: v.status === 'Active' ? colors.success : colors.gray 
+                          }}>
+                            {v.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1rem', textAlign: 'center' }}>
+                          <button 
+                            onClick={() => openModal('addJobSeeker', v)}
+                            style={styles.button(colors.primary, colors.white, 'small')}
+                          >
+                            + Add Job Seeker
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })
                 ) : (
-                  <p style={{ color: colors.gray, fontSize: isMobileView ? '0.8rem' : '0.85rem' }}>No applications yet for this vacancy.</p>
+                  <tr>
+                    <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: colors.gray }}>
+                      No vacancies found matching your criteria.
+                    </td>
+                  </tr>
                 )}
-              </div>
-            </div>
-          ) : (
-            <div style={{ ...styles.placeholder, backgroundColor: colors.white, padding: isMobileView ? '1rem' : '2rem' }}>
-              <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem' }}>Welcome to Job Portal</h2>
-              <p style={{ fontSize: isMobileView ? '0.85rem' : '0.9rem' }}>Please select a vacancy from list to view details and manage applicants.</p>
-            </div>
+              </tbody>
+            </table>
           )}
-        </section>
+        </div>
       </main>
 
       {/* Modals */}
@@ -474,8 +459,8 @@ export default function JobPortal() {
           <div style={{
             ...styles.modalBox(colors.white),
             width: isMobileView ? '95%' : '70%',
-            maxWidth: isMobileView ? '95%' : '500px',
-            maxHeight: isMobileView ? '90vh' : '70vh',
+            maxWidth: isMobileView ? '95%' : '600px',
+            maxHeight: isMobileView ? '90vh' : '80vh',
             padding: isMobileView ? '1rem' : '1.5rem'
           }} onClick={(e) => e.stopPropagation()}>
             <button onClick={closeModal} style={styles.closeButton}>×</button>
@@ -483,14 +468,15 @@ export default function JobPortal() {
             {/* Add Vacancy Modal */}
             {modalType === 'addVacancy' && (
               <>
-                <h2 style={{ fontSize: isMobileView ? '1rem' : '1.1rem' }}>Add New Vacancy</h2>
+                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>Add New Vacancy</h2>
                 <form onSubmit={handleAddVacancy}>
-                  <input name="title" placeholder="Job Title" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="department" placeholder="Department" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="location" placeholder="Location" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="salary" placeholder="Salary Range (e.g., ₹8-12 LPA)" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <textarea name="description" placeholder="Job Description" rows="3" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
+                  <input name="employer" placeholder="Employer Name" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="title" placeholder="Job Title" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="department" placeholder="Department" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="location" placeholder="Location" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="salary" placeholder="Salary Range (e.g., ₹8-12 LPA)" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <textarea name="description" placeholder="Job Description" rows="3" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
                     <button type="button" onClick={closeModal} style={{...styles.button(colors.lightGray, colors.black, 'small'), background: colors.lightGray}}>Cancel</button>
                     <button type="submit" style={styles.button(colors.primary, colors.white, 'small')}>Create</button>
                   </div>
@@ -501,73 +487,45 @@ export default function JobPortal() {
             {/* Add Job Seeker Modal */}
             {modalType === 'addJobSeeker' && (
               <>
-                <h2 style={{ fontSize: isMobileView ? '1rem' : '1.1rem' }}>Add New Job Seeker</h2>
+                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>
+                  Add Job Seeker to {selectedVacancy?.title}
+                </h2>
                 <form onSubmit={handleAddJobSeeker}>
-                  <input name="name" placeholder="Full Name" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="email" type="email" placeholder="Email Address" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="phone" placeholder="Phone Number" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="education" placeholder="Education" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="currentCompany" placeholder="Current Company" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="experience" placeholder="Experience (e.g., 3 years)" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <input name="skills" placeholder="Key Skills (e.g., React, HR, PMP)" required style={{...styles.input(colors.lightGray), padding: isMobileView ? '0.5rem' : '0.5rem', fontSize: isMobileView ? '0.85rem' : '0.85rem'}} />
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
+                  <input name="name" placeholder="Full Name" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="email" type="email" placeholder="Email Address" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="phone" placeholder="Phone Number" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="education" placeholder="Education" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="currentCompany" placeholder="Current Company" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="experience" placeholder="Experience (e.g., 3 years)" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <input name="skills" placeholder="Key Skills (e.g., React, HR, PMP)" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
                     <button type="button" onClick={closeModal} style={{...styles.button(colors.lightGray, colors.black, 'small'), background: colors.lightGray}}>Cancel</button>
-                    <button type="submit" style={styles.button(colors.primary, colors.white, 'small')}>Add</button>
+                    <button type="submit" style={styles.button(colors.primary, colors.white, 'small')}>Add Job Seeker</button>
                   </div>
                 </form>
-              </>
-            )}
-
-            {/* Add Job Seeker to Vacancy Modal */}
-            {modalType === 'addJobSeeker' && selectedVacancy && (
-              <>
-                <h2 style={{ fontSize: isMobileView ? '1rem' : '1.1rem' }}>Add Job Seeker to Vacancy</h2>
-                <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}>Select a job seeker to add to <strong>{selectedVacancy.title}</strong></p>
-                {jobSeekers.filter(js => !applications.some(app => app.vacancyId === selectedVacancy.id && app.jobSeekerId === js.id)).length > 0 ? (
-                  jobSeekers.filter(js => !applications.some(app => app.vacancyId === selectedVacancy.id && app.jobSeekerId === js.id)).map(js => (
-                    <div key={js.id} style={{
-                      ...styles.jobSeekerCard,
-                      padding: isMobileView ? '0.5rem' : '0.75rem',
-                      marginTop: '0.75rem'
-                    }}>
-                      <div>
-                        <strong style={{ fontSize: isMobileView ? '0.85rem' : '0.9rem' }}>{js.name}</strong>
-                        <div style={{ fontSize: isMobileView ? '0.75rem' : '0.8rem', color: colors.gray }}>
-                          {js.skills} • {js.experience}
-                        </div>
-                      </div>
-                      <button onClick={() => handleAddJobSeekerToVacancy(js.id)} style={styles.button(colors.primary, colors.white, 'small')}>Add</button>
-                    </div>
-                  ))
-                ) : (
-                  <p style={{ color: colors.gray, margin: '1rem 0', fontSize: isMobileView ? '0.8rem' : '0.85rem' }}>All job seekers have already been added to this vacancy.</p>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
-                  <button onClick={closeModal} style={{...styles.button(colors.lightGray, colors.black, 'small'), background: colors.lightGray}}>Cancel</button>
-                </div>
               </>
             )}
 
             {/* Job Seeker Details Modal */}
             {modalType === 'jobSeekerDetails' && selectedJobSeeker && (
               <>
-                <h2 style={{ fontSize: isMobileView ? '1rem' : '1.1rem' }}>Job Seeker Details</h2>
+                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>Job Seeker Details</h2>
                 <div style={{ display: isMobileView ? 'block' : 'flex', gap: '20px' }}>
                   <div style={{ flex: 1, marginBottom: isMobileView ? '1rem' : '0' }}>
-                    <h4 style={{ color: colors.primary, fontSize: isMobileView ? '0.9rem' : '0.95rem' }}>Personal Information</h4>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Name:</strong> {selectedJobSeeker.name}</p>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Email:</strong> {selectedJobSeeker.email}</p>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Phone:</strong> {selectedJobSeeker.phone}</p>
+                    <h4 style={{ color: colors.primary, fontSize: isMobileView ? '0.95rem' : '1rem' }}>Personal Information</h4>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Name:</strong> {selectedJobSeeker.name}</p>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Email:</strong> {selectedJobSeeker.email}</p>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Phone:</strong> {selectedJobSeeker.phone}</p>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: colors.primary, fontSize: isMobileView ? '0.9rem' : '0.95rem' }}>Professional Information</h4>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Education:</strong> {selectedJobSeeker.education}</p>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Current Company:</strong> {selectedJobSeeker.currentCompany}</p>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Experience:</strong> {selectedJobSeeker.experience}</p>
-                    <p style={{ fontSize: isMobileView ? '0.8rem' : '0.85rem' }}><strong>Skills:</strong> {selectedJobSeeker.skills}</p>
+                    <h4 style={{ color: colors.primary, fontSize: isMobileView ? '0.95rem' : '1rem' }}>Professional Information</h4>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Education:</strong> {selectedJobSeeker.education}</p>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Current Company:</strong> {selectedJobSeeker.currentCompany}</p>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Experience:</strong> {selectedJobSeeker.experience}</p>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Skills:</strong> {selectedJobSeeker.skills}</p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
                   <button onClick={closeModal} style={styles.button(colors.primary, colors.white, 'small')}>Close</button>
                 </div>
               </>
@@ -585,34 +543,22 @@ const styles = {
     backgroundColor: bg,
     color: color,
     border: 'none',
-    padding: size === 'small' ? '6px 12px' : '10px 20px',
+    padding: size === 'small' ? '8px 16px' : '10px 20px',
     borderRadius: '5px',
     cursor: 'pointer',
     fontWeight: 'bold',
     transition: 'background-color 0.3s',
-    fontSize: size === 'small' ? '0.85rem' : '1rem',
+    fontSize: size === 'small' ? '0.9rem' : '1rem',
   }),
-  vacancyCard: {
-    border: `1px solid #E0E0E0`,
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-  },
-  jobSeekerCard: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    border: `1px solid #E0E0E0`,
-    borderRadius: '8px',
-    padding: '0.75rem',
-    marginTop: '0.75rem',
-  },
-  placeholder: {
-    padding: '2rem',
-    textAlign: 'center',
-    borderRadius: '8px',
-    color: '#757575'
-  },
+  input: (borderColor) => ({
+    width: '100%',
+    padding: '12px',
+    margin: '8px 0',
+    border: `1px solid ${borderColor}`,
+    borderRadius: '5px',
+    boxSizing: 'border-box',
+    fontSize: '1rem',
+  }),
   modalOverlay: {
     position: 'fixed',
     top: 0,
@@ -630,8 +576,8 @@ const styles = {
     padding: '1.5rem',
     borderRadius: '10px',
     width: '70%',
-    maxWidth: '500px',
-    maxHeight: '70vh',
+    maxWidth: '600px',
+    maxHeight: '80vh',
     overflowY: 'auto',
     position: 'relative',
     boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
@@ -642,16 +588,8 @@ const styles = {
     right: '15px',
     background: 'none',
     border: 'none',
-    fontSize: '20px',
+    fontSize: '24px',
     cursor: 'pointer',
     color: '#757575',
   },
-  input: (borderColor) => ({
-    width: '100%',
-    padding: '8px',
-    margin: '8px 0',
-    border: `1px solid ${borderColor}`,
-    borderRadius: '5px',
-    boxSizing: 'border-box',
-  })
 };
