@@ -630,25 +630,7 @@ const JobApplication = () => {
                   style={{ fontSize: '12px' }}
                 />
               </div>
-              <Dropdown>
-                <Dropdown.Toggle 
-                  variant="outline-secondary" 
-                  id="dropdown-actions"
-                  style={{ fontSize: '12px' }}
-                >
-                  <FaEllipsisV />
-                </Dropdown.Toggle>
-                <Dropdown.Menu align="end">
-                  <Dropdown.Item onClick={() => navigate('/Employee/profile')}>
-                    <FaUserTie className="me-2" />
-                    Update Resume
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate('/Employee/saved-jobs')}>
-                    <FaBriefcase className="me-2" />
-                    Saved Jobs
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
+              
             </div>
           </div>
         </div>

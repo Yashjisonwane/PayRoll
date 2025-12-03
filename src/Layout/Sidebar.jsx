@@ -64,7 +64,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       {
         name: "Employers",
         icon: faUsers,
-        path: "/Admin/assign-credit",
+        path: "/Admin/EmployerList",
       },
       {
         name: "Job Portal",

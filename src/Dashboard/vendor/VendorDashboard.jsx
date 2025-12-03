@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from "react";
 
-// --- Your Defined Color Palette ---
+// --- Red Color Palette ---
 const colors = {
-  primary: "#C62828",      // Buttons, highlights
-  primaryDark: "#B71C1C",  // Logo accent, hover states
+  primary: "#C62828",      // Main red color
+  primaryDark: "#B71C1C",  // Darker red for hover states
+  secondary: "#FF5252",     // Lighter red for accents
   white: "#FFFFFF",        // Backgrounds
   black: "#000000",        // Main text
   grayDark: "#4A4A4A",     // Secondary text
-  grayBorder: "#E2E2E2",   // Borders
-  // grayLight: "#FAFAFA",    // Table head background
+  gray: "#757575",         // Tertiary text
+  grayLight: "#F5F5F5",    // Light backgrounds
+  grayBorder: "#E0E0E0",   // Borders
+  success: "#4CAF50",      // Success states
+  warning: "#FF9800",      // Warning states
+  danger: "#F44336",       // Danger states
 };
 
 const VendorDashboard = () => {
@@ -28,41 +33,59 @@ const VendorDashboard = () => {
     marginTop: isMobile ? 32 : 40,
     fontSize: isMobile ? 18 : 20,
     fontWeight: 700,
-    color: colors.black,
+    color: colors.primary,
     marginBottom: isMobile ? 12 : 16,
+    display: "flex",
+    alignItems: "center",
   };
 
   const cardContainerStyle = {
     background: colors.white,
     borderRadius: 12,
     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-    overflow: "hidden", // Ensures content respects the border radius
+    overflow: "hidden",
+    transition: "all 0.3s ease",
   };
 
   const tableHeaderStyle = {
-    // background: colors.grayLight,
+    background: colors.grayLight,
     color: colors.grayDark,
     fontWeight: 600,
     fontSize: 13,
-    padding: "14px 16px",
+    padding: "16px 20px",
     textAlign: "left",
     borderBottom: `1px solid ${colors.grayBorder}`,
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
   };
 
   const tableCellStyle = {
     color: colors.black,
     fontSize: 14,
-    padding: "14px 16px",
+    padding: "16px 20px",
     borderBottom: `1px solid ${colors.grayBorder}`,
   };
+
+  const statusBadgeStyle = (status) => ({
+    display: "inline-block",
+    padding: "4px 10px",
+    borderRadius: 20,
+    fontSize: 12,
+    fontWeight: 600,
+    textAlign: "center",
+    backgroundColor: 
+      status === "Completed" ? colors.success :
+      status === "Pending" ? colors.warning : colors.gray,
+    color: colors.white,
+  });
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        // backgroundColor: '#F5F7FA', // A light background for the whole page
+        // Removed background color here
         padding: isMobile ? "20px" : "30px 40px",
-        fontFamily: "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+        fontFamily: "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
       }}
     >
       {/* Header */}
@@ -71,7 +94,7 @@ const VendorDashboard = () => {
           style={{
             fontSize: isMobile ? 26 : 32,
             margin: 0,
-            color: colors.black,
+            color: colors.primary,
             fontWeight: 700,
           }}
         >
@@ -91,38 +114,43 @@ const VendorDashboard = () => {
         }}
       >
         {[
-          { title: "Total Revenue", value: "₹0", icon: "💰" },
-          { title: "Pending Payments", value: "₹0", icon: "⏳" },
-          { title: "Total Orders", value: "0", icon: "📦" },
-          { title: "Avg. Order Value", value: "₹0", icon: "📈" },
+          { title: "Total Revenue", value: "₹0", color: colors.primary },
+          { title: "Pending Payments", value: "₹0", color: colors.danger },
+          { title: "Total Orders", value: "0", color: colors.secondary },
+          { title: "Avg. Order Value", value: "₹0", color: colors.primaryDark },
         ].map((card, index) => (
           <div
             key={index}
             style={{
               ...cardContainerStyle,
               padding: isMobile ? "20px" : "24px",
-              transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-              cursor: "pointer"
+              borderLeft: `4px solid ${card.color}`,
             }}
             onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
+              e.currentTarget.style.transform = 'translateY(-5px)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
             }}
             onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
             }}
           >
-            <p style={{ color: colors.grayDark, fontSize: 14, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px' }}>{card.icon}</span>
-                {card.title}
+            <p style={{ 
+              color: colors.gray, 
+              fontSize: 14, 
+              margin: 0, 
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              fontWeight: 500
+            }}>
+              {card.title}
             </p>
             <h3
               style={{
-                margin: "8px 0 0",
+                margin: "12px 0 0",
                 fontSize: isMobile ? 24 : 28,
                 fontWeight: 700,
-                color: colors.primary,
+                color: card.color,
               }}
             >
               {card.value}
@@ -142,15 +170,18 @@ const VendorDashboard = () => {
             ["2023-11-13", "Client C", "₹7,200", "Pending", "INV-003"],
           ].map((row, i) => (
             <div key={i} style={cardContainerStyle}>
-              <div style={{ padding: "16px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: 600, color: colors.black }}>{row[1]}</span>
+              <div style={{ padding: "20px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontWeight: 600, color: colors.primary, fontSize: 16 }}>{row[1]}</span>
                     <span style={{ fontSize: 18, fontWeight: 700, color: colors.primary }}>{row[2]}</span>
                 </div>
-                <div style={{ fontSize: 13, color: colors.grayDark }}>
-                  <p style={{ margin: '4px 0' }}><strong>Date:</strong> {row[0]}</p>
-                  <p style={{ margin: '4px 0' }}><strong>Invoice:</strong> {row[4]}</p>
-                  <p style={{ margin: '4px 0' }}><strong>Status:</strong> <span style={{ color: row[3] === 'Pending' ? colors.primary : colors.black, fontWeight: '600' }}>{row[3]}</span></p>
+                <div style={{ fontSize: 14, color: colors.grayDark }}>
+                  <p style={{ margin: '6px 0' }}><strong>Date:</strong> {row[0]}</p>
+                  <p style={{ margin: '6px 0' }}><strong>Invoice:</strong> {row[4]}</p>
+                  <div style={{ margin: '6px 0', display: 'flex', alignItems: 'center' }}>
+                    <strong style={{ marginRight: 8 }}>Status:</strong>
+                    <span style={statusBadgeStyle(row[3])}>{row[3]}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -175,12 +206,17 @@ const VendorDashboard = () => {
                 ["2023-11-14", "Client B", "₹3,500", "Completed", "INV-002"],
                 ["2023-11-13", "Client C", "₹7,200", "Pending", "INV-003"],
               ].map((row, i) => (
-                <tr key={i} style={{transition: 'background-color 0.2s ease'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.grayLight} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.white}>
+                <tr 
+                  key={i} 
+                  style={{transition: 'background-color 0.2s ease'}} 
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.grayLight} 
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.white}
+                >
                   <td style={tableCellStyle}>{row[0]}</td>
                   <td style={{...tableCellStyle, fontWeight: 600}}>{row[1]}</td>
                   <td style={{...tableCellStyle, fontWeight: 700, color: colors.primary}}>{row[2]}</td>
                   <td style={tableCellStyle}>
-                    <span style={{ color: row[3] === 'Pending' ? colors.primary : colors.black, fontWeight: 600 }}>
+                    <span style={statusBadgeStyle(row[3])}>
                       {row[3]}
                     </span>
                   </td>
@@ -202,14 +238,14 @@ const VendorDashboard = () => {
             ["INV-004", "Client D", "₹4,500", "2023-11-22"],
           ].map((row, i) => (
             <div key={i} style={cardContainerStyle}>
-              <div style={{ padding: "16px" }}>
-                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: 600, color: colors.black }}>{row[1]}</span>
+              <div style={{ padding: "20px" }}>
+                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontWeight: 600, color: colors.primary, fontSize: 16 }}>{row[1]}</span>
                     <span style={{ fontSize: 18, fontWeight: 700, color: colors.primary }}>{row[2]}</span>
                 </div>
-                <div style={{ fontSize: 13, color: colors.grayDark }}>
-                  <p style={{ margin: '4px 0' }}><strong>Invoice #:</strong> {row[0]}</p>
-                  <p style={{ margin: '4px 0' }}><strong>Due Date:</strong> {row[3]}</p>
+                <div style={{ fontSize: 14, color: colors.grayDark }}>
+                  <p style={{ margin: '6px 0' }}><strong>Invoice #:</strong> {row[0]}</p>
+                  <p style={{ margin: '6px 0' }}><strong>Due Date:</strong> {row[3]}</p>
                 </div>
               </div>
             </div>
@@ -233,7 +269,12 @@ const VendorDashboard = () => {
                 ["INV-003", "Client C", "₹7,200", "2023-11-20"],
                 ["INV-004", "Client D", "₹4,500", "2023-11-22"],
               ].map((row, i) => (
-                <tr key={i} style={{transition: 'background-color 0.2s ease'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.grayLight} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.white}>
+                <tr 
+                  key={i} 
+                  style={{transition: 'background-color 0.2s ease'}} 
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.grayLight} 
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.white}
+                >
                   <td style={{...tableCellStyle, fontWeight: 600}}>{row[0]}</td>
                   <td style={tableCellStyle}>{row[1]}</td>
                   <td style={{...tableCellStyle, fontWeight: 700, color: colors.primary}}>{row[2]}</td>
