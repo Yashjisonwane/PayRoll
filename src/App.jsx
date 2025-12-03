@@ -16,7 +16,7 @@ import AdminDashboard from "./Dashboard/Admin/AdminDashboard";
 import AddCredit from "./Dashboard/Admin/AddCredit";
 import AllTransactions from "./Dashboard/Admin/AllTransactions";
 // import AssignCredit from "./Dashboard/Admin/AssignCredit";
-import AssignCredit from "./Dashboard/Admin/AssignCredit";
+import EmployerList from "./Dashboard/Admin/EmployerList";
 import JobPortal from "./Dashboard/Admin/JobPortal";
 import BillCompanies from "./Dashboard/Admin/BillCompanies";
 
@@ -96,7 +96,7 @@ function App() {
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/AddCredit" element={<AddCredit />} />
                 <Route path="/admin/transactions" element={<AllTransactions />} />
-                <Route path="/admin/assign-credit" element={<AssignCredit />} />
+                <Route path="/admin/EmployerList" element={<EmployerList />} />
                 <Route path="/admin/job-portal" element={<JobPortal />} />
                 <Route path="/admin/bill-companies" element={<BillCompanies />} />
 
