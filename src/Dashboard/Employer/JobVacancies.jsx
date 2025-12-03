@@ -177,6 +177,15 @@ const JobVacancies = () => {
     return jobPostings.find(job => job.id === id);
   };
 
+  // Check if a job is expired based on expiry date
+  const isJobExpired = (expiryDate) => {
+    if (!expiryDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set time to beginning of day
+    const expiry = new Date(expiryDate);
+    return expiry < today;
+  };
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -192,11 +201,14 @@ const JobVacancies = () => {
       return;
     }
 
+    // Determine status based on expiry date
+    const jobStatus = isJobExpired(newJob.expiryDate) ? "Closed" : "Active";
+
     const jobToAdd = {
       id: editingJob ? editingJob.id : Date.now(),
       ...newJob,
       postedDate: editingJob ? editingJob.postedDate : new Date().toISOString().split('T')[0],
-      status: "Active",
+      status: jobStatus, // Use the calculated status based on expiry date
       applicants: editingJob ? editingJob.applicants : 0,
       views: editingJob ? editingJob.views : 0
     };
@@ -780,6 +792,12 @@ const JobVacancies = () => {
                   value={newJob.expiryDate}
                   onChange={handleInputChange}
                 />
+                {newJob.expiryDate && isJobExpired(newJob.expiryDate) && (
+                  <div className="form-text text-warning">
+                    <FaClock className="me-1" />
+                    This job will be marked as "Closed" because the expiry date is in the past.
+                  </div>
+                )}
               </div>
               <div className="mb-3">
                 <label className="form-label" style={{ color: "#4A4A4A" }}>Job Description</label>
