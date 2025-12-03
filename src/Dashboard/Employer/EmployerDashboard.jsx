@@ -316,7 +316,7 @@ const EmployeeDashboard = () => {
   );
 
   return (
-    <div className="container-fluid p-2 p-md-4" style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
+    <div className="container-fluid p-2 p-md-4" style={{ minHeight: "100vh"}}>
       <div className="row">
         <div className="col-12">
           <h2 className="fw-bold mb-3 mb-md-4" style={{ color: "#C62828", fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>Employee Dashboard</h2>

@@ -120,7 +120,7 @@ const MyCredits = () => {
   };
 
   return (
-    <div className="container-fluid p-3 p-md-4" style={{ minHeight: "100vh", backgroundColor: '#f8f9fa' }}>
+    <div className="container-fluid p-3 p-md-4" style={{ minHeight: "100vh" }}>
       {/* Header Section */}
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
         <h2 className="fw-bold mb-3 mb-md-0" style={{ color: "#C62828" }}>My Credits</h2>
