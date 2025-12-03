@@ -64,7 +64,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       {
         name: "Employers",
         icon: faUsers,
-        path: "/Admin/employers",
+        path: "/Admin/assign-credit",
       },
       {
         name: "Job Portal",
@@ -150,15 +150,15 @@ EMPLOYER: [
         icon: faBriefcase,
         path: "/job-portal/job-list",
       },
-      {
-        name: "Submit Resume",
-        icon: faFileInvoiceDollar,
-        path: "/job-portal/submit-resume",
-      },
+      // {
+      //   name: "Submit Resume",
+      //   icon: faFileInvoiceDollar,
+      //   path: "/job-portal/submit-resume",
+      // },
       {
         name: "Apply For Jobs",
         icon: faUsers,
-        path: "/job-portal/apply",
+        path: "/job-portal/apply/:jobId",
       }
     ],
 

@@ -132,7 +132,7 @@ function App() {
 
                 {/* Job Portal */}
                 <Route path="/job-portal/dashboard" element={<JobDashboard />} />
-                <Route path="/job-portal/apply" element={<Apply />} />
+                <Route path="/job-portal/apply/:jobId" element={<Apply />} />
                 <Route path="/job-portal/job-list" element={<JobList />} />
                 <Route path="/job-portal/submit-resume" element={<SubmitResume />} />
 
