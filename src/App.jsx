@@ -23,10 +23,10 @@ import BillCompanies from "./Dashboard/Admin/BillCompanies";
 
 // Employer
 import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
-import CreditBalance from "./Dashboard/Employer/CreditBalance";
-import PayEmployee from "./Dashboard/Employer/PayEmployee";
+import CreditBalance from "./Dashboard/Employer/MyCredit";
+import PayEmployee from "./Dashboard/Employer/PaymentEmployer";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
-import AddEmployee from "./Dashboard/Employer/AddEmployee";
+import AddEmployee from "./Dashboard/Employer/JobVacancies";
 
 
 // Employee
@@ -100,13 +100,23 @@ function App() {
                
                 
 
-                {/* ---------------- EMPLOYER ---------------- */}
-                {/* EMPLOYER */}
+{/* ---------------- EMPLOYER ---------------- */}
+
+{/* Employer Dashboard */}
 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+
+{/* My Credits */}
 <Route path="/employer/credits/balance" element={<CreditBalance />} />
-<Route path="/employer/payment/employee" element={<PayEmployee />} />
+
+{/* Pay Employee */}
+<Route path="/employer/payment" element={<PayEmployee />} />
+
+{/* Employer Transactions */}
 <Route path="/employer/transactions" element={<EmployerTransactions />} />
-<Route path="/employer/AddEmployee" element={<AddEmployee />} />
+
+{/* Add Employee / Job Vacancies */}
+<Route path="/employer/job-vacancies" element={<AddEmployee />} />
+
 
 
 {/* Employee */}

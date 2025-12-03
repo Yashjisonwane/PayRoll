@@ -84,33 +84,34 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       },
     ],
 
-    EMPLOYER: [
-      {
-        name: "Dashboard",
-        icon: faChartBar,
-        path: "/employer/dashboard",
-      },
-      {
-        name: "Add Employee/Vendor",
-        icon: faWallet,
-        path: "/employer/AddEmployee",
-      },
-      {
-        name: "My Credits",
-        icon: faWallet,
-        path: "/employer/credits/balance",
-      },
-      {
-        name: "Pay Employee /Vendor",
-        icon: faHandHoldingUsd,
-        path: "/employer/payment/employee",
-      },
-      {
-        name: "Transactions",
-        icon: faList,
-        path: "/employer/transactions",
-      },
-    ],
+EMPLOYER: [
+  {
+    name: "Dashboard",
+    icon: faChartBar,
+    path: "/employer/dashboard",
+  },
+  {
+    name: "My Credits",
+    icon: faWallet,
+    path: "/employer/credits/balance",
+  },
+  {
+    name: "Job Vacancy",
+    icon: faWallet,
+    path: "/employer/job-vacancies",
+  },
+  {
+    name: "Payment",
+    icon: faHandHoldingUsd,
+    path: "/employer/payment",
+  },
+  {
+    name: "Transactions",
+    icon: faList,
+    path: "/employer/transactions",
+  },
+],
+
 
     EMPLOYEE: [
       {
