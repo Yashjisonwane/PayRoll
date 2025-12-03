@@ -7,9 +7,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, ArcElement,
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, ArcElement);
 
 const AdminDashboard = () => {
-  const [showAddCredit, setShowAddCredit] = useState(false);
-  const [showAssignCredit, setShowAssignCredit] = useState(false);
-  const [selectedEmployer, setSelectedEmployer] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Update isMobile state on window resize
@@ -152,17 +149,6 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* Add Credit Button */}
-      <div className="d-flex justify-content-end mb-4">
-        <button
-          onClick={() => setShowAddCredit(true)}
-          className="btn text-white fw-semibold"
-          style={{ background: "#C62828", borderRadius: "10px", fontSize: isMobile ? '0.875rem' : '1rem' }}
-        >
-          <FaPlus className="me-2" /> Add Credits
-        </button>
-      </div>
-
       {/* GRAPH SECTION */}
       <div className="row g-4 mb-4">
         <div className="col-12 col-lg-8">
@@ -202,16 +188,6 @@ const AdminDashboard = () => {
                   <div className="card-body p-3">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="fw-bold mb-0" style={{ color: "#C62828" }}>{emp.name}</h6>
-                      <button
-                        className="btn btn-sm text-white"
-                        style={{ background: "#C62828", borderRadius: "8px", fontSize: '0.75rem' }}
-                        onClick={() => {
-                          setSelectedEmployer(emp);
-                          setShowAssignCredit(true);
-                        }}
-                      >
-                        Assign Credit
-                      </button>
                     </div>
                     <div className="row g-2">
                       <div className="col-6">
@@ -246,7 +222,6 @@ const AdminDashboard = () => {
                     <th>Remaining Credits</th>
                     <th>Total Transactions</th>
                     <th>Last Payment</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -257,18 +232,6 @@ const AdminDashboard = () => {
                       <td>₹ {emp.remaining}</td>
                       <td>{emp.transactions}</td>
                       <td>{emp.lastPayment}</td>
-                      <td>
-                        <button
-                          className="btn btn-sm text-white"
-                          style={{ background: "#C62828", borderRadius: "8px" }}
-                          onClick={() => {
-                            setSelectedEmployer(emp);
-                            setShowAssignCredit(true);
-                          }}
-                        >
-                          Assign Credit
-                        </button>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -277,44 +240,8 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
-
-      {/* POPUP — Add Credits */}
-      {showAddCredit && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
-          style={{ background: "rgba(0,0,0,0.55)", zIndex: 1050 }}>
-          <div className="bg-white p-4 rounded shadow" style={{ width: isMobile ? '100%' : '420px', maxWidth: isMobile ? '100%' : '420px' }}>
-            <h5 className="fw-bold mb-4 text-center" style={{ color: "#C62828", fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Add Credits</h5>
-            <input className="form-control mb-3" placeholder="Amount" />
-            <input className="form-control mb-3" placeholder="Reference / Note" />
-            <input className="form-control mb-4" placeholder="Mode (Bank / Cash)" />
-            <button className="btn text-white w-100 mb-2" style={{ background: "#C62828" }}
-              onClick={() => { alert("Credits Added"); setShowAddCredit(false); }}>
-              Confirm
-            </button>
-            <button className="btn w-100" onClick={() => setShowAddCredit(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {/* POPUP — Assign Credits */}
-      {showAssignCredit && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
-          style={{ background: "rgba(0,0,0,0.55)", zIndex: 1050 }}>
-          <div className="bg-white p-4 rounded shadow" style={{ width: isMobile ? '100%' : '420px', maxWidth: isMobile ? '100%' : '420px' }}>
-            <h5 className="fw-bold mb-4 text-center" style={{ color: "#C62828", fontSize: isMobile ? '1.125rem' : '1.25rem' }}>
-              Assign Credits — {selectedEmployer?.name}
-            </h5>
-            <input className="form-control mb-3" placeholder="Amount to assign" />
-            <input className="form-control mb-4" placeholder="Reference (optional)" />
-            <button className="btn text-white w-100 mb-2" style={{ background: "#C62828" }}
-              onClick={() => { alert("Credit Assigned"); setShowAssignCredit(false); }}>
-              Assign
-            </button>
-            <button className="btn w-100" onClick={() => setShowAssignCredit(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
 export default AdminDashboard;
