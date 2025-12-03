@@ -22,8 +22,6 @@ import {
   FaClock,
   FaMapMarkerAlt,
   FaBuilding,
-  FaBookmark,
-  FaEllipsisV,
   FaCamera
 } from 'react-icons/fa';
 
@@ -137,29 +135,6 @@ const JobSeekerDashboard = () => {
     }
   ]);
 
-  const [savedJobs, setSavedJobs] = useState([
-    { 
-      id: 6, 
-      title: 'Backend Developer', 
-      company: 'ServerSide Tech',
-      location: 'Chennai, India',
-      salary: '₹9-13 LPA',
-      postedDate: '2023-07-05',
-      experience: '2-5 years',
-      jobType: 'Full-time'
-    },
-    { 
-      id: 7, 
-      title: 'Data Scientist', 
-      company: 'DataDriven Inc.',
-      location: 'Delhi, India',
-      salary: '₹15-20 LPA',
-      postedDate: '2023-07-04',
-      experience: '3-6 years',
-      jobType: 'Full-time'
-    }
-  ]);
-
   const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
@@ -232,21 +207,6 @@ const JobSeekerDashboard = () => {
     alert('Application deleted successfully!');
   };
 
-  const handleSaveJob = (job) => {
-    const isAlreadySaved = savedJobs.some(savedJob => savedJob.id === job.id);
-    if (isAlreadySaved) {
-      alert('This job is already saved!');
-    } else {
-      setSavedJobs([...savedJobs, job]);
-      alert('Job saved successfully!');
-    }
-  };
-
-  const handleUnsaveJob = (jobId) => {
-    setSavedJobs(savedJobs.filter(job => job.id !== jobId));
-    alert('Job removed from saved list!');
-  };
-
   const handleProfileSubmit = (e) => {
     e.preventDefault();
     setUserProfile({
@@ -266,7 +226,7 @@ const JobSeekerDashboard = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      // In a real app, you would upload the file to a server
+      // In a real app, you would upload file to a server
       // For this example, we'll create a local URL
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -407,108 +367,8 @@ const JobSeekerDashboard = () => {
     }
   };
 
-  // Responsive saved jobs table component
-  const ResponsiveSavedJobsTable = () => {
-    if (windowWidth < 768) {
-      // Mobile view - card layout
-      return (
-        <div className="saved-jobs-cards">
-          {savedJobs.map(job => (
-            <Card key={job.id} className="mb-2" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body className="p-2">
-                <div className="mb-1">
-                  <h5 style={{ fontSize: '12px', fontWeight: '600', margin: 0 }}>{job.title}</h5>
-                  <p style={{ fontSize: '10px', color: colors.darkGray, margin: 0 }}>{job.company}</p>
-                </div>
-                
-                <div className="mb-1">
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMapMarkerAlt className="me-1" size={10} color={colors.darkGray} />
-                    <span style={{ fontSize: '10px', color: colors.darkGray }}>{job.location}</span>
-                  </div>
-                  <div className="d-flex align-items-center">
-                    <FaClock className="me-1" size={10} color={colors.darkGray} />
-                    <span style={{ fontSize: '10px', color: colors.darkGray }}>Posted: {formatDate(job.postedDate)}</span>
-                  </div>
-                </div>
-                
-                <div className="d-flex justify-content-between mt-2">
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
-                    onClick={() => navigate('/JobSeeker/job-list')}
-                  >
-                    <FaBriefcase /> Apply
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
-                    onClick={() => handleUnsaveJob(job.id)}
-                  >
-                    <FaTrash /> Remove
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          ))}
-        </div>
-      );
-    } else {
-      // Desktop view - table layout
-      return (
-        <div className="table-responsive">
-          <Table hover className="align-middle" style={{ fontSize: '11px' }}>
-            <thead>
-              <tr>
-                <th>Job Title</th>
-                <th>Company</th>
-                <th>Location</th>
-                <th>Posted Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {savedJobs.map(job => (
-                <tr key={job.id}>
-                  <td style={{ fontWeight: '600', fontSize: '10px' }}>{job.title}</td>
-                  <td style={{ fontSize: '10px' }}>{job.company}</td>
-                  <td style={{ fontSize: '10px' }}>{job.location}</td>
-                  <td style={{ fontSize: '10px' }}>{formatDate(job.postedDate)}</td>
-                  <td>
-                    <div className="d-flex">
-                      <Button 
-                        variant="link" 
-                        size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '10px', marginRight: '8px' }}
-                        onClick={() => navigate('/JobSeeker/job-list')}
-                      >
-                        <FaBriefcase />
-                      </Button>
-                      <Button 
-                        variant="link" 
-                        size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
-                        onClick={() => handleUnsaveJob(job.id)}
-                      >
-                        <FaTrash />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      );
-    }
-  };
-
   return (
     <div style={{ minHeight: '100vh' }}>
-      
-
       <div style={containerStyle} className="py-3">
         {/* Profile Card */}
         <Row className="g-3 mb-3">
@@ -618,9 +478,9 @@ const JobSeekerDashboard = () => {
           </Col>
         </Row>
 
-        {/* Applications and Saved Jobs */}
+        {/* Applications - Now takes full width */}
         <Row className="g-3">
-          <Col lg={8}>
+          <Col lg={12}>
             <Card style={cardStyle}>
               <div style={headerStyle}>
                 <FaBriefcase className="me-2" />
@@ -707,27 +567,6 @@ const JobSeekerDashboard = () => {
                     <FaBriefcase size={30} color={colors.lightGray} />
                     <p style={{ color: colors.darkGray, marginTop: '8px', fontSize: '12px' }}>
                       No applications found
-                    </p>
-                  </div>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col lg={4}>
-            <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaBookmark className="me-2" />
-                Saved Jobs
-              </div>
-              <Card.Body className="p-2">
-                {savedJobs.length > 0 ? (
-                  <ResponsiveSavedJobsTable />
-                ) : (
-                  <div className="text-center py-3">
-                    <FaBookmark size={30} color={colors.lightGray} />
-                    <p style={{ color: colors.darkGray, marginTop: '8px', fontSize: '12px' }}>
-                      No saved jobs yet
                     </p>
                   </div>
                 )}
