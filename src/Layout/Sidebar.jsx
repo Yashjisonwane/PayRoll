@@ -86,16 +86,27 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faChartBar,
         path: "/admin/dashboard"
       },
-     
+      {
+        name: "Credits",
+        icon: faCreditCard,
+        path: "/admin/add",
+
+      },
       {
         name: "Employers",
         icon: faUsers,
          path: "/admin/assign-credit"
       },
        {
-        name: "Credits",
-        icon: faCreditCard,
-        path: "/admin/add",
+        name: "Job Portal",
+        icon: faUserGroup,
+        path: "/admin/job-portal",
+
+      },
+      {
+        name: "Bill Companies",
+        icon: faClapperboard,
+        path: "/admin/bill-companies",
 
       },
       {
@@ -146,6 +157,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     //     path: "/employee/payments"
     //   }
     // ],
+    
 
     VENDOR: [
       {
