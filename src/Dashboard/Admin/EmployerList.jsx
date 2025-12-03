@@ -158,11 +158,43 @@ const EmployerList = () => {
                     <p className="mb-1 small"><strong>Phone:</strong> {emp.phone}</p>
                     <p className="mb-2 small"><strong>Address:</strong> {emp.address}</p>
                   </div>
-                  <div className="d-flex justify-content-end">
+                  <div className="d-flex justify-content-between">
+                    <div className="d-flex gap-2">
+                      <button 
+                        className="btn btn-sm text-white d-flex align-items-center" 
+                        onClick={() => openViewModal(emp)} 
+                        title="View Details"
+                        style={{ 
+                          backgroundColor: COLORS.primary,
+                          padding: isMobile ? "4px 8px" : "6px 12px",
+                          borderRadius: "4px",
+                          fontSize: isMobile ? "11px" : "12px",
+                          fontWeight: "500"
+                        }}
+                      >
+                        <i className="bi bi-eye-fill me-1" style={{ fontSize: isMobile ? "10px" : "12px" }}></i>
+                        {isMobile ? "" : "View"}
+                      </button>
+                      <button 
+                        className="btn btn-sm text-white d-flex align-items-center" 
+                        onClick={() => openEditModal(emp)} 
+                        title="Edit Details"
+                        style={{ 
+                          backgroundColor: COLORS.primary,
+                          padding: isMobile ? "4px 8px" : "6px 12px",
+                          borderRadius: "4px",
+                          fontSize: isMobile ? "11px" : "12px",
+                          fontWeight: "500"
+                        }}
+                      >
+                        <i className="bi bi-pencil-fill me-1" style={{ fontSize: isMobile ? "10px" : "12px" }}></i>
+                        {isMobile ? "" : "Edit"}
+                      </button>
+                    </div>
                     <button 
                       className="btn btn-sm text-white d-flex align-items-center" 
-                      onClick={() => openViewModal(emp)} 
-                      title="View Details"
+                      onClick={() => openAssignModal(emp)} 
+                      title="Assign Credit"
                       style={{ 
                         backgroundColor: COLORS.primary,
                         padding: isMobile ? "4px 8px" : "6px 12px",
@@ -171,8 +203,8 @@ const EmployerList = () => {
                         fontWeight: "500"
                       }}
                     >
-                      <i className="bi bi-eye-fill me-1" style={{ fontSize: isMobile ? "10px" : "12px" }}></i>
-                      {isMobile ? "" : "View"}
+                      <i className="bi bi-cash-stack me-1" style={{ fontSize: isMobile ? "10px" : "12px" }}></i>
+                      {isMobile ? "" : "Assign Credit"}
                     </button>
                   </div>
                 </div>
@@ -203,21 +235,53 @@ const EmployerList = () => {
                   <td style={{ color: COLORS.text }}>{emp.address}</td>
                   <td style={{ color: COLORS.text }}>₹{emp.balance}</td>
                   <td className="text-center">
-                    <button 
-                      className="btn btn-sm text-white d-inline-flex align-items-center" 
-                      onClick={() => openViewModal(emp)} 
-                      title="View Details"
-                      style={{ 
-                        backgroundColor: COLORS.primary,
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        fontSize: "11px",
-                        fontWeight: "500"
-                      }}
-                    >
-                      <i className="bi bi-eye-fill" style={{ fontSize: "10px" }}></i>
-                      <span className="ms-1">View</span>
-                    </button>
+                    <div className="d-flex justify-content-center gap-2">
+                      <button 
+                        className="btn btn-sm text-white d-inline-flex align-items-center" 
+                        onClick={() => openViewModal(emp)} 
+                        title="View Details"
+                        style={{ 
+                          backgroundColor: COLORS.primary,
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          fontSize: "11px",
+                          fontWeight: "500"
+                        }}
+                      >
+                        <i className="bi bi-eye-fill" style={{ fontSize: "10px" }}></i>
+                        <span className="ms-1">View</span>
+                      </button>
+                      <button 
+                        className="btn btn-sm text-white d-inline-flex align-items-center" 
+                        onClick={() => openEditModal(emp)} 
+                        title="Edit Details"
+                        style={{ 
+                          backgroundColor: COLORS.primary,
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          fontSize: "11px",
+                          fontWeight: "500"
+                        }}
+                      >
+                        <i className="bi bi-pencil-fill" style={{ fontSize: "10px" }}></i>
+                        <span className="ms-1">Edit</span>
+                      </button>
+                      <button 
+                        className="btn btn-sm text-white d-inline-flex align-items-center" 
+                        onClick={() => openAssignModal(emp)} 
+                        title="Assign Credit"
+                        style={{ 
+                          backgroundColor: COLORS.primary,
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          fontSize: "11px",
+                          fontWeight: "500"
+                        }}
+                      >
+                        <i className="bi bi-cash-stack" style={{ fontSize: "10px" }}></i>
+                        <span className="ms-1">Assign Credit</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -306,7 +370,7 @@ const EmployerList = () => {
         <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.4)" }}>
           <div className={`modal-dialog modal-dialog-centered ${isMobile ? '' : 'modal-lg'}`}>
             <div className="modal-content" style={{ borderRadius: "10px" }}>
-              <div className="modal-header" style={{ background: COLORS.warning, color: COLORS.white }}>
+              <div className="modal-header" style={{ background: COLORS.primary, color: COLORS.white }}>
                 <h5 className="modal-title">Edit Employer</h5>
                 <button className="btn-close btn-close-white" onClick={closeEditModal}></button>
               </div>
@@ -344,7 +408,7 @@ const EmployerList = () => {
               </div>
               <div className="modal-footer">
                 <button className="btn" onClick={closeEditModal} style={{ background: COLORS.border, color: COLORS.black }}>Cancel</button>
-                <button className="btn text-white" style={{ background: COLORS.warning }} onClick={updateEmployer}>Save Changes</button>
+                <button className="btn text-white" style={{ background: COLORS.primary }} onClick={updateEmployer}>Save Changes</button>
               </div>
             </div>
           </div>
@@ -356,18 +420,35 @@ const EmployerList = () => {
         <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.4)" }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content" style={{ borderRadius: "10px" }}>
-              <div className="modal-header" style={{ background: COLORS.success, color: COLORS.white }}>
+              <div className="modal-header" style={{ background: COLORS.primary, color: COLORS.white }}>
                 <h5 className="modal-title">Assign Credit</h5>
                 <button className="btn-close btn-close-white" onClick={closeAssignModal}></button>
               </div>
               <div className="modal-body">
-                <p style={{ color: COLORS.black }}>Employer: <strong>{selectedEmployer.name}</strong></p>
+                <div className="mb-3">
+                  <p style={{ color: COLORS.black }}>Employer: <strong>{selectedEmployer.name}</strong></p>
+                  <p style={{ color: COLORS.black }}>Current Balance: <strong>₹{selectedEmployer.balance}</strong></p>
+                </div>
                 <label className="form-label" style={{ color: COLORS.text }}>Enter Credit Amount</label>
-                <input type="number" className="form-control" style={{ border: `1px solid ${COLORS.border}`, color: COLORS.black }} value={credit} onChange={(e) => setCredit(e.target.value)} />
+                <input 
+                  type="number" 
+                  className="form-control" 
+                  style={{ border: `1px solid ${COLORS.border}`, color: COLORS.black }} 
+                  value={credit} 
+                  onChange={(e) => setCredit(e.target.value)} 
+                  placeholder="Enter amount to add"
+                />
+                {credit && (
+                  <div className="mt-2">
+                    <small style={{ color: COLORS.text }}>
+                      New Balance: <strong>₹{selectedEmployer.balance + parseInt(credit)}</strong>
+                    </small>
+                  </div>
+                )}
               </div>
               <div className="modal-footer">
                 <button className="btn" onClick={closeAssignModal} style={{ background: COLORS.border, color: COLORS.black }}>Cancel</button>
-                <button className="btn text-white" style={{ background: COLORS.success }} onClick={assignCredit}>Assign Credit</button>
+                <button className="btn text-white" style={{ background: COLORS.primary }} onClick={assignCredit}>Assign Credit</button>
               </div>
             </div>
           </div>
