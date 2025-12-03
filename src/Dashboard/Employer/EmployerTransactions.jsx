@@ -10,7 +10,7 @@ const colors = {
   blackText: '#000000',
   darkGrayText: '#4A4A4A',
   lightGrayBorder: '#E2E2E2',
-  // lightBackground: '#F9F9F9',
+  lightBackground: '#F9F9F9',
 };
 
 const Transactions = () => {
@@ -22,6 +22,14 @@ const Transactions = () => {
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Track window width for responsive adjustments
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Mock data for transactions
   useEffect(() => {
@@ -210,14 +218,18 @@ const Transactions = () => {
     }
   };
 
+  // Responsive adjustments based on window width
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
   return (
-    <div className="container-fluid py-4" style={{ backgroundColor: colors.lightBackground, minHeight: "100vh" }}>
+    <div className="container-fluid py-4" style={{ minHeight: "100vh" }}>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold" style={{ color: colors.blackText }}>Transactions</h2>
+        <h2 className="fw-bold" style={{ color: colors.blackText, fontSize: isMobile ? '1.5rem' : '2rem' }}>Transactions</h2>
         <button 
           className="btn px-3 py-2 text-white"
-          style={{ backgroundColor: colors.primaryRed }}
+          style={{ backgroundColor: colors.primaryRed, fontSize: isMobile ? '0.875rem' : '1rem' }}
           onClick={() => navigate('/admin/dashboard')}
         >
           <i className="bi bi-arrow-left me-2"></i>Back to Dashboard
@@ -227,8 +239,8 @@ const Transactions = () => {
       {/* Search Bar */}
       <div className="card mb-4 shadow-sm" style={{ border: `1px solid ${colors.lightGrayBorder}` }}>
         <div className="card-body">
-          <div className="row">
-            <div className="col-md-6">
+          <div className={`row ${isMobile ? 'g-3' : ''}`}>
+            <div className={isMobile ? 'col-12' : 'col-md-6'}>
               <div className="input-group">
                 <span className="input-group-text" style={{ backgroundColor: colors.pureWhite, border: `1px solid ${colors.lightGrayBorder}` }}>
                   <i className="bi bi-search"></i>
@@ -236,15 +248,15 @@ const Transactions = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by ID, Employer, Type, etc."
+                  placeholder={isMobile ? "Search..." : "Search by ID, Employer, Type, etc."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{ border: `1px solid ${colors.lightGrayBorder}` }}
                 />
               </div>
             </div>
-            <div className="col-md-6 d-flex justify-content-end align-items-center">
-              <span className="text-muted" style={{ color: colors.darkGrayText }}>
+            <div className={`${isMobile ? 'col-12' : 'col-md-6'} d-flex ${isMobile ? 'justify-content-start' : 'justify-content-end'} align-items-center`}>
+              <span className="text-muted" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>
                 Showing {currentTransactions.length} of {filteredTransactions.length} transactions
               </span>
             </div>
@@ -255,7 +267,7 @@ const Transactions = () => {
       {/* Transactions Table */}
       <div className="card shadow-sm" style={{ border: `1px solid ${colors.lightGrayBorder}` }}>
         <div className="card-header py-3" style={{ backgroundColor: colors.pureWhite, borderBottom: `1px solid ${colors.lightGrayBorder}` }}>
-          <h5 className="mb-0 fw-bold" style={{ color: colors.blackText }}>Payment Logs</h5>
+          <h5 className="mb-0 fw-bold" style={{ color: colors.blackText, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Payment Logs</h5>
         </div>
         <div className="card-body p-0">
           {loading ? (
@@ -265,52 +277,108 @@ const Transactions = () => {
               </div>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead>
-                  <tr style={{ backgroundColor: colors.lightBackground }}>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Transaction ID</th>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Date</th>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Employer</th>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Amount</th>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Type</th>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Mode</th>
-                    <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Status</th>
-                    <th className="border-0 py-3 text-center" style={{ color: colors.darkGrayText }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <>
+              {isMobile ? (
+                // Mobile View - Card Layout
+                <div className="p-3">
                   {currentTransactions.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td className="py-3" style={{ color: colors.blackText }}>{transaction.id}</td>
-                      <td className="py-3" style={{ color: colors.blackText }}>{transaction.date}</td>
-                      <td className="py-3" style={{ color: colors.blackText }}>{transaction.employer}</td>
-                      <td className="py-3" style={{ color: colors.blackText }}>₹{transaction.amount.toLocaleString()}</td>
-                      <td className="py-3">
-                        <span style={{ color: getTypeColor(transaction.type), fontWeight: "600" }}>
-                          {transaction.type}
-                        </span>
-                      </td>
-                      <td className="py-3" style={{ color: colors.blackText }}>{transaction.mode}</td>
-                      <td className="py-3">
-                        <span className="badge px-2 py-1" style={getStatusStyle(transaction.status)}>
-                          {transaction.status}
-                        </span>
-                      </td>
-                      <td className="py-3 text-center">
-                        <button
-                          className="btn btn-sm"
-                          style={{ color: colors.primaryRed, backgroundColor: "transparent", border: "none" }}
-                          onClick={() => setSelectedTransaction(transaction)}
-                        >
-                          <i className="bi bi-eye-fill"></i> View
-                        </button>
-                      </td>
-                    </tr>
+                    <div key={transaction.id} className="card mb-3 shadow-sm" style={{ border: `1px solid ${colors.lightGrayBorder}` }}>
+                      <div className="card-body p-3">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <h6 className="mb-0 fw-bold" style={{ color: colors.blackText }}>{transaction.id}</h6>
+                          <span className="badge px-2 py-1" style={getStatusStyle(transaction.status)}>
+                            {transaction.status}
+                          </span>
+                        </div>
+                        <div className="mb-2">
+                          <small className="text-muted" style={{ color: colors.darkGrayText }}>Employer</small>
+                          <p className="mb-1" style={{ color: colors.blackText }}>{transaction.employer}</p>
+                        </div>
+                        <div className="row g-2 mb-2">
+                          <div className="col-6">
+                            <small className="text-muted" style={{ color: colors.darkGrayText }}>Amount</small>
+                            <p className="mb-0 fw-bold" style={{ color: colors.blackText }}>₹{transaction.amount.toLocaleString()}</p>
+                          </div>
+                          <div className="col-6">
+                            <small className="text-muted" style={{ color: colors.darkGrayText }}>Date</small>
+                            <p className="mb-0" style={{ color: colors.blackText }}>{transaction.date}</p>
+                          </div>
+                        </div>
+                        <div className="row g-2 mb-2">
+                          <div className="col-6">
+                            <small className="text-muted" style={{ color: colors.darkGrayText }}>Type</small>
+                            <p className="mb-0" style={{ color: getTypeColor(transaction.type), fontWeight: "600" }}>
+                              {transaction.type}
+                            </p>
+                          </div>
+                          <div className="col-6">
+                            <small className="text-muted" style={{ color: colors.darkGrayText }}>Mode</small>
+                            <p className="mb-0" style={{ color: colors.blackText }}>{transaction.mode}</p>
+                          </div>
+                        </div>
+                        <div className="d-flex justify-content-end">
+                          <button
+                            className="btn btn-sm"
+                            style={{ color: colors.primaryRed, backgroundColor: "transparent", border: "none" }}
+                            onClick={() => setSelectedTransaction(transaction)}
+                          >
+                            <i className="bi bi-eye-fill"></i> View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              ) : (
+                // Desktop/Tablet View - Table Layout
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead>
+                      <tr style={{ backgroundColor: colors.lightBackground }}>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Transaction ID</th>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Date</th>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Employer</th>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Amount</th>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Type</th>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Mode</th>
+                        <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Status</th>
+                        <th className="border-0 py-3 text-center" style={{ color: colors.darkGrayText }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentTransactions.map((transaction) => (
+                        <tr key={transaction.id}>
+                          <td className="py-3" style={{ color: colors.blackText }}>{transaction.id}</td>
+                          <td className="py-3" style={{ color: colors.blackText }}>{transaction.date}</td>
+                          <td className="py-3" style={{ color: colors.blackText }}>{transaction.employer}</td>
+                          <td className="py-3" style={{ color: colors.blackText }}>₹{transaction.amount.toLocaleString()}</td>
+                          <td className="py-3">
+                            <span style={{ color: getTypeColor(transaction.type), fontWeight: "600" }}>
+                              {transaction.type}
+                            </span>
+                          </td>
+                          <td className="py-3" style={{ color: colors.blackText }}>{transaction.mode}</td>
+                          <td className="py-3">
+                            <span className="badge px-2 py-1" style={getStatusStyle(transaction.status)}>
+                              {transaction.status}
+                            </span>
+                          </td>
+                          <td className="py-3 text-center">
+                            <button
+                              className="btn btn-sm"
+                              style={{ color: colors.primaryRed, backgroundColor: "transparent", border: "none" }}
+                              onClick={() => setSelectedTransaction(transaction)}
+                            >
+                              <i className="bi bi-eye-fill"></i> View
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -318,7 +386,7 @@ const Transactions = () => {
       {/* Pagination */}
       {filteredTransactions.length > itemsPerPage && (
         <nav aria-label="Page navigation" className="mt-4">
-          <ul className="pagination justify-content-center">
+          <ul className={`pagination ${isMobile ? 'pagination-sm' : ''} justify-content-center`}>
             <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
               <button
                 className="page-link"
@@ -359,10 +427,12 @@ const Transactions = () => {
       {/* Transaction Details Modal */}
       {selectedTransaction && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-dialog-centered">
+          <div className={`modal-dialog modal-dialog-centered ${isMobile ? 'modal-fullscreen' : ''}`}>
             <div className="modal-content">
               <div className="modal-header border-0" style={{ backgroundColor: colors.pureWhite }}>
-                <h5 className="modal-title fw-bold" style={{ color: colors.blackText }}>Transaction Details</h5>
+                <h5 className="modal-title fw-bold" style={{ color: colors.blackText, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>
+                  Transaction Details
+                </h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -370,46 +440,103 @@ const Transactions = () => {
                 ></button>
               </div>
               <div className="modal-body" style={{ backgroundColor: colors.pureWhite }}>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Transaction ID</h6>
-                  <p style={{ color: colors.blackText }}>{selectedTransaction.id}</p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Date</h6>
-                  <p style={{ color: colors.blackText }}>{selectedTransaction.date}</p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Employer</h6>
-                  <p style={{ color: colors.blackText }}>{selectedTransaction.employer}</p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Amount</h6>
-                  <p style={{ color: colors.blackText }}>₹{selectedTransaction.amount.toLocaleString()}</p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Type</h6>
-                  <p style={{ color: getTypeColor(selectedTransaction.type), fontWeight: "600" }}>
-                    {selectedTransaction.type}
-                  </p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Reference</h6>
-                  <p style={{ color: colors.blackText }}>{selectedTransaction.reference}</p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Payment Mode</h6>
-                  <p style={{ color: colors.blackText }}>{selectedTransaction.mode}</p>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Status</h6>
-                  <span className="badge px-2 py-1" style={getStatusStyle(selectedTransaction.status)}>
-                    {selectedTransaction.status}
-                  </span>
-                </div>
-                <div className="mb-3">
-                  <h6 style={{ color: colors.darkGrayText }}>Processed By</h6>
-                  <p style={{ color: colors.blackText }}>{selectedTransaction.processedBy}</p>
-                </div>
+                {isMobile ? (
+                  // Mobile View - Vertical Layout
+                  <div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Transaction ID</h6>
+                      <p style={{ color: colors.blackText }}>{selectedTransaction.id}</p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Date</h6>
+                      <p style={{ color: colors.blackText }}>{selectedTransaction.date}</p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Employer</h6>
+                      <p style={{ color: colors.blackText }}>{selectedTransaction.employer}</p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Amount</h6>
+                      <p style={{ color: colors.blackText, fontWeight: "bold", fontSize: "1.25rem" }}>
+                        ₹{selectedTransaction.amount.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Type</h6>
+                      <p style={{ color: getTypeColor(selectedTransaction.type), fontWeight: "600" }}>
+                        {selectedTransaction.type}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Reference</h6>
+                      <p style={{ color: colors.blackText }}>{selectedTransaction.reference}</p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Payment Mode</h6>
+                      <p style={{ color: colors.blackText }}>{selectedTransaction.mode}</p>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Status</h6>
+                      <span className="badge px-2 py-1" style={getStatusStyle(selectedTransaction.status)}>
+                        {selectedTransaction.status}
+                      </span>
+                    </div>
+                    <div className="mb-3">
+                      <h6 style={{ color: colors.darkGrayText }}>Processed By</h6>
+                      <p style={{ color: colors.blackText }}>{selectedTransaction.processedBy}</p>
+                    </div>
+                  </div>
+                ) : (
+                  // Desktop/Tablet View - Two Column Layout
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Transaction ID</h6>
+                        <p style={{ color: colors.blackText }}>{selectedTransaction.id}</p>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Date</h6>
+                        <p style={{ color: colors.blackText }}>{selectedTransaction.date}</p>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Employer</h6>
+                        <p style={{ color: colors.blackText }}>{selectedTransaction.employer}</p>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Amount</h6>
+                        <p style={{ color: colors.blackText, fontWeight: "bold", fontSize: "1.25rem" }}>
+                          ₹{selectedTransaction.amount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Type</h6>
+                        <p style={{ color: getTypeColor(selectedTransaction.type), fontWeight: "600" }}>
+                          {selectedTransaction.type}
+                        </p>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Reference</h6>
+                        <p style={{ color: colors.blackText }}>{selectedTransaction.reference}</p>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Payment Mode</h6>
+                        <p style={{ color: colors.blackText }}>{selectedTransaction.mode}</p>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Status</h6>
+                        <span className="badge px-2 py-1" style={getStatusStyle(selectedTransaction.status)}>
+                          {selectedTransaction.status}
+                        </span>
+                      </div>
+                      <div className="mb-3">
+                        <h6 style={{ color: colors.darkGrayText }}>Processed By</h6>
+                        <p style={{ color: colors.blackText }}>{selectedTransaction.processedBy}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="modal-footer border-0" style={{ backgroundColor: colors.pureWhite }}>
                 <button

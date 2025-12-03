@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const COLORS = {
   primary: "#C62828",
@@ -10,7 +10,20 @@ const COLORS = {
 };
 
 const EmployerList = () => {
-  // State for the list of employers
+  // State for detecting mobile view
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Update isMobile state on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // State for list of employers
   const [employers, setEmployers] = useState([
     { id: 1, name: "ABC Pvt Ltd", email: "contact@abc.com", phone: "9876543210", address: "123 Main St, Delhi", username: "abc_user", password: "password123", balance: 1200 },
     { id: 2, name: "XYZ Enterprises", email: "info@xyz.com", phone: "9876543211", address: "456 Park Ave, Mumbai", username: "xyz_user", password: "password123", balance: 800 },
@@ -21,17 +34,17 @@ const EmployerList = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedEmployer, setSelectedEmployer] = useState(null);
   const [credit, setCredit] = useState("");
-
+  
   // State for Add Employer Modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEmployer, setNewEmployer] = useState({
     name: "", email: "", phone: "", address: "", username: "", password: "", balance: ""
   });
-
+  
   // State for View Employer Modal
   const [showViewModal, setShowViewModal] = useState(false);
   const [employerToView, setEmployerToView] = useState(null);
-
+  
   // State for Edit Employer Modal
   const [showEditModal, setShowEditModal] = useState(false);
   const [employerToEdit, setEmployerToEdit] = useState(null);
@@ -116,55 +129,90 @@ const EmployerList = () => {
   };
 
   return (
-    <div className="container py-4" style={{ minHeight: "100vh" }}>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold" style={{ color: COLORS.primary }}>Employer List</h2>
-        <button className="btn text-white" onClick={openAddModal} style={{ backgroundColor: COLORS.primary, border: "none" }}>
+    <div className="container py-2 py-md-4" style={{ minHeight: "100vh" }}>
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row">
+        <h2 className="fw-bold mb-3 mb-md-0" style={{ color: COLORS.primary, fontSize: isMobile ? '1.5rem' : '2rem' }}>Employer List</h2>
+        <button className="btn text-white px-3 px-md-4 py-2" onClick={openAddModal} style={{ backgroundColor: COLORS.primary, border: "none", fontSize: isMobile ? '0.875rem' : '1rem' }}>
           Add Employer
         </button>
       </div>
 
-      <div className="table-responsive">
-        <table className="table table-bordered align-middle">
-          <thead style={{ background: COLORS.primary, color: COLORS.white }}>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Address</th>
-              <th>Balance</th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employers.map((emp) => (
-              <tr key={emp.id}>
-                <td style={{ color: COLORS.text }}>{emp.name}</td>
-                <td style={{ color: COLORS.text }}>{emp.email}</td>
-                <td style={{ color: COLORS.text }}>{emp.phone}</td>
-                <td style={{ color: COLORS.text }}>{emp.address}</td>
-                <td style={{ color: COLORS.text }}>₹{emp.balance}</td>
-                <td className="text-center">
-                  <button className="btn btn-sm btn-info text-white me-2" onClick={() => openViewModal(emp)} title="View">
-                    <i className="bi bi-eye"></i>
-                  </button>
-                  <button className="btn btn-sm btn-warning text-white me-2" onClick={() => openEditModal(emp)} title="Edit">
-                    <i className="bi bi-pencil"></i>
-                  </button>
-                  <button className="btn btn-sm text-white" style={{ backgroundColor: COLORS.primary }} onClick={() => openAssignModal(emp)} title="Assign Credit">
-                    <i className="bi bi-credit-card"></i>
-                  </button>
-                </td>
+      {isMobile ? (
+        // Mobile Card View for Employers
+        <div className="row">
+          {employers.map((emp) => (
+            <div key={emp.id} className="col-12 mb-3">
+              <div className="card shadow-sm" style={{ borderRadius: "10px", border: `1px solid ${COLORS.border}` }}>
+                <div className="card-body p-3">
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <h5 className="card-title mb-0" style={{ color: COLORS.primary }}>{emp.name}</h5>
+                    <span className="badge" style={{ backgroundColor: COLORS.primary, color: COLORS.white }}>₹{emp.balance}</span>
+                  </div>
+                  <div className="mb-2">
+                    <p className="mb-1 small"><strong>Email:</strong> {emp.email}</p>
+                    <p className="mb-1 small"><strong>Phone:</strong> {emp.phone}</p>
+                    <p className="mb-2 small"><strong>Address:</strong> {emp.address}</p>
+                  </div>
+                  <div className="d-flex justify-content-end gap-2">
+                    <button className="btn btn-sm btn-info text-white" onClick={() => openViewModal(emp)} title="View">
+                      <i className="bi bi-eye"></i>
+                    </button>
+                    <button className="btn btn-sm btn-warning text-white" onClick={() => openEditModal(emp)} title="Edit">
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                    <button className="btn btn-sm text-white" style={{ backgroundColor: COLORS.primary }} onClick={() => openAssignModal(emp)} title="Assign Credit">
+                      <i className="bi bi-credit-card"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Desktop Table View for Employers
+        <div className="table-responsive">
+          <table className="table table-bordered align-middle">
+            <thead style={{ background: COLORS.primary, color: COLORS.white }}>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Balance</th>
+                <th className="text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {employers.map((emp) => (
+                <tr key={emp.id}>
+                  <td style={{ color: COLORS.text }}>{emp.name}</td>
+                  <td style={{ color: COLORS.text }}>{emp.email}</td>
+                  <td style={{ color: COLORS.text }}>{emp.phone}</td>
+                  <td style={{ color: COLORS.text }}>{emp.address}</td>
+                  <td style={{ color: COLORS.text }}>₹{emp.balance}</td>
+                  <td className="text-center">
+                    <button className="btn btn-sm btn-info text-white me-2" onClick={() => openViewModal(emp)} title="View">
+                      <i className="bi bi-eye"></i>
+                    </button>
+                    <button className="btn btn-sm btn-warning text-white me-2" onClick={() => openEditModal(emp)} title="Edit">
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                    <button className="btn btn-sm text-white" style={{ backgroundColor: COLORS.primary }} onClick={() => openAssignModal(emp)} title="Assign Credit">
+                      <i className="bi bi-credit-card"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* --- Add Employer Modal --- */}
       {showAddModal && (
         <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.4)" }}>
-          <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className={`modal-dialog modal-dialog-centered ${isMobile ? '' : 'modal-lg'}`}>
             <div className="modal-content" style={{ borderRadius: "10px" }}>
               <div className="modal-header" style={{ background: COLORS.primary, color: COLORS.white }}>
                 <h5 className="modal-title">Add New Employer</h5>
@@ -172,13 +220,34 @@ const EmployerList = () => {
               </div>
               <div className="modal-body">
                 <div className="row">
-                  <div className="col-md-6 mb-3"><label>Name</label><input type="text" className="form-control" name="name" value={newEmployer.name} onChange={handleAddChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Email</label><input type="email" className="form-control" name="email" value={newEmployer.email} onChange={handleAddChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Phone</label><input type="text" className="form-control" name="phone" value={newEmployer.phone} onChange={handleAddChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Initial Balance</label><input type="number" className="form-control" name="balance" value={newEmployer.balance} onChange={handleAddChange} /></div>
-                  <div className="col-12 mb-3"><label>Address</label><input type="text" className="form-control" name="address" value={newEmployer.address} onChange={handleAddChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Username</label><input type="text" className="form-control" name="username" value={newEmployer.username} onChange={handleAddChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Password</label><input type="password" className="form-control" name="password" value={newEmployer.password} onChange={handleAddChange} /></div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Name</label>
+                    <input type="text" className="form-control" name="name" value={newEmployer.name} onChange={handleAddChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Email</label>
+                    <input type="email" className="form-control" name="email" value={newEmployer.email} onChange={handleAddChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Phone</label>
+                    <input type="text" className="form-control" name="phone" value={newEmployer.phone} onChange={handleAddChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Initial Balance</label>
+                    <input type="number" className="form-control" name="balance" value={newEmployer.balance} onChange={handleAddChange} />
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="form-label">Address</label>
+                    <input type="text" className="form-control" name="address" value={newEmployer.address} onChange={handleAddChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Username</label>
+                    <input type="text" className="form-control" name="username" value={newEmployer.username} onChange={handleAddChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Password</label>
+                    <input type="password" className="form-control" name="password" value={newEmployer.password} onChange={handleAddChange} />
+                  </div>
                 </div>
               </div>
               <div className="modal-footer">
@@ -218,7 +287,7 @@ const EmployerList = () => {
       {/* --- Edit Employer Modal --- */}
       {showEditModal && employerToEdit && (
         <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.4)" }}>
-          <div className="modal-dialog modal-dialog-centered modal-lg">
+          <div className={`modal-dialog modal-dialog-centered ${isMobile ? '' : 'modal-lg'}`}>
             <div className="modal-content" style={{ borderRadius: "10px" }}>
               <div className="modal-header" style={{ background: COLORS.primary, color: COLORS.white }}>
                 <h5 className="modal-title">Edit Employer</h5>
@@ -226,13 +295,34 @@ const EmployerList = () => {
               </div>
               <div className="modal-body">
                 <div className="row">
-                  <div className="col-md-6 mb-3"><label>Name</label><input type="text" className="form-control" name="name" value={employerToEdit.name} onChange={handleEditChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Email</label><input type="email" className="form-control" name="email" value={employerToEdit.email} onChange={handleEditChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Phone</label><input type="text" className="form-control" name="phone" value={employerToEdit.phone} onChange={handleEditChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Balance</label><input type="number" className="form-control" name="balance" value={employerToEdit.balance} onChange={handleEditChange} /></div>
-                  <div className="col-12 mb-3"><label>Address</label><input type="text" className="form-control" name="address" value={employerToEdit.address} onChange={handleEditChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Username</label><input type="text" className="form-control" name="username" value={employerToEdit.username} onChange={handleEditChange} /></div>
-                  <div className="col-md-6 mb-3"><label>Password</label><input type="password" className="form-control" name="password" value={employerToEdit.password} onChange={handleEditChange} /></div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Name</label>
+                    <input type="text" className="form-control" name="name" value={employerToEdit.name} onChange={handleEditChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Email</label>
+                    <input type="email" className="form-control" name="email" value={employerToEdit.email} onChange={handleEditChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Phone</label>
+                    <input type="text" className="form-control" name="phone" value={employerToEdit.phone} onChange={handleEditChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Balance</label>
+                    <input type="number" className="form-control" name="balance" value={employerToEdit.balance} onChange={handleEditChange} />
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="form-label">Address</label>
+                    <input type="text" className="form-control" name="address" value={employerToEdit.address} onChange={handleEditChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Username</label>
+                    <input type="text" className="form-control" name="username" value={employerToEdit.username} onChange={handleEditChange} />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Password</label>
+                    <input type="password" className="form-control" name="password" value={employerToEdit.password} onChange={handleEditChange} />
+                  </div>
                 </div>
               </div>
               <div className="modal-footer">
