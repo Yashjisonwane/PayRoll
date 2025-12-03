@@ -58,6 +58,38 @@ const MyCredits = () => {
     }
   }, [creditBalance]);
 
+  // Function to download credit statement as CSV
+  const downloadStatement = () => {
+    // Create CSV content
+    const headers = ['Date', 'Type', 'Amount (₹)', 'Status', 'Notes'];
+    const csvContent = [
+      headers.join(','),
+      ...creditHistory.map(item => [
+        item.date,
+        item.type,
+        item.amount,
+        item.status,
+        `"${item.notes}"` // Wrap notes in quotes to handle commas
+      ].join(','))
+    ].join('\n');
+
+    // Create a blob with the CSV content
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a link element and trigger the download
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `credit_statement_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success message
+    alert('Credit statement downloaded successfully!');
+  };
+
   const handleRequestCredits = () => {
     if (!requestAmount || !requestReason) {
       alert('Please enter both an amount and a reason.');
@@ -190,6 +222,7 @@ const MyCredits = () => {
               <button
                 className="btn d-flex align-items-center justify-content-center w-100 py-3"
                 style={{ border: "2px solid #C62828", color: "#C62828", borderRadius: "12px", background: "white", transition: "all 0.3s ease" }}
+                onClick={downloadStatement}
               >
                 <FaDownload className="me-2" />
                 Download Statement
@@ -215,7 +248,7 @@ const MyCredits = () => {
                 <div className="position-relative flex-grow-1">
                   <input
                     type="text"
-                    className="form-control ps-4"
+                    className="form-control ps-5"
                     style={{ border: "1px solid #E2E2E2", borderRadius: "8px" }}
                     placeholder="Search transactions..."
                     value={searchTerm}
@@ -226,9 +259,10 @@ const MyCredits = () => {
                     color="#C62828"
                     style={{
                       position: "absolute",
-                      left: "12px",
+                      left: "15px",
                       top: "50%",
-                      transform: "translateY(-50%)"
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none"
                     }}
                   />
                 </div>

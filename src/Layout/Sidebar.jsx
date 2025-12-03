@@ -90,7 +90,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/employer/dashboard",
       },
       {
-        name: "Add Employee/Vendor",
+        name: "Job Vacancies",
         icon: faWallet,
         path: "/employer/AddEmployee",
       },
@@ -100,9 +100,9 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/employer/credits/balance",
       },
       {
-        name: "Pay Employee /Vendor",
+        name: "Payments",
         icon: faHandHoldingUsd,
-        path: "/employer/payment/employee",
+        path: "/employer/payment",
       },
       {
         name: "Transactions",
