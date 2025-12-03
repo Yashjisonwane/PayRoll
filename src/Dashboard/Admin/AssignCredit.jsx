@@ -7,6 +7,11 @@ const COLORS = {
   black: "#000000",
   text: "#4A4A4A",
   border: "#E2E2E2",
+  // Additional colors for different actions
+  info: "#1976D2",
+  warning: "#F57C00",
+  success: "#2E7D32",
+  lightGray: "#F5F5F5",
 };
 
 const EmployerList = () => {
@@ -153,15 +158,21 @@ const EmployerList = () => {
                     <p className="mb-1 small"><strong>Phone:</strong> {emp.phone}</p>
                     <p className="mb-2 small"><strong>Address:</strong> {emp.address}</p>
                   </div>
-                  <div className="d-flex justify-content-end gap-2">
-                    <button className="btn btn-sm btn-info text-white" onClick={() => openViewModal(emp)} title="View">
-                      <i className="bi bi-eye"></i>
-                    </button>
-                    <button className="btn btn-sm btn-warning text-white" onClick={() => openEditModal(emp)} title="Edit">
-                      <i className="bi bi-pencil"></i>
-                    </button>
-                    <button className="btn btn-sm text-white" style={{ backgroundColor: COLORS.primary }} onClick={() => openAssignModal(emp)} title="Assign Credit">
-                      <i className="bi bi-credit-card"></i>
+                  <div className="d-flex justify-content-end">
+                    <button 
+                      className="btn btn-sm text-white d-flex align-items-center" 
+                      onClick={() => openViewModal(emp)} 
+                      title="View Details"
+                      style={{ 
+                        backgroundColor: COLORS.primary,
+                        padding: isMobile ? "4px 8px" : "6px 12px",
+                        borderRadius: "4px",
+                        fontSize: isMobile ? "11px" : "12px",
+                        fontWeight: "500"
+                      }}
+                    >
+                      <i className="bi bi-eye-fill me-1" style={{ fontSize: isMobile ? "10px" : "12px" }}></i>
+                      {isMobile ? "" : "View"}
                     </button>
                   </div>
                 </div>
@@ -192,14 +203,20 @@ const EmployerList = () => {
                   <td style={{ color: COLORS.text }}>{emp.address}</td>
                   <td style={{ color: COLORS.text }}>₹{emp.balance}</td>
                   <td className="text-center">
-                    <button className="btn btn-sm btn-info text-white me-2" onClick={() => openViewModal(emp)} title="View">
-                      <i className="bi bi-eye"></i>
-                    </button>
-                    <button className="btn btn-sm btn-warning text-white me-2" onClick={() => openEditModal(emp)} title="Edit">
-                      <i className="bi bi-pencil"></i>
-                    </button>
-                    <button className="btn btn-sm text-white" style={{ backgroundColor: COLORS.primary }} onClick={() => openAssignModal(emp)} title="Assign Credit">
-                      <i className="bi bi-credit-card"></i>
+                    <button 
+                      className="btn btn-sm text-white d-inline-flex align-items-center" 
+                      onClick={() => openViewModal(emp)} 
+                      title="View Details"
+                      style={{ 
+                        backgroundColor: COLORS.primary,
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        fontSize: "11px",
+                        fontWeight: "500"
+                      }}
+                    >
+                      <i className="bi bi-eye-fill" style={{ fontSize: "10px" }}></i>
+                      <span className="ms-1">View</span>
                     </button>
                   </td>
                 </tr>
@@ -289,7 +306,7 @@ const EmployerList = () => {
         <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.4)" }}>
           <div className={`modal-dialog modal-dialog-centered ${isMobile ? '' : 'modal-lg'}`}>
             <div className="modal-content" style={{ borderRadius: "10px" }}>
-              <div className="modal-header" style={{ background: COLORS.primary, color: COLORS.white }}>
+              <div className="modal-header" style={{ background: COLORS.warning, color: COLORS.white }}>
                 <h5 className="modal-title">Edit Employer</h5>
                 <button className="btn-close btn-close-white" onClick={closeEditModal}></button>
               </div>
@@ -327,7 +344,7 @@ const EmployerList = () => {
               </div>
               <div className="modal-footer">
                 <button className="btn" onClick={closeEditModal} style={{ background: COLORS.border, color: COLORS.black }}>Cancel</button>
-                <button className="btn text-white" style={{ background: COLORS.primary }} onClick={updateEmployer}>Save Changes</button>
+                <button className="btn text-white" style={{ background: COLORS.warning }} onClick={updateEmployer}>Save Changes</button>
               </div>
             </div>
           </div>
@@ -339,7 +356,7 @@ const EmployerList = () => {
         <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.4)" }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content" style={{ borderRadius: "10px" }}>
-              <div className="modal-header" style={{ background: COLORS.primary, color: COLORS.white }}>
+              <div className="modal-header" style={{ background: COLORS.success, color: COLORS.white }}>
                 <h5 className="modal-title">Assign Credit</h5>
                 <button className="btn-close btn-close-white" onClick={closeAssignModal}></button>
               </div>
@@ -350,7 +367,7 @@ const EmployerList = () => {
               </div>
               <div className="modal-footer">
                 <button className="btn" onClick={closeAssignModal} style={{ background: COLORS.border, color: COLORS.black }}>Cancel</button>
-                <button className="btn text-white" style={{ background: COLORS.primary }} onClick={assignCredit}>Assign Credit</button>
+                <button className="btn text-white" style={{ background: COLORS.success }} onClick={assignCredit}>Assign Credit</button>
               </div>
             </div>
           </div>

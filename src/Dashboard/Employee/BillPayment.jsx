@@ -407,6 +407,12 @@ const BillPayments = () => {
     return activeTab === 'bills' ? 'Search bills...' : 'Search companies...';
   };
 
+  const resetFilters = () => {
+    setFilterCategory('all');
+    setFilterPaidByEmployer('all');
+    setShowFilterModal(false);
+  };
+
   return (
     <div style={{  minHeight: '100vh' }}>
       {/* Header */}
@@ -475,11 +481,20 @@ const BillPayments = () => {
                         <FaPlus className="me-2" />
                         Add Bill
                       </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleSort('dueDate')}>
+                        <FaSort className="me-2" />
+                        Sort by Due Date
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleSort('amount')}>
+                        <FaSort className="me-2" />
+                        Sort by Amount
+                      </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </>
               )}
-
+       
+              
             </div>
           </div>
         </div>
@@ -493,7 +508,6 @@ const BillPayments = () => {
             onClick={() => setActiveTab('bills')}
           >
             Bills ({pendingBills.length + paidBills.length})
-            
           </div>
           <div 
             style={activeTab === 'companies' ? activeTabStyle : tabStyle}
@@ -883,7 +897,14 @@ const BillPayments = () => {
               <Form.Label style={{ fontSize: '13px' }}>Company</Form.Label>
               <Form.Select
                 value={newBill.company}
-                onChange={(e) => setNewBill({...newBill, company: e.target.value})}
+                onChange={(e) => {
+                  const selectedCompany = companies.find(c => c.name === e.target.value);
+                  setNewBill({
+                    ...newBill, 
+                    company: e.target.value,
+                    category: selectedCompany ? selectedCompany.category : 'Utilities'
+                  });
+                }}
                 required
                 style={{ fontSize: '13px' }}
               >
@@ -989,11 +1010,7 @@ const BillPayments = () => {
               <Button 
                 variant="secondary" 
                 className="me-2"
-                onClick={() => {
-                  setFilterCategory('all');
-                  setFilterPaidByEmployer('all');
-                  setShowFilterModal(false);
-                }}
+                onClick={resetFilters}
                 style={{ fontSize: '13px' }}
               >
                 Reset
