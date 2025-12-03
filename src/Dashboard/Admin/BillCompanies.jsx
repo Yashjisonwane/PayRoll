@@ -41,7 +41,7 @@ export default function BillCompaniesPage() {
 
   // --- Handlers ---
   const openAddModal = () => {
-    setCurrentCompany({}); // Reset for new company
+    setCurrentCompany({ status: "Active" }); // Reset for new company with default status
     setIsModalOpen(true);
   };
 
@@ -61,8 +61,12 @@ export default function BillCompaniesPage() {
       // Edit existing company
       setCompanies(companies.map(c => (c.id === currentCompany.id ? currentCompany : c)));
     } else {
-      // Add new company
-      const newCompany = { ...currentCompany, id: Date.now() }; // Simple unique ID
+      // Add new company with default status if not provided
+      const newCompany = { 
+        ...currentCompany, 
+        id: Date.now(), 
+        status: currentCompany.status || "Active" 
+      };
       setCompanies([...companies, newCompany]);
     }
     closeModal();
