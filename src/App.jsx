@@ -36,7 +36,11 @@ import BillPayment from "./Dashboard/Employee/BillPayment";
 import MonthlySalary from "./Dashboard/Employee/MonthlySalary";
 import JobApplication from "./Dashboard/Employee/JobApplication";
 
-
+// job portal 
+import JobDashboard from "./Dashboard/JobPortal/JobDashboard";
+import Apply from "./Dashboard/JobPortal/Apply";
+import JobList from "./Dashboard/JobPortal/JobList";
+import SubmitResume from "./Dashboard/JobPortal/SubmitResume";
 
 // Vendor
 import VendorDashboard from "./Dashboard/Vendor/VendorDashboard";
@@ -100,9 +104,8 @@ function App() {
                
                 
 
-{/* ---------------- EMPLOYER ---------------- */}
-
-{/* Employer Dashboard */}
+                {/* ---------------- EMPLOYER ---------------- */}
+                {/* EMPLOYER */}
 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
 
 {/* My Credits */}
@@ -113,10 +116,7 @@ function App() {
 
 {/* Employer Transactions */}
 <Route path="/employer/transactions" element={<EmployerTransactions />} />
-
-{/* Add Employee / Job Vacancies */}
-<Route path="/employer/job-vacancies" element={<AddEmployee />} />
-
+<Route path="/employer/AddEmployee" element={<AddEmployee />} />
 
 
 {/* Employee */}
@@ -126,6 +126,12 @@ function App() {
 <Route path="/employee/monthly-salary" element={<MonthlySalary />} />
 <Route path="/employee/job-application" element={<JobApplication />} />
 
+
+                {/* Job Portal */}
+                <Route path="/job-portal/dashboard" element={<JobDashboard />} />
+                <Route path="/job-portal/apply" element={<Apply />} />
+                <Route path="/job-portal/job-list" element={<JobList />} />
+                <Route path="/job-portal/submit-resume" element={<SubmitResume />} />
 
                 {/* ---------------- VENDOR ---------------- */}
                 <Route path="/vendor/dashboard" element={<VendorDashboard />} />
