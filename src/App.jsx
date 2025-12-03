@@ -23,10 +23,10 @@ import BillCompanies from "./Dashboard/Admin/BillCompanies";
 
 // Employer
 import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
-import CreditBalance from "./Dashboard/Employer/CreditBalance";
-import PayEmployee from "./Dashboard/Employer/PayEmployee";
+import CreditBalance from "./Dashboard/Employer/MyCredit";
+import PayEmployee from "./Dashboard/Employer/PaymentEmployer";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
-import AddEmployee from "./Dashboard/Employer/AddEmployee";
+import AddEmployee from "./Dashboard/Employer/JobVacancies";
 
 
 // Employee
@@ -36,7 +36,11 @@ import BillPayment from "./Dashboard/Employee/BillPayment";
 import MonthlySalary from "./Dashboard/Employee/MonthlySalary";
 import JobApplication from "./Dashboard/Employee/JobApplication";
 
-
+// job portal 
+import JobDashboard from "./Dashboard/JobPortal/JobDashboard";
+import Apply from "./Dashboard/JobPortal/Apply";
+import JobList from "./Dashboard/JobPortal/JobList";
+import SubmitResume from "./Dashboard/JobPortal/SubmitResume";
 
 // Vendor
 import VendorDashboard from "./Dashboard/Vendor/VendorDashboard";
@@ -103,8 +107,14 @@ function App() {
                 {/* ---------------- EMPLOYER ---------------- */}
                 {/* EMPLOYER */}
 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+
+{/* My Credits */}
 <Route path="/employer/credits/balance" element={<CreditBalance />} />
-<Route path="/employer/payment/employee" element={<PayEmployee />} />
+
+{/* Pay Employee */}
+<Route path="/employer/payment" element={<PayEmployee />} />
+
+{/* Employer Transactions */}
 <Route path="/employer/transactions" element={<EmployerTransactions />} />
 <Route path="/employer/AddEmployee" element={<AddEmployee />} />
 
@@ -116,6 +126,12 @@ function App() {
 <Route path="/employee/monthly-salary" element={<MonthlySalary />} />
 <Route path="/employee/job-application" element={<JobApplication />} />
 
+
+                {/* Job Portal */}
+                <Route path="/job-portal/dashboard" element={<JobDashboard />} />
+                <Route path="/job-portal/apply" element={<Apply />} />
+                <Route path="/job-portal/job-list" element={<JobList />} />
+                <Route path="/job-portal/submit-resume" element={<SubmitResume />} />
 
                 {/* ---------------- VENDOR ---------------- */}
                 <Route path="/vendor/dashboard" element={<VendorDashboard />} />
