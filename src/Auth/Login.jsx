@@ -34,15 +34,18 @@ const Login = () => {
 
   const roleRedirectMap = {
     ADMIN: "/Admin/dashboard",
-        EMPLOYER: "/Employer/dashboard",
+    EMPLOYER: "/Employer/dashboard",
+    EMPLOYEE: "/Employee/dashboard",
+    JOBSEEKER: "/JobSeeker/dashboard",
     VENDOR: "/Vendor/dashboard",
-
   };
 
   const dummyUsers = {
     ADMIN: { id: 100, email: "admin@mvp.com", role: "ADMIN" },
-    VENDOR: { id: 103, email: "vendor@mvp.com", role: "VENDOR" },
-    EMPLOYER: { id: 104, email: "employer@mvp.com", role: "EMPLOYER" },
+    EMPLOYER: { id: 101, email: "employer@mvp.com", role: "EMPLOYER" },
+    EMPLOYEE: { id: 102, email: "employee@mvp.com", role: "EMPLOYEE" },
+    JOBSEEKER: { id: 103, email: "jobseeker@mvp.com", role: "JOBSEEKER" },
+    VENDOR: { id: 104, email: "vendor@mvp.com", role: "VENDOR" },
   };
 
   const handleLogin = async (loginEmail, loginPassword) => {
@@ -112,19 +115,22 @@ const Login = () => {
               <div className="mb-4">
                 {/* Label with new dark gray color */}
                 <p className="mb-2" style={{ color: colors.darkGray }}><strong>Quick Login (Dev Mode):</strong></p>
-                <div className="d-flex flex-wrap gap-2">
+                <div className="d-flex flex-wrap gap-2 justify-content-center">
                   {Object.keys(roleRedirectMap).map((role) => (
                     <button
                       key={role}
                       type="button"
                       className="btn btn-sm"
-                      style={{ ...buttonStyles, ...(loading ? { backgroundColor: '#cccccc', cursor: 'not-allowed' } : {}) }}
+                      style={{ 
+                        ...buttonStyles, 
+                        ...(loading ? { backgroundColor: '#cccccc', cursor: 'not-allowed' } : {})
+                      }}
                       onClick={() => directLogin(role)}
                       disabled={loading}
                       onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = colors.darkRed)}
                       onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = colors.primaryRed)}
                     >
-                      {role.replace(/([A-Z])/g, " $1").trim()}
+                      {role === 'JOBSEEKER' ? 'JOB PORTAL' : role.replace(/([A-Z])/g, " $1").trim()}
                     </button>
                   ))}
                 </div>

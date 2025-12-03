@@ -24,6 +24,16 @@ import PayEmployee from "./Dashboard/Employer/PayEmployee";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
 import AddEmployee from "./Dashboard/Employer/AddEmployee";
 
+
+// Employee
+import EmployeeDashboard from "./Dashboard/Employee/EmployeeDashboard";
+import MySalary from "./Dashboard/Employee/MySalary";
+import BillPayment from "./Dashboard/Employee/BillPayment";
+import MonthlySalary from "./Dashboard/Employee/MonthlySalary";
+import JobApplication from "./Dashboard/Employee/JobApplication";
+
+
+
 // Vendor
 import VendorDashboard from "./Dashboard/Vendor/VendorDashboard";
 import VendorPayments from "./Dashboard/Vendor/Payments/VendorPayments";
@@ -88,6 +98,14 @@ function App() {
 <Route path="/employer/payment/employee" element={<PayEmployee />} />
 <Route path="/employer/transactions" element={<EmployerTransactions />} />
 <Route path="/employer/AddEmployee" element={<AddEmployee />} />
+
+
+{/* Employee */}
+<Route path="/employee/dashboard" element={<EmployeeDashboard />} />
+<Route path="/employee/salary" element={<MySalary />} />
+<Route path="/employee/bill-payment" element={<BillPayment />} />
+<Route path="/employee/monthly-salary" element={<MonthlySalary />} />
+<Route path="/employee/job-application" element={<JobApplication />} />
 
 
                 {/* ---------------- VENDOR ---------------- */}
