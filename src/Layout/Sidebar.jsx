@@ -89,11 +89,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faChartBar,
         path: "/employer/dashboard",
       },
-      {
-        name: "Add Employee/Vendor",
-        icon: faWallet,
-        path: "/employer/AddEmployee",
-      },
+      // {
+      //   name: "Add Employee/Vendor",
+      //   icon: faWallet,
+      //   path: "/employer/",
+      // },
       {
         name: "My Credits",
         icon: faWallet,
@@ -111,33 +111,33 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       },
     ],
 
-    EMPLOYEE: [
-      {
-        name: "Dashboard",
-        icon: faChartBar,
-        path: "/Employee/dashboard",
-      },
-      {
-        name: "My Salary",
-        icon: faMoneyBillWave,
-        path: "/Employee/salary",
-      },
-      {
-        name: "Bill Payment",
-        icon: faCreditCard,
-        path: "/Employee/bill-payment",
-      },
-      {
-        name: "Monthly Salary",
-        icon: faFileInvoiceDollar,
-        path: "/Employee/monthly-salary",
-      },
-      {
-        name: "Job Application",
-        icon: faBriefcase,
-        path: "/Employee/job-application",
-      }
-    ],
+EMPLOYER: [
+  {
+    name: "Dashboard",
+    icon: faChartBar,
+    path: "/employer/dashboard",
+  },
+  {
+    name: "My Credits",
+    icon: faWallet,
+    path: "/employer/credits/balance",
+  },
+  {
+    name: "Job Vacancy",
+    icon: faWallet,
+    path: "/employer/job-vacancies",
+  },
+  {
+    name: "Payment",
+    icon: faHandHoldingUsd,
+    path: "/employer/payment",
+  },
+  {
+    name: "Transactions",
+    icon: faList,
+    path: "/employer/transactions",
+  },
+],
     
     JOBSEEKER: [
       {
@@ -150,15 +150,15 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faBriefcase,
         path: "/job-portal/job-list",
       },
-      {
-        name: "Submit Resume",
-        icon: faFileInvoiceDollar,
-        path: "/job-portal/submit-resume",
-      },
+      // {
+      //   name: "Submit Resume",
+      //   icon: faFileInvoiceDollar,
+      //   path: "/job-portal/submit-resume",
+      // },
       {
         name: "Apply For Jobs",
         icon: faUsers,
-        path: "/job-portal/apply",
+        path: "/job-portal/apply/:jobId",
       }
     ],
 

@@ -320,41 +320,8 @@ const SubmitResume = () => {
   }, []);
 
   return (
-    <div style={{ backgroundColor: colors.lightBg, minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ 
-        backgroundColor: colors.white, 
-        borderBottom: `1px solid ${colors.lightGray}`,
-        padding: '12px 0',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}>
-        <div style={containerStyle}>
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <Button 
-                variant="link" 
-                className="me-3 p-0"
-                onClick={() => navigate('/JobSeeker/dashboard')}
-                style={{ color: colors.primaryRed }}
-              >
-                <FaArrowLeft size={18} />
-              </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Submit Resume</h2>
-            </div>
-            <Button 
-              style={secondaryButtonStyle}
-              onClick={handleSaveDraft}
-              disabled={isSubmitting}
-            >
-              <FaSave className="me-1" />
-              {windowWidth < 576 ? 'Save' : 'Save Draft'}
-            </Button>
-          </div>
-        </div>
-      </div>
+    <div style={{  minHeight: '100vh' }}>
+      
 
       <div style={containerStyle} className="py-4">
         {/* Success Alert */}

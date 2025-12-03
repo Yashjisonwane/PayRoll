@@ -1,7 +1,7 @@
 // src/pages/JobSeeker/ApplyForVacancy.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, Row, Col, Form, Button, Alert, ProgressBar } from 'react-bootstrap';
+import { Card, Row, Col, Form, Button, Alert, ProgressBar, Modal } from 'react-bootstrap';
 import { 
   FaBriefcase, 
   FaBuilding, 
@@ -39,6 +39,7 @@ const ApplyForVacancy = () => {
   const { jobId } = useParams();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [jobDetails, setJobDetails] = useState(null);
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -49,7 +50,7 @@ const ApplyForVacancy = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showError, setShowError] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [coverLetterFileName, setCoverLetterFileName] = useState('');
@@ -68,7 +69,7 @@ const ApplyForVacancy = () => {
   // Fetch job details on component mount
   useEffect(() => {
     // In a real app, this would be an API call
-    // For demo purposes, we'll use mock data
+    // For demo purposes, we'll use mock data that matches JobList
     const mockJobs = {
       1: {
         id: 1,
@@ -98,7 +99,7 @@ const ApplyForVacancy = () => {
         postedDate: '2023-07-05',
         experience: '2-4 years',
         jobType: 'Full-time',
-        description: 'Join our frontend team to build amazing user experiences. You will be responsible for translating UI/UX design wireframes to actual code that will produce visual elements of the application. You will work with the UI/UX designer and bridge the gap between graphical design and technical implementation.',
+        description: 'Join our frontend team to build amazing user experiences. You will be responsible for translating UI/UX design wireframes to actual code that will produce visual elements of application. You will work with UI/UX designer and bridge gap between graphical design and technical implementation.',
         requirements: [
           '2+ years of experience in frontend development',
           'Proficiency in HTML5, CSS3, and JavaScript',
@@ -109,10 +110,110 @@ const ApplyForVacancy = () => {
           'Ability to work in an agile environment'
         ],
         salary: '₹8-10 LPA'
+      },
+      3: {
+        id: 3,
+        title: 'UI/UX Designer',
+        company: 'Creative Minds',
+        location: 'Pune, India',
+        postedDate: '2023-07-03',
+        experience: '1-3 years',
+        jobType: 'Full-time',
+        description: 'Looking for a creative designer to enhance our product design. You will be responsible for creating beautiful and intuitive user interfaces.',
+        requirements: [
+          '1-3 years of design experience',
+          'Proficiency in design tools',
+          'Strong portfolio showcasing your work'
+        ],
+        salary: '₹6-8 LPA'
+      },
+      4: {
+        id: 4,
+        title: 'Full Stack Developer',
+        company: 'Tech Innovations',
+        location: 'Hyderabad, India',
+        postedDate: '2023-07-02',
+        experience: '3-6 years',
+        jobType: 'Full-time',
+        description: 'We are seeking a talented full stack developer to work on our cutting-edge projects. You will work on both frontend and backend development.',
+        requirements: [
+          '3-6 years of full stack development',
+          'Experience with React and Node.js',
+          'Knowledge of databases',
+          'Understanding of RESTful APIs'
+        ],
+        salary: '₹10-14 LPA'
+      },
+      5: {
+        id: 5,
+        title: 'Mobile App Developer',
+        company: 'AppWorks',
+        location: 'Remote',
+        postedDate: '2023-07-01',
+        experience: '2-5 years',
+        jobType: 'Remote',
+        description: 'Join our mobile team to build innovative apps for millions of users. You will work on both iOS and Android platforms.',
+        requirements: [
+          '2-5 years of mobile development',
+          'Experience with React Native or Flutter',
+          'Knowledge of app store guidelines'
+        ],
+        salary: '₹8-12 LPA'
+      },
+      6: {
+        id: 6,
+        title: 'Data Scientist',
+        company: 'DataDriven Inc.',
+        location: 'Delhi, India',
+        postedDate: '2023-06-25',
+        experience: '3-6 years',
+        jobType: 'Full-time',
+        description: 'Join our data science team to build predictive models and analyze complex datasets. You will work with cutting-edge machine learning technologies.',
+        requirements: [
+          '3-6 years of data science experience',
+          'Strong Python skills',
+          'Experience with machine learning frameworks',
+          'Knowledge of statistics'
+        ],
+        salary: '₹15-20 LPA'
+      },
+      7: {
+        id: 7,
+        title: 'Backend Developer',
+        company: 'ServerSide Tech',
+        location: 'Chennai, India',
+        postedDate: '2023-06-20',
+        experience: '2-5 years',
+        jobType: 'Full-time',
+        description: 'Looking for a backend developer to build scalable APIs and maintain our server infrastructure. You will work with modern backend technologies.',
+        requirements: [
+          '2-5 years of backend development',
+          'Experience with Java or Node.js',
+          'Knowledge of databases',
+          'Understanding of RESTful APIs'
+        ],
+        salary: '₹9-13 LPA'
+      },
+      8: {
+        id: 8,
+        title: 'HR Manager',
+        company: 'People First',
+        location: 'Hyderabad, India',
+        postedDate: '2023-06-15',
+        experience: '3-6 years',
+        jobType: 'Full-time',
+        description: 'Looking for an experienced HR manager to lead our human resources initiatives. You will manage recruitment, employee relations, and organizational development.',
+        requirements: [
+          '3-6 years of HR experience',
+          'Strong communication skills',
+          'Knowledge of HR policies',
+          'Experience with recruitment systems'
+        ],
+        salary: '₹8-12 LPA'
       }
     };
 
-    // If jobId exists, get the job details
+    // If jobId exists, get job details
     if (jobId && mockJobs[jobId]) {
       setJobDetails(mockJobs[jobId]);
     } else {
@@ -255,12 +356,6 @@ const ApplyForVacancy = () => {
       newErrors.resumeFile = 'File size must be less than 5MB';
     }
 
-    if (coverLetterFile && coverLetterFile.type !== 'application/pdf') {
-      newErrors.coverLetterFile = 'Only PDF files are allowed for cover letter';
-    } else if (coverLetterFile && coverLetterFile.size > 5 * 1024 * 1024) {
-      newErrors.coverLetterFile = 'Cover letter file size must be less than 5MB';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -326,6 +421,20 @@ const ApplyForVacancy = () => {
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      fullName: '',
+      email: '',
+      phone: '',
+      resumeFile: null,
+      coverLetter: ''
+    });
+    setUploadedFileName('');
+    setCoverLetterFileName('');
+    setCoverLetterFile(null);
+    setErrors({});
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -374,12 +483,8 @@ const ApplyForVacancy = () => {
       
       setTimeout(() => {
         setIsSubmitting(false);
-        setShowSuccess(true);
-        
-        // Redirect to applications page after 3 seconds
-        setTimeout(() => {
-          navigate('/JobSeeker/applications');
-        }, 3000);
+        setShowSuccessModal(true);
+        setShowApplicationModal(false);
       }, 500);
       
     } catch (error) {
@@ -402,13 +507,24 @@ const ApplyForVacancy = () => {
     alert('Draft saved successfully!');
   };
 
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    resetForm();
+    setUploadProgress(0);
+    // Don't navigate to another page, just close the modal
+  };
+
+  const handleCloseApplicationModal = () => {
+    setShowApplicationModal(false);
+  };
+
   // Load draft on component mount
   useEffect(() => {
     const savedDraft = localStorage.getItem('applicationDraft');
     if (savedDraft) {
       const draft = JSON.parse(savedDraft);
       // Only load draft if it's for the same job
-      if (draft.jobId === jobDetails.id) {
+      if (draft.jobId === jobDetails?.id) {
         setFormData({
           fullName: draft.fullName || '',
           email: draft.email || '',
@@ -438,47 +554,29 @@ const ApplyForVacancy = () => {
       {/* Header */}
       <div style={{ 
         backgroundColor: colors.white, 
-        borderBottom: `1px solid ${colors.lightGray}`,
-        padding: '12px 0',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}>
+          borderBottom: `1px solid ${colors.lightGray}`,
+          padding: '12px 0',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+        }}>
         <div style={containerStyle}>
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <Button 
-                variant="link" 
-                className="me-3 p-0"
-                onClick={() => navigate('/JobSeeker/job-list')}
-                style={{ color: colors.primaryRed }}
-              >
-                <FaArrowLeft size={18} />
-              </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Apply for Vacancy</h2>
-            </div>
+          <div className="d-flex align-items-center">
             <Button 
-              style={secondaryButtonStyle}
-              onClick={handleSaveDraft}
-              disabled={isSubmitting}
+              variant="link" 
+              className="me-3 p-0"
+              onClick={() => navigate('/job-portal/job-list')}
+              style={{ color: colors.primaryRed }}
             >
-              <FaSave className="me-1" />
-              {windowWidth < 576 ? 'Save' : 'Save Draft'}
+              <FaArrowLeft size={18} />
             </Button>
+            <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Apply for Job</h2>
           </div>
         </div>
       </div>
 
       <div style={containerStyle} className="py-4">
-        {/* Success Alert */}
-        {showSuccess && (
-          <Alert variant="success" className="mb-4" style={{ fontSize: '13px' }}>
-            <FaCheckCircle className="me-2" />
-            Application submitted successfully! Redirecting to your applications...
-          </Alert>
-        )}
-
         {/* Error Alert */}
         {showError && (
           <Alert variant="danger" className="mb-4" style={{ fontSize: '13px' }}>
@@ -538,233 +636,303 @@ const ApplyForVacancy = () => {
                 ))}
               </ul>
             </div>
-          </Card.Body>
-        </Card>
-
-        {/* Application Form Card */}
-        <Card style={cardStyle}>
-          <div style={headerStyle}>
-            <FaFileUpload className="me-2" />
-            Application Form
-          </div>
-          <Card.Body className="p-4">
-            <Form onSubmit={handleSubmit}>
-              <Row>
-                <Col md={6}>
-                  <Form.Group style={formGroupStyle}>
-                    <Form.Label style={labelStyle}>
-                      <FaUser className="me-2" />
-                      Full Name *
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      placeholder="Enter your full name"
-                      isInvalid={!!errors.fullName}
-                      style={inputStyle}
-                    />
-                    <Form.Control.Feedback type="invalid" style={{ fontSize: '12px' }}>
-                      {errors.fullName}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                
-                <Col md={6}>
-                  <Form.Group style={formGroupStyle}>
-                    <Form.Label style={labelStyle}>
-                      <FaEnvelope className="me-2" />
-                      Email *
-                    </Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="Enter your email"
-                      isInvalid={!!errors.email}
-                      style={inputStyle}
-                    />
-                    <Form.Control.Feedback type="invalid" style={{ fontSize: '12px' }}>
-                      {errors.email}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group style={formGroupStyle}>
-                    <Form.Label style={labelStyle}>
-                      <FaPhone className="me-2" />
-                      Phone *
-                    </Form.Label>
-                    <Form.Control
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="Enter your phone number"
-                      isInvalid={!!errors.phone}
-                      style={inputStyle}
-                    />
-                    <Form.Control.Feedback type="invalid" style={{ fontSize: '12px' }}>
-                      {errors.phone}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Form.Group style={formGroupStyle}>
-                <Form.Label style={labelStyle}>
-                  <FaFilePdf className="me-2" />
-                  Upload Resume (PDF) *
-                </Form.Label>
-                <div className="d-flex align-items-center">
-                  <Form.Control
-                    type="file"
-                    accept=".pdf"
-                    onChange={(e) => handleFileChange(e, 'resume')}
-                    isInvalid={!!errors.resumeFile}
-                    style={{ display: 'none' }}
-                    id="resume-upload"
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => document.getElementById('resume-upload').click()}
-                    style={{
-                      ...secondaryButtonStyle,
-                      backgroundColor: colors.lightBg,
-                      borderColor: colors.lightGray,
-                      color: colors.darkGray
-                    }}
-                  >
-                    <FaFileUpload className="me-2" />
-                    Choose File
-                  </Button>
-                  {uploadedFileName && (
-                    <div className="d-flex align-items-center ms-3">
-                      <FaFilePdf color={colors.primaryRed} className="me-2" />
-                      <span style={{ fontSize: '13px', color: colors.black }}>{uploadedFileName}</span>
-                      <Button
-                        variant="link"
-                        onClick={() => handleRemoveFile('resume')}
-                        style={{ color: colors.primaryRed, padding: '0 0 0 10px' }}
-                      >
-                        <FaTrash />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <Form.Control.Feedback type="invalid" style={{ fontSize: '12px', display: 'block' }}>
-                  {errors.resumeFile}
-                </Form.Control.Feedback>
-                <Form.Text style={{ fontSize: '11px', color: colors.darkGray }}>
-                  Maximum file size: 5MB. Only PDF files are allowed.
-                </Form.Text>
-              </Form.Group>
-
-              <Form.Group style={formGroupStyle}>
-                <Form.Label style={labelStyle}>
-                  <FaFilePdf className="me-2" />
-                  Upload Cover Letter (Optional)
-                </Form.Label>
-                <div className="d-flex align-items-center">
-                  <Form.Control
-                    type="file"
-                    accept=".pdf"
-                    onChange={(e) => handleFileChange(e, 'coverLetter')}
-                    isInvalid={!!errors.coverLetterFile}
-                    style={{ display: 'none' }}
-                    id="cover-letter-upload"
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => document.getElementById('cover-letter-upload').click()}
-                    style={{
-                      ...secondaryButtonStyle,
-                      backgroundColor: colors.lightBg,
-                      borderColor: colors.lightGray,
-                      color: colors.darkGray
-                    }}
-                  >
-                    <FaFileUpload className="me-2" />
-                    Choose File
-                  </Button>
-                  {coverLetterFileName && (
-                    <div className="d-flex align-items-center ms-3">
-                      <FaFilePdf color={colors.primaryRed} className="me-2" />
-                      <span style={{ fontSize: '13px', color: colors.black }}>{coverLetterFileName}</span>
-                      <Button
-                        variant="link"
-                        onClick={() => handleRemoveFile('coverLetter')}
-                        style={{ color: colors.primaryRed, padding: '0 0 0 10px' }}
-                      >
-                        <FaTrash />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <Form.Control.Feedback type="invalid" style={{ fontSize: '12px', display: 'block' }}>
-                  {errors.coverLetterFile}
-                </Form.Control.Feedback>
-                <Form.Text style={{ fontSize: '11px', color: colors.darkGray }}>
-                  Maximum file size: 5MB. Only PDF files are allowed.
-                </Form.Text>
-              </Form.Group>
-
-              <Form.Group style={formGroupStyle}>
-                <Form.Label style={labelStyle}>Cover Letter (Optional)</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  name="coverLetter"
-                  value={formData.coverLetter}
-                  onChange={handleInputChange}
-                  placeholder="Tell us why you're a good fit for this role..."
-                  style={textareaStyle}
-                />
-                <Form.Text style={{ fontSize: '11px', color: colors.darkGray }}>
-                  You can either upload a PDF cover letter or type it here.
-                </Form.Text>
-              </Form.Group>
-
-              {isSubmitting && (
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between mb-2">
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Submitting application...</span>
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{uploadProgress}%</span>
-                  </div>
-                  <ProgressBar 
-                    now={uploadProgress} 
-                    style={{ height: '8px' }}
-                    variant="danger"
-                  />
-                </div>
-              )}
-
-              <div className="d-flex justify-content-between">
-                <Button 
-                  variant="secondary"
-                  onClick={() => navigate('/JobSeeker/job-list')}
-                  style={{ fontSize: '13px' }}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit"
-                  style={buttonStyle}
-                  disabled={isSubmitting}
-                  onMouseEnter={(e) => !isSubmitting && (e.target.style.backgroundColor = colors.darkRed)}
-                  onMouseLeave={(e) => !isSubmitting && (e.target.style.backgroundColor = colors.primaryRed)}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                </Button>
-              </div>
-            </Form>
+            
+            <div className="mt-4 text-center">
+              <Button 
+                style={buttonStyle}
+                onClick={() => setShowApplicationModal(true)}
+                size="lg"
+              >
+                Apply for this Position
+              </Button>
+            </div>
           </Card.Body>
         </Card>
       </div>
+
+      {/* Application Form Modal */}
+      <Modal 
+        show={showApplicationModal} 
+        onHide={handleCloseApplicationModal} 
+        centered 
+        size="lg"
+        scrollable
+      >
+        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
+          <Modal.Title className="d-flex align-items-center">
+            <FaFileUpload className="me-2" />
+            Application Form
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Row>
+              <Col md={6}>
+                <Form.Group style={formGroupStyle}>
+                  <Form.Label style={labelStyle}>
+                    <FaUser className="me-2" />
+                    Full Name *
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    placeholder="Enter your full name"
+                    isInvalid={!!errors.fullName}
+                    style={inputStyle}
+                  />
+                  <Form.Control.Feedback type="invalid" style={{ fontSize: '12px' }}>
+                    {errors.fullName}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+              
+              <Col md={6}>
+                <Form.Group style={formGroupStyle}>
+                  <Form.Label style={labelStyle}>
+                    <FaEnvelope className="me-2" />
+                    Email *
+                  </Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter your email"
+                    isInvalid={!!errors.email}
+                    style={inputStyle}
+                  />
+                  <Form.Control.Feedback type="invalid" style={{ fontSize: '12px' }}>
+                    {errors.email}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group style={formGroupStyle}>
+                  <Form.Label style={labelStyle}>
+                    <FaPhone className="me-2" />
+                    Phone *
+                  </Form.Label>
+                  <Form.Control
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="Enter your phone number"
+                    isInvalid={!!errors.phone}
+                    style={inputStyle}
+                  />
+                  <Form.Control.Feedback type="invalid" style={{ fontSize: '12px' }}>
+                    {errors.phone}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group style={formGroupStyle}>
+              <Form.Label style={labelStyle}>
+                <FaFilePdf className="me-2" />
+                Upload Resume (PDF) *
+              </Form.Label>
+              <div className="d-flex align-items-center">
+                <Form.Control
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => handleFileChange(e, 'resume')}
+                  isInvalid={!!errors.resumeFile}
+                  style={{ display: 'none' }}
+                  id="resume-upload"
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => document.getElementById('resume-upload').click()}
+                  style={{
+                    ...secondaryButtonStyle,
+                    backgroundColor: colors.lightBg,
+                    borderColor: colors.lightGray,
+                    color: colors.darkGray
+                  }}
+                >
+                  <FaFileUpload className="me-2" />
+                  Choose File
+                </Button>
+                {uploadedFileName && (
+                  <div className="d-flex align-items-center ms-3">
+                    <FaFilePdf color={colors.primaryRed} className="me-2" />
+                    <span style={{ fontSize: '13px', color: colors.black }}>{uploadedFileName}</span>
+                    <Button
+                      variant="link"
+                      onClick={() => handleRemoveFile('resume')}
+                      style={{ color: colors.primaryRed, padding: '0 0 0 10px' }}
+                    >
+                      <FaTrash />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <Form.Control.Feedback type="invalid" style={{ fontSize: '12px', display: 'block' }}>
+                {errors.resumeFile}
+              </Form.Control.Feedback>
+              <Form.Text style={{ fontSize: '11px', color: colors.darkGray }}>
+                Maximum file size: 5MB. Only PDF files are allowed.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group style={formGroupStyle}>
+              <Form.Label style={labelStyle}>
+                <FaFilePdf className="me-2" />
+                Upload Cover Letter (Optional)
+              </Form.Label>
+              <div className="d-flex align-items-center">
+                <Form.Control
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => handleFileChange(e, 'coverLetter')}
+                  isInvalid={!!errors.coverLetterFile}
+                  style={{ display: 'none' }}
+                  id="cover-letter-upload"
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => document.getElementById('cover-letter-upload').click()}
+                  style={{
+                    ...secondaryButtonStyle,
+                    backgroundColor: colors.lightBg,
+                    borderColor: colors.lightGray,
+                    color: colors.darkGray
+                  }}
+                >
+                  <FaFileUpload className="me-2" />
+                  Choose File
+                </Button>
+                {coverLetterFileName && (
+                  <div className="d-flex align-items-center ms-3">
+                    <FaFilePdf color={colors.primaryRed} className="me-2" />
+                    <span style={{ fontSize: '13px', color: colors.black }}>{coverLetterFileName}</span>
+                    <Button
+                      variant="link"
+                      onClick={() => handleRemoveFile('coverLetter')}
+                      style={{ color: colors.primaryRed, padding: '0 0 0 10px' }}
+                    >
+                      <FaTrash />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <Form.Control.Feedback type="invalid" style={{ fontSize: '12px', display: 'block' }}>
+                {errors.coverLetterFile}
+              </Form.Control.Feedback>
+              <Form.Text style={{ fontSize: '11px', color: colors.darkGray }}>
+                Maximum file size: 5MB. Only PDF files are allowed.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group style={formGroupStyle}>
+              <Form.Label style={labelStyle}>Cover Letter (Optional)</Form.Label>
+              <Form.Control
+                as="textarea"
+                name="coverLetter"
+                value={formData.coverLetter}
+                onChange={handleInputChange}
+                placeholder="Tell us why you're a good fit for this role..."
+                style={textareaStyle}
+              />
+              <Form.Text style={{ fontSize: '11px', color: colors.darkGray }}>
+                You can either upload a PDF cover letter or type it here.
+              </Form.Text>
+            </Form.Group>
+
+            {isSubmitting && (
+              <div className="mb-3">
+                <div className="d-flex justify-content-between mb-2">
+                  <span style={{ fontSize: '12px', color: colors.darkGray }}>Submitting...</span>
+                  <span style={{ fontSize: '12px', color: colors.darkGray }}>{uploadProgress}%</span>
+                </div>
+                <ProgressBar 
+                  now={uploadProgress} 
+                  style={{ height: '8px' }}
+                  variant="danger"
+                />
+              </div>
+            )}
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="secondary"
+            onClick={handleCloseApplicationModal}
+            style={{ fontSize: '13px' }}
+          >
+            Cancel
+          </Button>
+          <div>
+            <Button 
+              variant="outline-secondary"
+              className="me-2"
+              onClick={handleSaveDraft}
+              style={{ fontSize: '13px' }}
+            >
+              <FaSave className="me-1" />
+              Save Draft
+            </Button>
+            <Button 
+              type="submit"
+              style={buttonStyle}
+              disabled={isSubmitting}
+              onClick={handleSubmit}
+              onMouseEnter={(e) => !isSubmitting && (e.target.style.backgroundColor = colors.darkRed)}
+              onMouseLeave={(e) => !isSubmitting && (e.target.style.backgroundColor = colors.primaryRed)}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Application'}
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={handleCloseSuccessModal} centered>
+        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
+          <Modal.Title className="d-flex align-items-center">
+            <FaCheckCircle className="me-2" />
+            Applied Successfully!
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center py-4">
+          <div className="mb-4">
+            <FaCheckCircle size={60} color={colors.successGreen} />
+          </div>
+          <h5 style={{ color: colors.black, marginBottom: '10px' }}>
+            Your application has been submitted successfully!
+          </h5>
+          <p style={{ color: colors.darkGray, fontSize: '14px', marginBottom: '20px' }}>
+            We will review your application and get back to you soon.
+          </p>
+          <div className="d-flex justify-content-center">
+            <Button 
+              style={buttonStyle}
+              onClick={() => {
+                setShowSuccessModal(false);
+                resetForm();
+                setUploadProgress(0);
+                navigate('/job-portal/job-list');
+              }}
+            >
+              View More Jobs
+            </Button>
+            <Button 
+              variant="outline-secondary"
+              className="ms-2"
+              onClick={handleCloseSuccessModal}
+            >
+              Close
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
