@@ -3,7 +3,7 @@ import { FaUserTie, FaBuilding, FaUniversity, FaTimes, FaEye, FaCalendarAlt, FaM
 // Make sure to import Bootstrap CSS in your main App.js or index.js file
 // import "bootstrap/dist/css/bootstrap.min.css";
 
-const PaymentsSection = () => {
+const PaymentEmployer = () => {
   // --- MOCK DATA ---
   const employees = [
     { id: 'EMP001', name: 'Rahul Sharma' },
@@ -543,4 +543,4 @@ const PaymentsSection = () => {
   );
 };
 
-export default PaymentsSection;
+export default PaymentEmployer;

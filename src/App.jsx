@@ -45,6 +45,7 @@ import SubmitResume from "./Dashboard/JobPortal/SubmitResume";
 // Vendor
 import VendorDashboard from "./Dashboard/Vendor/VendorDashboard";
 import VendorPayments from "./Dashboard/Vendor/Payments/VendorPayments";
+import PaymentEmployer from "./Dashboard/Employer/PaymentEmployer";
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -117,6 +118,8 @@ function App() {
 {/* Employer Transactions */}
 <Route path="/employer/transactions" element={<EmployerTransactions />} />
 <Route path="/employer/AddEmployee" element={<AddEmployee />} />
+<Route path="/employer/payment" element={<PaymentEmployer/>} />
+<Route path="/employer/job-vacancies" element={<PaymentEmployer/>} />
 
 
 {/* Employee */}
