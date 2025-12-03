@@ -37,6 +37,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const roleRedirectMap = {
     ADMIN: "/Admin/dashboard",
@@ -56,8 +57,7 @@ const Login = () => {
 
   const handleLogin = async (loginEmail, loginPassword) => {
     setLoading(true);
-    setEmail(loginEmail);
-    setPassword(loginPassword);
+    setError("");
 
     const matchedUser = Object.values(dummyUsers).find(
       (user) => user.email === loginEmail && loginPassword === "123456"
@@ -73,7 +73,7 @@ const Login = () => {
 
       navigate(roleRedirectMap[matchedUser.role] || "/");
     } else {
-      alert("Invalid credentials.");
+      setError("Invalid credentials. Please use the quick login buttons or check your email/password.");
     }
 
     setLoading(false);
@@ -87,6 +87,8 @@ const Login = () => {
   const directLogin = (role) => {
     const user = dummyUsers[role];
     if (user) {
+      setEmail(user.email);
+      setPassword("123456");
       handleLogin(user.email, "123456");
     }
   };
@@ -101,11 +103,10 @@ const Login = () => {
               src="https://z-cdn-media.chatglm.cn/files/003affb6-799b-4e33-bc0c-58412fae77f3.jpg?auth_key=1864669769-098225dd3ea745eb86a8b0921c6a4f1a-0-7778e4ae70ac5b6af8c01477bb275365"
               alt="business dashboard"
               className="img-fluid rounded-start"
-              // --- ADJUSTED STYLE ---
               style={{ 
                 height: "100%", 
                 objectFit: "cover", 
-                objectPosition: 'center bottom' // This line adjusts the image focus
+                objectPosition: 'center bottom'
               }}
             />
           </div>
@@ -116,6 +117,13 @@ const Login = () => {
               <h2 className="fw-bold mb-3 text-center" style={{ color: colors.black, fontFamily: 'inherit' }}>Welcome Back!</h2>
               {/* Sub-heading with new dark gray color */}
               <p className="text-center mb-4" style={{ color: colors.darkGray, fontFamily: 'inherit' }}>Please login to your account</p>
+
+              {/* Error message */}
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
 
               {/* Quick login buttons */}
               <div className="mb-4">
@@ -142,6 +150,10 @@ const Login = () => {
                 </div>
               </div>
 
+              <div className="mb-3 text-center">
+                <span style={{ color: colors.darkGray, fontSize: '14px' }}>Or use your credentials:</span>
+              </div>
+
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label" style={{ fontFamily: 'inherit' }}>Email address</label>
@@ -155,7 +167,7 @@ const Login = () => {
                   />
                 </div>
 
-                <div className="mb-3 position-relative">
+                <div className="mb-3">
                   <label className="form-label" style={{ fontFamily: 'inherit' }}>Password</label>
                   <div className="input-group">
                     <input
@@ -166,17 +178,20 @@ const Login = () => {
                       required
                       style={{ fontFamily: 'inherit' }}
                     />
-                    <span
-                      className="position-absolute top-50 end-0 translate-middle-y pe-3"
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      style={{ cursor: "pointer", zIndex: 10 }}
                     >
                       {showPassword ? (
                         <i className="bi bi-eye-slash-fill"></i>
                       ) : (
                         <i className="bi bi-eye-fill"></i>
                       )}
-                    </span>
+                    </button>
+                  </div>
+                  <div className="form-text" style={{ color: colors.darkGray }}>
+                    Default password for all accounts: 123456
                   </div>
                 </div>
 
