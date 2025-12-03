@@ -15,7 +15,10 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaClock,
-  FaGraduationCap
+  FaGraduationCap,
+  FaEye,
+  FaShare,
+  FaHeart
 } from 'react-icons/fa';
 
 // Color Palette
@@ -26,7 +29,7 @@ const colors = {
   black: '#000000',
   darkGray: '#4A4A4A',
   lightGray: '#E2E2E2',
-  lightBg: '#F8F9FA',
+  lightBg: '#FFFFFF',
   successGreen: '#28A745',
   warningOrange: '#FFC107',
 };
@@ -44,6 +47,7 @@ const JobList = () => {
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('postedDate');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [savedJobs, setSavedJobs] = useState([]);
   
   // Track window width for responsive adjustments
   useEffect(() => {
@@ -173,7 +177,7 @@ const JobList = () => {
   const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 15px',
+    padding: windowWidth < 768 ? '0 10px' : '0 15px',
   };
 
   const cardStyle = {
@@ -194,14 +198,14 @@ const JobList = () => {
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    fontSize: '14px',
+    fontSize: windowWidth < 768 ? '12px' : '14px',
   };
 
   const buttonStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
     border: 'none',
-    padding: '8px 16px',
+    padding: windowWidth < 768 ? '6px 12px' : '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -209,14 +213,14 @@ const JobList = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '12px',
   };
 
   const secondaryButtonStyle = {
     backgroundColor: 'transparent',
     color: colors.primaryRed,
     border: `1px solid ${colors.primaryRed}`,
-    padding: '8px 16px',
+    padding: windowWidth < 768 ? '6px 12px' : '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -224,26 +228,12 @@ const JobList = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '12px',
   };
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const handleSort = (field) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('asc');
-    }
-  };
-
-  const getSortIcon = (field) => {
-    if (sortBy !== field) return <FaClock />;
-    return sortOrder === 'asc' ? <FaArrowLeft /> : <FaArrowLeft style={{ transform: 'rotate(180deg)' }} />;
   };
 
   const applyFiltersAndSort = () => {
@@ -320,6 +310,22 @@ const JobList = () => {
     setSelectedJob(job);
     setShowJobDetailsModal(true);
   };
+
+  // Function to handle Share Job button click
+  const handleShareJob = (job) => {
+    if (navigator.share) {
+      navigator.share({
+        title: job.title,
+        text: `Check out this job opportunity: ${job.title} at ${job.company}`,
+        url: window.location.href
+      });
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      const jobUrl = window.location.href;
+      navigator.clipboard.writeText(jobUrl);
+      alert('Job link copied to clipboard');
+    }
+  };
   
   // Responsive job list component
   const ResponsiveJobList = () => {
@@ -331,19 +337,21 @@ const JobList = () => {
             <Card key={job.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-start mb-2">
-                  <div>
+                  <div className="flex-grow-1">
                     <h5 style={{ fontSize: '14px', fontWeight: '600', margin: '0' }}>{job.title}</h5>
                     <p style={{ fontSize: '12px', color: colors.darkGray, margin: '0' }}>{job.company}</p>
                   </div>
-                  <Badge 
-                    bg={
-                      job.status === 'Accepted' ? 'success' : 
-                      job.status === 'Rejected' ? 'danger' : 'warning'
-                    }
-                    style={{ fontSize: '11px' }}
-                  >
-                    {job.status}
-                  </Badge>
+                  <div className="d-flex flex-column align-items-end">
+                    <Badge 
+                      bg={
+                        job.status === 'Open' ? 'success' : 
+                        job.status === 'Closed' ? 'danger' : 'warning'
+                      }
+                      style={{ fontSize: '11px' }}
+                    >
+                      {job.status}
+                    </Badge>
+                  </div>
                 </div>
                 
                 <div className="mb-2">
@@ -359,11 +367,8 @@ const JobList = () => {
                     <FaClock className="me-2" size={12} color={colors.darkGray} />
                     <span style={{ fontSize: '12px', color: colors.black }}>{formatDate(job.postedDate)}</span>
                   </div>
-                </div>
-                
-                <div className="mb-2">
                   <div className="d-flex align-items-center mb-1">
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Experience:</span>
+                    <FaGraduationCap className="me-2" size={12} color={colors.darkGray} />
                     <span style={{ fontSize: '12px', color: colors.black }}>{job.experience}</span>
                   </div>
                 </div>
@@ -375,7 +380,15 @@ const JobList = () => {
                     style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
                     onClick={() => handleViewDetails(job)}
                   >
-                    View Details
+                    <FaEye className="me-1" /> View
+                  </Button>
+                  <Button 
+                    variant="link" 
+                    size="sm"
+                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                    onClick={() => handleShareJob(job)}
+                  >
+                    <FaShare className="me-1" /> Share
                   </Button>
                   <Button 
                     variant="link" 
@@ -398,24 +411,12 @@ const JobList = () => {
           <Table hover className="align-middle" style={{ fontSize: '13px' }}>
             <thead>
               <tr>
-                <th onClick={() => handleSort('title')} style={{ cursor: 'pointer' }}>
-                  Title {getSortIcon('title')}
-                </th>
-                <th onClick={() => handleSort('company')} style={{ cursor: 'pointer' }}>
-                  Company {getSortIcon('company')}
-                </th>
-                <th onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
-                  Location {getSortIcon('location')}
-                </th>
-                <th onClick={() => handleSort('salary')} style={{ cursor: 'pointer' }}>
-                  Salary {getSortIcon('salary')}
-                </th>
-                <th onClick={() => handleSort('experience')} style={{ cursor: 'pointer' }}>
-                  Experience {getSortIcon('experience')}
-                </th>
-                <th onClick={() => handleSort('postedDate')} style={{ cursor: 'pointer' }}>
-                  Posted {getSortIcon('postedDate')}
-                </th>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Salary</th>
+                <th>Experience</th>
+                <th>Posted</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -429,14 +430,26 @@ const JobList = () => {
                   <td style={{ fontSize: '12px' }}>{job.experience}</td>
                   <td style={{ fontSize: '12px' }}>{formatDate(job.postedDate)}</td>
                   <td>
-                    <Button 
-                      variant="link" 
-                      size="sm"
-                      style={buttonStyle}
-                      onClick={() => handleApplyNow(job.id)}
-                    >
-                      Apply Now
-                    </Button>
+                    <div className="d-flex gap-1">
+                      <Button 
+                        variant="link" 
+                        size="sm"
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                        onClick={() => handleViewDetails(job)}
+                        title="View Details"
+                      >
+                        <FaEye />
+                      </Button>
+                      <Button 
+                        variant="link" 
+                        size="sm"
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                        onClick={() => handleShareJob(job)}
+                        title="Share Job"
+                      >
+                        <FaShare />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -453,7 +466,7 @@ const JobList = () => {
       <div style={{ 
         backgroundColor: colors.white, 
           borderBottom: `1px solid ${colors.lightGray}`,
-          padding: '12px 0',
+          padding: windowWidth < 768 ? '8px 0' : '12px 0',
           boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
           position: 'sticky',
           top: 0,
@@ -470,10 +483,12 @@ const JobList = () => {
               >
                 <FaArrowLeft size={18} />
               </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Job Vacancies</h2>
+              <h2 style={{ color: colors.black, margin: 0, fontSize: windowWidth < 768 ? '18px' : '20px' }}>
+                Job Vacancies
+              </h2>
             </div>
             <div className="d-flex align-items-center">
-              <div className="input-group me-2" style={{ maxWidth: '250px' }}>
+              <div className="input-group me-2" style={{ maxWidth: windowWidth < 576 ? '150px' : '250px' }}>
                 <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
                   <FaSearch size={14} color={colors.darkGray} />
                 </span>
@@ -500,7 +515,7 @@ const JobList = () => {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 15px' }}>
+      <div style={containerStyle} className="py-4">
         {/* Results Count */}
         <div className="mb-3">
           <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500', marginBottom: '10px' }}>
@@ -523,7 +538,7 @@ const JobList = () => {
                   <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
                     No job openings found
                   </p>
-            </div>
+              </div>
             )}
           </Card.Body>
         </Card>
@@ -553,6 +568,16 @@ const JobList = () => {
                 </Col>
                 <Col md={4} className="text-md-end">
                   <h5 style={{ color: colors.primaryRed, fontWeight: '600', fontSize: '16px' }}>{selectedJob.salary}</h5>
+                  <div className="mt-2">
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                      onClick={() => handleShareJob(selectedJob)}
+                    >
+                      <FaShare className="me-1" /> Share
+                    </Button>
+                  </div>
                 </Col>
               </Row>
               

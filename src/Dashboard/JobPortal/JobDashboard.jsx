@@ -1,7 +1,7 @@
 // src/pages/JobSeeker/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Badge, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { Card, Row, Col, Table, Badge, Button, Modal, Form, Alert, Dropdown } from 'react-bootstrap';
 import { 
   FaBriefcase, 
   FaUser, 
@@ -22,7 +22,9 @@ import {
   FaClock,
   FaMapMarkerAlt,
   FaBuilding,
-  FaBookmark
+  FaBookmark,
+  FaEllipsisV,
+  FaCamera
 } from 'react-icons/fa';
 
 // Color Palette
@@ -47,6 +49,13 @@ const JobSeekerDashboard = () => {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [profileData, setProfileData] = useState({
+    name: 'John Doe',
+    email: 'john.doe@email.com',
+    phone: '+91 9876543210',
+    location: 'Mumbai, India',
+    profileImage: 'https://picsum.photos/seed/jobseeker123/200/200.jpg',
+  });
   
   // Track window width for responsive adjustments
   useEffect(() => {
@@ -160,9 +169,9 @@ const JobSeekerDashboard = () => {
   const cardStyle = {
     backgroundColor: colors.white,
     border: `1px solid ${colors.lightGray}`,
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    marginBottom: '20px',
+    borderRadius: '8px', // Reduced from 12px
+    boxShadow: '0 2px 6px rgba(0,0,0,0.05)', // Reduced shadow
+    marginBottom: '12px', // Reduced from 20px
     transition: 'transform 0.3s ease',
     height: '100%',
     overflow: 'hidden',
@@ -171,41 +180,41 @@ const JobSeekerDashboard = () => {
   const headerStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
-    padding: '12px 16px',
+    padding: '8px 12px', // Reduced from 12px 16px
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    fontSize: '14px',
+    fontSize: '12px', // Reduced from 14px
   };
 
   const buttonStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
     border: 'none',
-    padding: '8px 16px',
-    borderRadius: '6px',
+    padding: '6px 12px', // Reduced from 8px 16px
+    borderRadius: '4px', // Reduced from 6px
     cursor: 'pointer',
     transition: 'all 0.2s',
     fontWeight: '500',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
-    fontSize: '12px',
+    gap: '4px', // Reduced from 6px
+    fontSize: '11px', // Reduced from 12px
   };
 
   const secondaryButtonStyle = {
     backgroundColor: 'transparent',
     color: colors.primaryRed,
     border: `1px solid ${colors.primaryRed}`,
-    padding: '8px 16px',
-    borderRadius: '6px',
+    padding: '6px 12px', // Reduced from 8px 16px
+    borderRadius: '4px', // Reduced from 6px
     cursor: 'pointer',
     transition: 'all 0.2s',
     fontWeight: '500',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
-    fontSize: '12px',
+    gap: '4px', // Reduced from 6px
+    fontSize: '11px', // Reduced from 12px
   };
 
   const formatDate = (dateString) => {
@@ -238,6 +247,38 @@ const JobSeekerDashboard = () => {
     alert('Job removed from saved list!');
   };
 
+  const handleProfileSubmit = (e) => {
+    e.preventDefault();
+    setUserProfile({
+      ...userProfile,
+      ...profileData
+    });
+    setShowProfileModal(false);
+    alert('Profile updated successfully!');
+  };
+
+  const handleProfileChange = (field, value) => {
+    setProfileData({
+      ...profileData,
+      [field]: value
+    });
+  };
+
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      // In a real app, you would upload the file to a server
+      // For this example, we'll create a local URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setProfileData({
+          ...profileData,
+          profileImage: event.target.result
+        });
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
   const filteredApplications = applications.filter(app => 
     app.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
     app.company.toLowerCase().includes(searchTerm.toLowerCase())
@@ -252,40 +293,40 @@ const JobSeekerDashboard = () => {
       return (
         <div className="application-cards">
           {filteredApplications.map(application => (
-            <Card key={application.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body>
-                <div className="d-flex justify-content-between align-items-start mb-2">
+            <Card key={application.id} className="mb-2" style={{ border: `1px solid ${colors.lightGray}` }}>
+              <Card.Body className="p-2">
+                <div className="d-flex justify-content-between align-items-start mb-1">
                   <div>
-                    <h5 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>{application.jobTitle}</h5>
-                    <p style={{ fontSize: '12px', color: colors.darkGray, margin: 0 }}>{application.company}</p>
+                    <h5 style={{ fontSize: '12px', fontWeight: '600', margin: 0 }}>{application.jobTitle}</h5>
+                    <p style={{ fontSize: '10px', color: colors.darkGray, margin: 0 }}>{application.company}</p>
                   </div>
                   <Badge 
                     bg={
                       application.status === 'Accepted' ? 'success' : 
                       application.status === 'Rejected' ? 'danger' : 'warning'
                     }
-                    style={{ fontSize: '11px' }}
+                    style={{ fontSize: '9px' }}
                   >
                     {application.status}
                   </Badge>
                 </div>
                 
-                <div className="mb-2">
+                <div className="mb-1">
                   <div className="d-flex align-items-center mb-1">
-                    <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{application.location}</span>
+                    <FaMapMarkerAlt className="me-1" size={10} color={colors.darkGray} />
+                    <span style={{ fontSize: '10px', color: colors.darkGray }}>{application.location}</span>
                   </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaClock className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Applied: {formatDate(application.appliedDate)}</span>
+                  <div className="d-flex align-items-center">
+                    <FaClock className="me-1" size={10} color={colors.darkGray} />
+                    <span style={{ fontSize: '10px', color: colors.darkGray }}>Applied: {formatDate(application.appliedDate)}</span>
                   </div>
                 </div>
                 
-                <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between mt-2">
                   <Button 
                     variant="link" 
                     size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                    style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
                     onClick={() => handleViewApplication(application)}
                   >
                     <FaEye /> View
@@ -293,7 +334,7 @@ const JobSeekerDashboard = () => {
                   <Button 
                     variant="link" 
                     size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                    style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
                     onClick={() => handleDeleteApplication(application.id)}
                   >
                     <FaTrash /> Delete
@@ -308,7 +349,7 @@ const JobSeekerDashboard = () => {
       // Desktop view - table layout
       return (
         <div className="table-responsive">
-          <Table hover className="align-middle" style={{ fontSize: '13px' }}>
+          <Table hover className="align-middle" style={{ fontSize: '11px' }}>
             <thead>
               <tr>
                 <th>Job Title</th>
@@ -322,17 +363,17 @@ const JobSeekerDashboard = () => {
             <tbody>
               {filteredApplications.map(application => (
                 <tr key={application.id}>
-                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{application.jobTitle}</td>
-                  <td style={{ fontSize: '12px' }}>{application.company}</td>
-                  <td style={{ fontSize: '12px' }}>{application.location}</td>
-                  <td style={{ fontSize: '12px' }}>{formatDate(application.appliedDate)}</td>
+                  <td style={{ fontWeight: '600', fontSize: '10px' }}>{application.jobTitle}</td>
+                  <td style={{ fontSize: '10px' }}>{application.company}</td>
+                  <td style={{ fontSize: '10px' }}>{application.location}</td>
+                  <td style={{ fontSize: '10px' }}>{formatDate(application.appliedDate)}</td>
                   <td>
                     <Badge 
                       bg={
                         application.status === 'Accepted' ? 'success' : 
                         application.status === 'Rejected' ? 'danger' : 'warning'
                       }
-                      style={{ fontSize: '11px' }}
+                      style={{ fontSize: '9px' }}
                     >
                       {application.status}
                     </Badge>
@@ -342,7 +383,7 @@ const JobSeekerDashboard = () => {
                       <Button 
                         variant="link" 
                         size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px', marginRight: '8px' }}
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '10px', marginRight: '8px' }}
                         onClick={() => handleViewApplication(application)}
                       >
                         <FaEye />
@@ -350,7 +391,7 @@ const JobSeekerDashboard = () => {
                       <Button 
                         variant="link" 
                         size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
                         onClick={() => handleDeleteApplication(application.id)}
                       >
                         <FaTrash />
@@ -373,37 +414,37 @@ const JobSeekerDashboard = () => {
       return (
         <div className="saved-jobs-cards">
           {savedJobs.map(job => (
-            <Card key={job.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body>
-                <div className="mb-2">
-                  <h5 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>{job.title}</h5>
-                  <p style={{ fontSize: '12px', color: colors.darkGray, margin: 0 }}>{job.company}</p>
+            <Card key={job.id} className="mb-2" style={{ border: `1px solid ${colors.lightGray}` }}>
+              <Card.Body className="p-2">
+                <div className="mb-1">
+                  <h5 style={{ fontSize: '12px', fontWeight: '600', margin: 0 }}>{job.title}</h5>
+                  <p style={{ fontSize: '10px', color: colors.darkGray, margin: 0 }}>{job.company}</p>
                 </div>
                 
-                <div className="mb-2">
+                <div className="mb-1">
                   <div className="d-flex align-items-center mb-1">
-                    <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{job.location}</span>
+                    <FaMapMarkerAlt className="me-1" size={10} color={colors.darkGray} />
+                    <span style={{ fontSize: '10px', color: colors.darkGray }}>{job.location}</span>
                   </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaClock className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Posted: {formatDate(job.postedDate)}</span>
+                  <div className="d-flex align-items-center">
+                    <FaClock className="me-1" size={10} color={colors.darkGray} />
+                    <span style={{ fontSize: '10px', color: colors.darkGray }}>Posted: {formatDate(job.postedDate)}</span>
                   </div>
                 </div>
                 
-                <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between mt-2">
                   <Button 
                     variant="link" 
                     size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                    onClick={() => navigate(`/JobSeeker/apply/${job.id}`)}
+                    style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
+                    onClick={() => navigate('/JobSeeker/job-list')}
                   >
                     <FaBriefcase /> Apply
                   </Button>
                   <Button 
                     variant="link" 
                     size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                    style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
                     onClick={() => handleUnsaveJob(job.id)}
                   >
                     <FaTrash /> Remove
@@ -418,7 +459,7 @@ const JobSeekerDashboard = () => {
       // Desktop view - table layout
       return (
         <div className="table-responsive">
-          <Table hover className="align-middle" style={{ fontSize: '13px' }}>
+          <Table hover className="align-middle" style={{ fontSize: '11px' }}>
             <thead>
               <tr>
                 <th>Job Title</th>
@@ -431,24 +472,24 @@ const JobSeekerDashboard = () => {
             <tbody>
               {savedJobs.map(job => (
                 <tr key={job.id}>
-                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{job.title}</td>
-                  <td style={{ fontSize: '12px' }}>{job.company}</td>
-                  <td style={{ fontSize: '12px' }}>{job.location}</td>
-                  <td style={{ fontSize: '12px' }}>{formatDate(job.postedDate)}</td>
+                  <td style={{ fontWeight: '600', fontSize: '10px' }}>{job.title}</td>
+                  <td style={{ fontSize: '10px' }}>{job.company}</td>
+                  <td style={{ fontSize: '10px' }}>{job.location}</td>
+                  <td style={{ fontSize: '10px' }}>{formatDate(job.postedDate)}</td>
                   <td>
                     <div className="d-flex">
                       <Button 
                         variant="link" 
                         size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px', marginRight: '8px' }}
-                        onClick={() => navigate(`/JobSeeker/apply/${job.id}`)}
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '10px', marginRight: '8px' }}
+                        onClick={() => navigate('/JobSeeker/job-list')}
                       >
                         <FaBriefcase />
                       </Button>
                       <Button 
                         variant="link" 
                         size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '10px' }}
                         onClick={() => handleUnsaveJob(job.id)}
                       >
                         <FaTrash />
@@ -466,46 +507,57 @@ const JobSeekerDashboard = () => {
 
   return (
     <div style={{ minHeight: '100vh' }}>
-     
+      
 
-      <div style={containerStyle} className="py-4">
+      <div style={containerStyle} className="py-3">
         {/* Profile Card */}
-        <Row className="g-4 mb-4">
-          <Col lg={4} md={6}>
+        <Row className="g-3 mb-3">
+          <Col lg={6} md={6}>
             <Card style={cardStyle}>
               <div style={headerStyle}>
                 <FaUser className="me-2" />
                 Profile Overview
               </div>
-              <Card.Body className="text-center p-3 p-md-4">
-                <img 
-                  src={userProfile.profileImage} 
-                  alt="Profile" 
-                  className="rounded-circle mb-3" 
-                  style={{ 
-                    width: windowWidth < 576 ? '80px' : '120px', 
-                    height: windowWidth < 576 ? '80px' : '120px', 
-                    objectFit: 'cover', 
-                    border: `3px solid ${colors.primaryRed}` 
-                  }}
-                />
-                <h4 style={{ color: colors.black, marginBottom: '5px', fontSize: windowWidth < 576 ? '18px' : '24px' }}>
+              <Card.Body className="text-center p-2">
+                <div className="position-relative d-inline-block mb-2">
+                  <img 
+                    src={userProfile.profileImage} 
+                    alt="Profile" 
+                    className="rounded-circle" 
+                    style={{ 
+                      width: windowWidth < 576 ? '60px' : '80px', // Reduced from 80px and 120px
+                      height: windowWidth < 576 ? '60px' : '80px', 
+                      objectFit: 'cover', 
+                      border: `2px solid ${colors.primaryRed}` // Reduced from 3px
+                    }}
+                  />
+                </div>
+                <h4 style={{ color: colors.black, marginBottom: '3px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
                   {userProfile.name}
                 </h4>
-                <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
+                <p style={{ color: colors.darkGray, marginBottom: '3px', fontSize: windowWidth < 576 ? '11px' : '12px' }}>
                   {userProfile.email}
                 </p>
-                <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
+                <p style={{ color: colors.darkGray, marginBottom: '3px', fontSize: windowWidth < 576 ? '11px' : '12px' }}>
                   {userProfile.phone}
                 </p>
-                <p style={{ color: colors.darkGray, marginBottom: '15px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
+                <p style={{ color: colors.darkGray, marginBottom: '10px', fontSize: windowWidth < 576 ? '11px' : '12px' }}>
                   {userProfile.location}
                 </p>
                 <Button 
                   style={buttonStyle}
                   onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
                   onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                  onClick={() => setShowProfileModal(true)}
+                  onClick={() => {
+                    setProfileData({
+                      name: userProfile.name,
+                      email: userProfile.email,
+                      phone: userProfile.phone,
+                      location: userProfile.location,
+                      profileImage: userProfile.profileImage
+                    });
+                    setShowProfileModal(true);
+                  }}
                 >
                   <FaEdit className="me-1" />
                   Edit Profile
@@ -514,49 +566,49 @@ const JobSeekerDashboard = () => {
             </Card>
           </Col>
 
-          <Col lg={4} md={6}>
+          <Col lg={6} md={6}>
             <Card style={cardStyle}>
               <div style={headerStyle}>
                 <FaChartBar className="me-2" />
                 Application Stats
               </div>
-              <Card.Body className="p-3 p-md-4">
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Total Applications</h5>
+              <Card.Body className="p-2">
+                <div className="mb-2">
+                  <h5 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Total Applications</h5>
                   <h3 style={{ 
                     color: colors.primaryRed, 
                     fontWeight: '700',
-                    fontSize: windowWidth < 576 ? '24px' : '28px'
+                    fontSize: windowWidth < 576 ? '18px' : '22px' // Reduced from 24px and 28px
                   }}>
                     {userProfile.totalApplications}
                   </h3>
                 </div>
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Profile Views</h5>
+                <div className="mb-2">
+                  <h5 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Profile Views</h5>
                   <h3 style={{ 
                     color: colors.black, 
                     fontWeight: '600',
-                    fontSize: windowWidth < 576 ? '24px' : '28px'
+                    fontSize: windowWidth < 576 ? '18px' : '22px' // Reduced from 24px and 28px
                   }}>
                     {userProfile.profileViews}
                   </h3>
                 </div>
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Resume Status</h5>
+                <div className="mb-2">
+                  <h5 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Resume Status</h5>
                   <h5 style={{ 
                     color: userProfile.resumeUploaded ? colors.successGreen : colors.warningOrange, 
                     fontWeight: '600',
-                    fontSize: windowWidth < 576 ? '18px' : '20px'
+                    fontSize: windowWidth < 576 ? '14px' : '16px' // Reduced from 18px and 20px
                   }}>
                     {userProfile.resumeUploaded ? 'Uploaded' : 'Not Uploaded'}
                   </h5>
                 </div>
                 <div>
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Last Active</h5>
+                  <h5 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Last Active</h5>
                   <h5 style={{ 
                     color: colors.black, 
                     fontWeight: '600',
-                    fontSize: windowWidth < 576 ? '16px' : '18px'
+                    fontSize: windowWidth < 576 ? '12px' : '14px' // Reduced from 16px and 18px
                   }}>
                     {formatDate(userProfile.lastActive)}
                   </h5>
@@ -564,100 +616,96 @@ const JobSeekerDashboard = () => {
               </Card.Body>
             </Card>
           </Col>
-
-          <Col lg={4} md={12}>
-            <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaFileUpload className="me-2" />
-                Quick Actions
-              </div>
-              <Card.Body className="p-3 p-md-4">
-                <div className="mb-3">
-                  <Button 
-                    style={buttonStyle}
-                    className="w-100 mb-2"
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                    onClick={() => navigate('/JobSeeker/submit-resume')}
-                  >
-                    <FaFileUpload className="me-1" />
-                    {windowWidth < 576 ? 'Upload Resume' : 'Upload New Resume'}
-                  </Button>
-                </div>
-                <div className="mb-3">
-                  <Button 
-                    style={secondaryButtonStyle}
-                    className="w-100 mb-2"
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.lightRed}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                    onClick={() => navigate('/JobSeeker/job-list')}
-                  >
-                    <FaSearch className="me-1" />
-                    {windowWidth < 576 ? 'Find Jobs' : 'Browse Jobs'}
-                  </Button>
-                </div>
-                <div>
-                  <Button 
-                    style={secondaryButtonStyle}
-                    className="w-100"
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.lightRed}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                    onClick={() => alert('Feature coming soon!')}
-                  >
-                    <FaChartBar className="me-1" />
-                    {windowWidth < 576 ? 'Analytics' : 'View Analytics'}
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
         </Row>
 
         {/* Applications and Saved Jobs */}
-        <Row className="g-4">
+        <Row className="g-3">
           <Col lg={8}>
             <Card style={cardStyle}>
               <div style={headerStyle}>
                 <FaBriefcase className="me-2" />
                 My Applications
                 <div className="ms-auto d-flex">
-                  <div className="input-group me-2" style={{ maxWidth: '200px' }}>
-                    <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
-                      <FaSearch size={12} color={colors.darkGray} />
-                    </span>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Search..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      style={{ fontSize: '12px' }}
-                    />
-                  </div>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    style={{ 
-                      border: `1px solid ${colors.lightGray}`,
-                      borderRadius: '4px',
-                      padding: '4px 8px',
-                      fontSize: '12px'
-                    }}
-                  >
-                    <option value="all">All Status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Accepted">Accepted</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
+                  {windowWidth >= 768 ? (
+                    <>
+                      <div className="input-group me-2" style={{ maxWidth: '180px' }}>
+                        <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
+                          <FaSearch size={10} color={colors.darkGray} />
+                        </span>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Search..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          style={{ fontSize: '10px' }}
+                        />
+                      </div>
+                      <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        style={{ 
+                          border: `1px solid ${colors.lightGray}`,
+                          borderRadius: '4px',
+                          padding: '2px 6px',
+                          fontSize: '10px'
+                        }}
+                      >
+                        <option value="all">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </>
+                  ) : (
+                    <Dropdown>
+                      <Dropdown.Toggle 
+                        variant="outline-light" 
+                        id="dropdown-filter"
+                        style={{ fontSize: '10px' }}
+                      >
+                        <FaFilter />
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu align="end">
+                        <div className="px-3 py-2">
+                          <div className="mb-2">
+                            <small className="text-muted">Search</small>
+                            <input
+                              type="text"
+                              className="form-control form-control-sm"
+                              placeholder="Search..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ fontSize: '10px' }}
+                            />
+                          </div>
+                          <div className="mb-2">
+                            <small className="text-muted">Status</small>
+                            <select
+                              value={filterStatus}
+                              onChange={(e) => setFilterStatus(e.target.value)}
+                              className="form-select form-select-sm"
+                              style={{ fontSize: '10px' }}
+                            >
+                              <option value="all">All Status</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Accepted">Accepted</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+                          </div>
+                        </div>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  )}
                 </div>
               </div>
-              <Card.Body className="p-3 p-md-4">
+              <Card.Body className="p-2">
                 {filteredApplications.length > 0 ? (
                   <ResponsiveApplicationTable />
                 ) : (
-                  <div className="text-center py-4">
-                    <FaBriefcase size={40} color={colors.lightGray} />
-                    <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
+                  <div className="text-center py-3">
+                    <FaBriefcase size={30} color={colors.lightGray} />
+                    <p style={{ color: colors.darkGray, marginTop: '8px', fontSize: '12px' }}>
                       No applications found
                     </p>
                   </div>
@@ -672,13 +720,13 @@ const JobSeekerDashboard = () => {
                 <FaBookmark className="me-2" />
                 Saved Jobs
               </div>
-              <Card.Body className="p-3 p-md-4">
+              <Card.Body className="p-2">
                 {savedJobs.length > 0 ? (
                   <ResponsiveSavedJobsTable />
                 ) : (
-                  <div className="text-center py-4">
-                    <FaBookmark size={40} color={colors.lightGray} />
-                    <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
+                  <div className="text-center py-3">
+                    <FaBookmark size={30} color={colors.lightGray} />
+                    <p style={{ color: colors.darkGray, marginTop: '8px', fontSize: '12px' }}>
                       No saved jobs yet
                     </p>
                   </div>
@@ -690,63 +738,63 @@ const JobSeekerDashboard = () => {
       </div>
 
       {/* Application Details Modal */}
-      <Modal show={showApplicationModal} onHide={() => setShowApplicationModal(false)} centered size="lg">
+      <Modal show={showApplicationModal} onHide={() => setShowApplicationModal(false)} centered size={windowWidth < 768 ? 'sm' : 'lg'}>
         <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
           <Modal.Title>Application Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedApplication && (
             <div>
-              <div className="mb-4">
-                <h4 style={{ color: colors.black, fontWeight: '600', fontSize: '18px' }}>{selectedApplication.jobTitle}</h4>
-                <h5 style={{ color: colors.darkGray, fontSize: '16px' }}>{selectedApplication.company}</h5>
+              <div className="mb-3">
+                <h4 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>{selectedApplication.jobTitle}</h4>
+                <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>{selectedApplication.company}</h5>
               </div>
               
-              <Row className="mb-3">
+              <Row className="mb-2">
                 <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Location</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Location</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '12px' }}>
                     {selectedApplication.location}
                   </p>
                 </Col>
                 <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Salary</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Salary</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '12px' }}>
                     {selectedApplication.salary}
                   </p>
                 </Col>
               </Row>
               
-              <Row className="mb-3">
+              <Row className="mb-2">
                 <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Job Type</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Job Type</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '12px' }}>
                     {selectedApplication.jobType}
                   </p>
                 </Col>
                 <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Experience</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Experience</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '12px' }}>
                     {selectedApplication.experience}
                   </p>
                 </Col>
               </Row>
               
-              <Row className="mb-3">
+              <Row className="mb-2">
                 <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Applied Date</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Applied Date</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '12px' }}>
                     {formatDate(selectedApplication.appliedDate)}
                   </p>
                 </Col>
                 <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Status</h6>
+                  <h6 style={{ color: colors.darkGray, fontSize: '11px', fontWeight: '500' }}>Status</h6>
                   <Badge 
                     bg={
                       selectedApplication.status === 'Accepted' ? 'success' : 
                       selectedApplication.status === 'Rejected' ? 'danger' : 'warning'
                     }
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: '10px' }}
                   >
                     {selectedApplication.status}
                   </Badge>
@@ -758,7 +806,7 @@ const JobSeekerDashboard = () => {
                   variant="secondary" 
                   className="me-2"
                   onClick={() => setShowApplicationModal(false)}
-                  style={{ fontSize: '13px' }}
+                  style={{ fontSize: '11px' }}
                 >
                   Close
                 </Button>
@@ -769,42 +817,71 @@ const JobSeekerDashboard = () => {
       </Modal>
 
       {/* Profile Modal */}
-      <Modal show={showProfileModal} onHide={() => setShowProfileModal(false)} centered size="md">
+      <Modal show={showProfileModal} onHide={() => setShowProfileModal(false)} centered size={windowWidth < 768 ? 'sm' : 'md'}>
         <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
           <Modal.Title>Edit Profile</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Full Name</Form.Label>
+          <Form onSubmit={handleProfileSubmit}>
+            <div className="text-center mb-3">
+              <div className="position-relative d-inline-block">
+                <img 
+                  src={profileData.profileImage} 
+                  alt="Profile" 
+                  className="rounded-circle" 
+                  style={{ 
+                    width: '100px', // Reduced from 120px
+                    height: '100px', // Reduced from 120px
+                    objectFit: 'cover', 
+                    border: `2px solid ${colors.primaryRed}` // Reduced from 3px
+                  }}
+                />
+                <label htmlFor="profileImageUpload" className="position-absolute bottom-0 end-0 bg-white rounded-circle p-1" style={{ cursor: 'pointer', border: `1px solid ${colors.lightGray}` }}>
+                  <FaCamera color={colors.primaryRed} size={12} />
+                  <input
+                    id="profileImageUpload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+            </div>
+            <Form.Group className="mb-2">
+              <Form.Label style={{ fontSize: '11px' }}>Full Name</Form.Label>
               <Form.Control
                 type="text"
-                defaultValue={userProfile.name}
-                style={{ fontSize: '13px' }}
+                value={profileData.name}
+                onChange={(e) => handleProfileChange('name', e.target.value)}
+                style={{ fontSize: '11px' }}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Email</Form.Label>
+            <Form.Group className="mb-2">
+              <Form.Label style={{ fontSize: '11px' }}>Email</Form.Label>
               <Form.Control
                 type="email"
-                defaultValue={userProfile.email}
-                style={{ fontSize: '13px' }}
+                value={profileData.email}
+                onChange={(e) => handleProfileChange('email', e.target.value)}
+                style={{ fontSize: '11px' }}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Phone</Form.Label>
+            <Form.Group className="mb-2">
+              <Form.Label style={{ fontSize: '11px' }}>Phone</Form.Label>
               <Form.Control
                 type="text"
-                defaultValue={userProfile.phone}
-                style={{ fontSize: '13px' }}
+                value={profileData.phone}
+                onChange={(e) => handleProfileChange('phone', e.target.value)}
+                style={{ fontSize: '11px' }}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Location</Form.Label>
+            <Form.Group className="mb-2">
+              <Form.Label style={{ fontSize: '11px' }}>Location</Form.Label>
               <Form.Control
                 type="text"
-                defaultValue={userProfile.location}
-                style={{ fontSize: '13px' }}
+                value={profileData.location}
+                onChange={(e) => handleProfileChange('location', e.target.value)}
+                style={{ fontSize: '11px' }}
               />
             </Form.Group>
             <div className="d-flex justify-content-end">
@@ -812,7 +889,7 @@ const JobSeekerDashboard = () => {
                 variant="secondary" 
                 className="me-2"
                 onClick={() => setShowProfileModal(false)}
-                style={{ fontSize: '13px' }}
+                style={{ fontSize: '11px' }}
               >
                 Cancel
               </Button>
