@@ -550,7 +550,7 @@ const ApplyForVacancy = () => {
   }
 
   return (
-    <div style={{ backgroundColor: colors.lightBg, minHeight: '100vh' }}>
+    <div style={{  minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ 
         backgroundColor: colors.white, 

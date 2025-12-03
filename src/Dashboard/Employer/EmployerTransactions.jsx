@@ -230,7 +230,7 @@ const Transactions = () => {
         <button 
           className="btn px-3 py-2 text-white"
           style={{ backgroundColor: colors.primaryRed, fontSize: isMobile ? '0.875rem' : '1rem' }}
-          onClick={() => navigate('/admin/dashboard')}
+          onClick={() => navigate('/employer/dashboard')}
         >
           <i className="bi bi-arrow-left me-2"></i>Back to Dashboard
         </button>
