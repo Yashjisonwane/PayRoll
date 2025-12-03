@@ -42,7 +42,7 @@ const Login = () => {
     ADMIN: "/Admin/dashboard",
     EMPLOYER: "/Employer/dashboard",
     EMPLOYEE: "/Employee/dashboard",
-    JOBSEEKER: "/JobSeeker/dashboard",
+    JOBSEEKER: "/job-portal/dashboard",
     VENDOR: "/Vendor/dashboard",
   };
 
