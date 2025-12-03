@@ -94,7 +94,7 @@ function App() {
               <Routes>
                 {/* ---------------- ADMIN ---------------- */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/add" element={<AddCredit />} />
+                <Route path="/admin/AddCredit" element={<AddCredit />} />
                 <Route path="/admin/transactions" element={<AllTransactions />} />
                 <Route path="/admin/assign-credit" element={<AssignCredit />} />
                 <Route path="/admin/job-portal" element={<JobPortal />} />
