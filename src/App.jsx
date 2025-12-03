@@ -16,6 +16,8 @@ import AdminDashboard from "./Dashboard/Admin/AdminDashboard";
 import AddCredit from "./Dashboard/Admin/AddCredit";
 import AllTransactions from "./Dashboard/Admin/AllTransactions";
 import AssignCredit from "./Dashboard/Admin/AssignCredit";
+import JobPortal from "./Dashboard/Admin/JobPortal";
+import BillCompanies from "./Dashboard/Admin/BillCompanies";
 
 // Employer
 import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
@@ -23,16 +25,6 @@ import CreditBalance from "./Dashboard/Employer/CreditBalance";
 import PayEmployee from "./Dashboard/Employer/PayEmployee";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
 import AddEmployee from "./Dashboard/Employer/AddEmployee";
-
-
-// Employee
-import EmployeeDashboard from "./Dashboard/Employee/EmployeeDashboard";
-import MySalary from "./Dashboard/Employee/MySalary";
-import BillPayment from "./Dashboard/Employee/BillPayment";
-import MonthlySalary from "./Dashboard/Employee/MonthlySalary";
-import JobApplication from "./Dashboard/Employee/JobApplication";
-
-
 
 // Vendor
 import VendorDashboard from "./Dashboard/Vendor/VendorDashboard";
@@ -90,6 +82,9 @@ function App() {
                 <Route path="/admin/add" element={<AddCredit />} />
                 <Route path="/admin/transactions" element={<AllTransactions />} />
                 <Route path="/admin/assign-credit" element={<AssignCredit />} />
+                <Route path="/admin/job-portal" element={<JobPortal />} />
+                 <Route path="/admin/bill-companies" element={<BillCompanies />} />
+                
 
                 {/* ---------------- EMPLOYER ---------------- */}
                 {/* EMPLOYER */}
@@ -98,14 +93,6 @@ function App() {
 <Route path="/employer/payment/employee" element={<PayEmployee />} />
 <Route path="/employer/transactions" element={<EmployerTransactions />} />
 <Route path="/employer/AddEmployee" element={<AddEmployee />} />
-
-
-{/* Employee */}
-<Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-<Route path="/employee/salary" element={<MySalary />} />
-<Route path="/employee/bill-payment" element={<BillPayment />} />
-<Route path="/employee/monthly-salary" element={<MonthlySalary />} />
-<Route path="/employee/job-application" element={<JobApplication />} />
 
 
                 {/* ---------------- VENDOR ---------------- */}

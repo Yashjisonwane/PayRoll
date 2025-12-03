@@ -52,15 +52,17 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faChartBar,
         path: "/admin/dashboard",
       },
+     
       {
         name: "Employers",
         icon: faUsers,
         path: "/admin/assign-credit",
       },
-      {
+       {
         name: "Credits",
         icon: faCreditCard,
         path: "/admin/add",
+
       },
       {
         name: "Transactions",
@@ -97,33 +99,18 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       },
     ],
 
-    EMPLOYEE: [
-      {
-        name: "Dashboard",
-        icon: faChartBar,
-        path: "/employee/dashboard",
-      },
-      {
-        name: "My Salary",
-        icon: faMoneyBillWave,
-        path: "/employee/salary",
-      },
-      {
-        name: "Bill Payment",
-        icon: faCreditCard,
-        path: "/employee/bill-payment",
-      },
-      {
-        name: "Monthly Salary",
-        icon: faCreditCard,
-        path: "/employee/monthly-salary",
-      },
-      {
-        name: "Job Application",
-        icon: faUsers,
-        path: "/employee/job-application",
-      }
-    ],
+    // EMPLOYEE: [
+    //   {
+    //     name: "Dashboard",
+    //     icon: faChartBar,
+    //     path: "/employee/dashboard"
+    //   },
+    //   {
+    //     name: "My Payments",
+    //     icon: faMoneyBillWave,
+    //     path: "/employee/payments"
+    //   }
+    // ],
 
     VENDOR: [
       {
