@@ -1,7 +1,7 @@
 // src/pages/Employee/Dashboard.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Badge, Button, Modal, Form, ProgressBar, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Card, Row, Col, Table, Badge, Button, Modal, Form, ProgressBar, Container, Nav, Navbar, NavDropdown, Image, InputGroup } from 'react-bootstrap';
 import { 
   FaUser, 
   FaMoneyBillWave, 
@@ -18,8 +18,14 @@ import {
   FaChartLine,
   FaWallet,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaCamera,
+  FaUpload,
+  FaArrowLeft,
+  FaSearch
 } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // Color Palette
 const colors = {
@@ -29,7 +35,7 @@ const colors = {
   black: '#000000',
   darkGray: '#4A4A4A',
   lightGray: '#E2E2E2',
-  lightBg: '#F8F9FA',
+  lightBg: '#FFFFFF', // Changed to white background
 };
 
 const EmployeeDashboard = () => {
@@ -41,6 +47,10 @@ const EmployeeDashboard = () => {
   const [notificationCount, setNotificationCount] = useState(3);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [showSalaryHistory, setShowSalaryHistory] = useState(false);
+  const [showAllBills, setShowAllBills] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Track window width for responsive adjustments
   useEffect(() => {
@@ -65,6 +75,10 @@ const EmployeeDashboard = () => {
     bankAccount: 'XXXXXX1234',
   });
   
+  // State for profile image preview
+  const [profileImagePreview, setProfileImagePreview] = useState(employeeData.profileImage);
+  const fileInputRef = useRef(null);
+  
   const [salaryData, setSalaryData] = useState({
     currentMonthSalary: 75000,
     lastSalaryDate: '2023-06-25',
@@ -72,6 +86,13 @@ const EmployeeDashboard = () => {
     totalBillPayments: 15000,
     yearToDateSalary: 450000,
     monthlyAverage: 75000,
+    basicSalary: 45000,
+    hra: 15000,
+    specialAllowance: 10000,
+    lta: 5000,
+    pf: 7500,
+    professionalTax: 200,
+    tds: 8000,
   });
   
   const [transactions, setTransactions] = useState([
@@ -80,12 +101,31 @@ const EmployeeDashboard = () => {
     { id: 3, type: 'Bill Payment', date: '2023-06-18', amount: 2500, status: 'Completed', description: 'Internet Bill' },
     { id: 4, type: 'Salary', date: '2023-05-25', amount: 75000, status: 'Completed', description: 'Monthly Salary - May 2023' },
     { id: 5, type: 'Bill Payment', date: '2023-05-15', amount: 3000, status: 'Completed', description: 'Electricity Bill' },
+    { id: 6, type: 'Reimbursement', date: '2023-05-10', amount: 1500, status: 'Completed', description: 'Travel Reimbursement' },
+    { id: 7, type: 'Salary', date: '2023-04-25', amount: 75000, status: 'Completed', description: 'Monthly Salary - April 2023' },
+    { id: 8, type: 'Bill Payment', date: '2023-04-18', amount: 2200, status: 'Completed', description: 'Water Bill' },
   ]);
   
+  // Extended salary history data
+  const [salaryHistory, setSalaryHistory] = useState([
+    { id: 1, month: 'June 2023', date: '2023-06-25', basicSalary: 45000, hra: 15000, specialAllowance: 10000, lta: 5000, grossSalary: 75000, pf: 7500, professionalTax: 200, tds: 8000, netSalary: 59300, status: 'Paid' },
+    { id: 2, month: 'May 2023', date: '2023-05-25', basicSalary: 45000, hra: 15000, specialAllowance: 10000, lta: 5000, grossSalary: 75000, pf: 7500, professionalTax: 200, tds: 8000, netSalary: 59300, status: 'Paid' },
+    { id: 3, month: 'April 2023', date: '2023-04-25', basicSalary: 45000, hra: 15000, specialAllowance: 10000, lta: 5000, grossSalary: 75000, pf: 7500, professionalTax: 200, tds: 8000, netSalary: 59300, status: 'Paid' },
+    { id: 4, month: 'March 2023', date: '2023-03-25', basicSalary: 45000, hra: 15000, specialAllowance: 10000, lta: 5000, grossSalary: 75000, pf: 7500, professionalTax: 200, tds: 8000, netSalary: 59300, status: 'Paid' },
+    { id: 5, month: 'February 2023', date: '2023-02-25', basicSalary: 45000, hra: 15000, specialAllowance: 10000, lta: 5000, grossSalary: 75000, pf: 7500, professionalTax: 200, tds: 8000, netSalary: 59300, status: 'Paid' },
+    { id: 6, month: 'January 2023', date: '2023-01-25', basicSalary: 45000, hra: 15000, specialAllowance: 10000, lta: 5000, grossSalary: 75000, pf: 7500, professionalTax: 200, tds: 8000, netSalary: 59300, status: 'Paid' },
+  ]);
+  
+  // Extended bills data
   const [bills, setBills] = useState([
-    { id: 1, name: 'Electricity Bill', amount: 3500, dueDate: '2023-07-10', status: 'Pending' },
-    { id: 2, name: 'Internet Bill', amount: 1200, dueDate: '2023-07-15', status: 'Pending' },
-    { id: 3, name: 'Water Bill', amount: 800, dueDate: '2023-07-20', status: 'Pending' },
+    { id: 1, name: 'Electricity Bill', amount: 3500, dueDate: '2023-07-10', status: 'Pending', description: 'Monthly electricity charges for June 2023' },
+    { id: 2, name: 'Internet Bill', amount: 1200, dueDate: '2023-07-15', status: 'Pending', description: 'Monthly broadband charges for June 2023' },
+    { id: 3, name: 'Water Bill', amount: 800, dueDate: '2023-07-20', status: 'Pending', description: 'Monthly water charges for June 2023' },
+    { id: 4, name: 'Gas Bill', amount: 600, dueDate: '2023-07-25', status: 'Pending', description: 'Monthly gas charges for June 2023' },
+    { id: 5, name: 'Mobile Bill', amount: 999, dueDate: '2023-07-28', status: 'Pending', description: 'Monthly mobile charges for June 2023' },
+    { id: 6, name: 'Credit Card Bill', amount: 15000, dueDate: '2023-07-30', status: 'Pending', description: 'Monthly credit card dues for June 2023' },
+    { id: 7, name: 'Insurance Premium', amount: 3000, dueDate: '2023-07-05', status: 'Paid', description: 'Quarterly insurance premium' },
+    { id: 8, name: 'Housing Society Maintenance', amount: 2000, dueDate: '2023-06-10', status: 'Paid', description: 'Monthly maintenance charges' },
   ]);
 
   const [profileForm, setProfileForm] = useState({
@@ -154,16 +194,32 @@ const EmployeeDashboard = () => {
   };
 
   const handleViewAllTransactions = () => {
-    navigate('/Employee/transactions');
+    setShowAllTransactions(true);
   };
 
-  const handleViewBills = () => {
-    navigate('/Employee/bills');
+  const handleViewSalaryHistory = () => {
+    setShowSalaryHistory(true);
+  };
+
+  const handleViewAllBills = () => {
+    setShowAllBills(true);
   };
 
   const handleViewTransactionDetails = (transaction) => {
     setSelectedTransaction(transaction);
     setShowTransactionModal(true);
+  };
+
+  // Handle profile image change
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleProfileUpdate = (e) => {
@@ -175,6 +231,7 @@ const EmployeeDashboard = () => {
       email: profileForm.email,
       phone: profileForm.phone,
       address: profileForm.address,
+      profileImage: profileImagePreview, // Update the profile image
     });
     setShowProfileModal(false);
     // Show success notification
@@ -219,19 +276,650 @@ const EmployeeDashboard = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Function to generate and download payslip PDF
+  const downloadPayslipPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Helper function to draw a line
+    const drawLine = (y) => {
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, y, pageWidth - 20, y);
+    };
+
+    // Payslip Title
+    doc.setFontSize(22);
+    doc.setTextColor(colors.primaryRed);
+    doc.text('Payslip', pageWidth / 2, 25, { align: 'center' });
+    
+    // Pay Period
+    doc.setFontSize(14);
+    doc.setTextColor(100);
+    doc.text(`Pay Period: June 2023`, pageWidth / 2, 35, { align: 'center' });
+    
+    drawLine(45);
+
+    // Employee Details Section
+    doc.setFontSize(16);
+    doc.setTextColor(0);
+    doc.text('Employee Details', 20, 58);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(60);
+    doc.text(`Name: ${employeeData.name}`, 20, 68);
+    doc.text(`Employee ID: ${employeeData.id}`, 20, 76);
+    doc.text(`Department: ${employeeData.department}`, 20, 84);
+    doc.text(`Bank Account: ${employeeData.bankAccount}`, 20, 92);
+    
+    // Earnings Section
+    doc.setFontSize(16);
+    doc.text('Earnings', pageWidth / 2, 58);
+    
+    const earningsData = [
+      ['Basic Salary', formatCurrency(salaryData.basicSalary)],
+      ['House Rent Allowance (HRA)', formatCurrency(salaryData.hra)],
+      ['Special Allowance', formatCurrency(salaryData.specialAllowance)],
+      ['Leave Travel Allowance (LTA)', formatCurrency(salaryData.lta)],
+    ];
+    
+    doc.autoTable({
+      head: [['Description', 'Amount']],
+      body: earningsData,
+      startY: 68,
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 1.5 },
+      headStyles: { fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 80 },
+        1: { cellWidth: 40, halign: 'right' },
+      },
+      margin: { left: pageWidth / 2 },
+    });
+
+    const earningsFinalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.setFont(undefined, 'bold');
+    doc.text('Gross Earnings:', pageWidth / 2, earningsFinalY);
+    doc.text(formatCurrency(salaryData.currentMonthSalary), pageWidth - 20, earningsFinalY, { align: 'right' });
+
+    drawLine(earningsFinalY + 5);
+
+    // Deductions Section
+    doc.setFontSize(16);
+    doc.setTextColor(0);
+    doc.setFont(undefined, 'normal');
+    doc.text('Deductions', 20, earningsFinalY + 20);
+    
+    const deductionsData = [
+      ['Provident Fund (PF)', formatCurrency(salaryData.pf)],
+      ['Professional Tax', formatCurrency(salaryData.professionalTax)],
+      ['Income Tax (TDS)', formatCurrency(salaryData.tds)],
+    ];
+    
+    doc.autoTable({
+      head: [['Description', 'Amount']],
+      body: deductionsData,
+      startY: earningsFinalY + 30,
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 1.5 },
+      headStyles: { fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 80 },
+        1: { cellWidth: 40, halign: 'right' },
+      },
+    });
+
+    const deductionsFinalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.setFont(undefined, 'bold');
+    doc.text('Total Deductions:', 20, deductionsFinalY);
+    doc.text(formatCurrency(salaryData.pf + salaryData.professionalTax + salaryData.tds), 110, deductionsFinalY, { align: 'right' });
+
+    drawLine(deductionsFinalY + 5);
+
+    // Net Salary Section
+    doc.setFillColor(colors.primaryRed);
+    doc.rect(20, deductionsFinalY + 15, pageWidth - 40, 20, 'F');
+    
+    doc.setFontSize(16);
+    doc.setTextColor(255);
+    doc.text('Net Salary for the month:', 25, deductionsFinalY + 29);
+    doc.setFontSize(18);
+    doc.text(formatCurrency(salaryData.currentMonthSalary - (salaryData.pf + salaryData.professionalTax + salaryData.tds)), pageWidth - 25, deductionsFinalY + 29, { align: 'right' });
+    
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text('This is a computer-generated document and does not require a signature.', pageWidth / 2, doc.internal.pageSize.getHeight() - 15, { align: 'center' });
+    
+    // Save the PDF
+    doc.save(`Payslip_${employeeData.name.replace(' ', '_')}_June_2023.pdf`);
+  };
+
+  // Function to generate and download transaction receipt
+  const downloadTransactionReceipt = (transaction) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.setTextColor(colors.primaryRed);
+    doc.text('Transaction Receipt', pageWidth / 2, 25, { align: 'center' });
+    
+    // Transaction Details
+    doc.setFontSize(16);
+    doc.setTextColor(0);
+    doc.text('Transaction Details', 20, 50);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(60);
+    doc.text(`Transaction ID: ${transaction.id}`, 20, 60);
+    doc.text(`Type: ${transaction.type}`, 20, 70);
+    doc.text(`Description: ${transaction.description}`, 20, 80);
+    doc.text(`Date: ${formatDate(transaction.date)}`, 20, 90);
+    
+    // Amount Section
+    doc.setFontSize(16);
+    doc.text('Amount', pageWidth / 2, 50);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(60);
+    doc.text(`Amount: ${formatCurrency(transaction.amount)}`, pageWidth / 2, 60);
+    doc.text(`Status: ${transaction.status}`, pageWidth / 2, 70);
+    
+    // Employee Details
+    doc.setFontSize(16);
+    doc.text('Employee Details', 20, 110);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(60);
+    doc.text(`Name: ${employeeData.name}`, 20, 120);
+    doc.text(`Employee ID: ${employeeData.id}`, 20, 130);
+    doc.text(`Department: ${employeeData.department}`, 20, 140);
+    
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text('This is a computer-generated document and does not require a signature.', pageWidth / 2, doc.internal.pageSize.getHeight() - 15, { align: 'center' });
+    
+    // Save the PDF
+    doc.save(`Transaction_${transaction.id}_Receipt.pdf`);
+  };
+
+  // Filter transactions based on search term
+  const filteredTransactions = transactions.filter(transaction =>
+    transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter bills based on search term
+  const filteredBills = bills.filter(bill =>
+    bill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    bill.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter salary history based on search term
+  const filteredSalaryHistory = salaryHistory.filter(salary =>
+    salary.month.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // All Transactions View
+  const AllTransactionsView = () => (
+    <Container fluid className="px-3 px-md-4 py-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div className="d-flex align-items-center mb-3 mb-md-0">
+          <Button 
+            variant="link" 
+            className="p-0 me-3"
+            style={{ color: colors.primaryRed }}
+            onClick={() => setShowAllTransactions(false)}
+          >
+            <FaArrowLeft size={20} />
+          </Button>
+          <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>
+            All Transactions
+          </h2>
+        </div>
+        <div className="d-flex">
+          <InputGroup style={{ maxWidth: '300px' }}>
+            <Form.Control
+              placeholder="Search transactions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ fontSize: '14px' }}
+            />
+            <Button variant="outline-secondary">
+              <FaSearch />
+            </Button>
+          </InputGroup>
+        </div>
+      </div>
+
+      <Card style={cardStyle}>
+        <Card.Body className="p-0">
+          <div className="table-responsive">
+            <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTransactions.map(transaction => (
+                  <tr key={transaction.id}>
+                    <td style={{ fontSize: '12px' }}>{transaction.id}</td>
+                    <td>
+                      <Badge 
+                        bg={transaction.type === 'Salary' ? 'success' : transaction.type === 'Payment' ? 'info' : transaction.type === 'Reimbursement' ? 'primary' : 'warning'}
+                        style={{ fontSize: '12px' }}
+                      >
+                        {transaction.type}
+                      </Badge>
+                    </td>
+                    <td style={{ fontSize: '12px' }}>{transaction.description}</td>
+                    <td style={{ fontSize: '12px' }}>{formatDate(transaction.date)}</td>
+                    <td style={{ fontWeight: '600', fontSize: '12px' }}>{formatCurrency(transaction.amount)}</td>
+                    <td>
+                      <Badge bg="success" style={{ fontSize: '12px' }}>
+                        {transaction.status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="d-flex">
+                        <Button 
+                          variant="link" 
+                          size="sm"
+                          style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                          onClick={() => handleViewTransactionDetails(transaction)}
+                        >
+                          <FaEye />
+                        </Button>
+                        <Button 
+                          variant="link" 
+                          size="sm"
+                          style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                          onClick={() => downloadTransactionReceipt(transaction)}
+                        >
+                          <FaDownload />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+      </Card>
+    </Container>
+  );
+
+  // Salary History View
+  const SalaryHistoryView = () => (
+    <Container fluid className="px-3 px-md-4 py-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div className="d-flex align-items-center mb-3 mb-md-0">
+          <Button 
+            variant="link" 
+            className="p-0 me-3"
+            style={{ color: colors.primaryRed }}
+            onClick={() => setShowSalaryHistory(false)}
+          >
+            <FaArrowLeft size={20} />
+          </Button>
+          <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>
+            Salary History
+          </h2>
+        </div>
+        <div className="d-flex">
+          <InputGroup style={{ maxWidth: '300px' }}>
+            <Form.Control
+              placeholder="Search salary history..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ fontSize: '14px' }}
+            />
+            <Button variant="outline-secondary">
+              <FaSearch />
+            </Button>
+          </InputGroup>
+        </div>
+      </div>
+
+      <Card style={cardStyle}>
+        <Card.Body className="p-0">
+          <div className="table-responsive">
+            <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Date</th>
+                  <th>Basic Salary</th>
+                  <th>HRA</th>
+                  <th>Special Allowance</th>
+                  <th>LTA</th>
+                  <th>Gross Salary</th>
+                  <th>PF</th>
+                  <th>Professional Tax</th>
+                  <th>TDS</th>
+                  <th>Net Salary</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSalaryHistory.map(salary => (
+                  <tr key={salary.id}>
+                    <td style={{ fontSize: '12px' }}>{salary.month}</td>
+                    <td style={{ fontSize: '12px' }}>{formatDate(salary.date)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.basicSalary)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.hra)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.specialAllowance)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.lta)}</td>
+                    <td style={{ fontSize: '12px', fontWeight: '600' }}>{formatCurrency(salary.grossSalary)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.pf)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.professionalTax)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatCurrency(salary.tds)}</td>
+                    <td style={{ fontSize: '12px', fontWeight: '600', color: colors.primaryRed }}>{formatCurrency(salary.netSalary)}</td>
+                    <td>
+                      <Badge bg="success" style={{ fontSize: '12px' }}>
+                        {salary.status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="d-flex">
+                        <Button 
+                          variant="link" 
+                          size="sm"
+                          style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                          onClick={() => {
+                            // Create a payslip for the selected month
+                            const doc = new jsPDF();
+                            const pageWidth = doc.internal.pageSize.getWidth();
+                            
+                            // Helper function to draw a line
+                            const drawLine = (y) => {
+                              doc.setDrawColor(200, 200, 200);
+                              doc.line(20, y, pageWidth - 20, y);
+                            };
+
+                            // Payslip Title
+                            doc.setFontSize(22);
+                            doc.setTextColor(colors.primaryRed);
+                            doc.text('Payslip', pageWidth / 2, 25, { align: 'center' });
+                            
+                            // Pay Period
+                            doc.setFontSize(14);
+                            doc.setTextColor(100);
+                            doc.text(`Pay Period: ${salary.month}`, pageWidth / 2, 35, { align: 'center' });
+                            
+                            drawLine(45);
+
+                            // Employee Details Section
+                            doc.setFontSize(16);
+                            doc.setTextColor(0);
+                            doc.text('Employee Details', 20, 58);
+                            
+                            doc.setFontSize(12);
+                            doc.setTextColor(60);
+                            doc.text(`Name: ${employeeData.name}`, 20, 68);
+                            doc.text(`Employee ID: ${employeeData.id}`, 20, 76);
+                            doc.text(`Department: ${employeeData.department}`, 20, 84);
+                            doc.text(`Bank Account: ${employeeData.bankAccount}`, 20, 92);
+                            
+                            // Earnings Section
+                            doc.setFontSize(16);
+                            doc.text('Earnings', pageWidth / 2, 58);
+                            
+                            const earningsData = [
+                              ['Basic Salary', formatCurrency(salary.basicSalary)],
+                              ['House Rent Allowance (HRA)', formatCurrency(salary.hra)],
+                              ['Special Allowance', formatCurrency(salary.specialAllowance)],
+                              ['Leave Travel Allowance (LTA)', formatCurrency(salary.lta)],
+                            ];
+                            
+                            doc.autoTable({
+                              head: [['Description', 'Amount']],
+                              body: earningsData,
+                              startY: 68,
+                              theme: 'plain',
+                              styles: { fontSize: 11, cellPadding: 1.5 },
+                              headStyles: { fontStyle: 'bold' },
+                              columnStyles: {
+                                0: { cellWidth: 80 },
+                                1: { cellWidth: 40, halign: 'right' },
+                              },
+                              margin: { left: pageWidth / 2 },
+                            });
+
+                            const earningsFinalY = doc.lastAutoTable.finalY + 10;
+                            doc.setFontSize(12);
+                            doc.setTextColor(0);
+                            doc.setFont(undefined, 'bold');
+                            doc.text('Gross Earnings:', pageWidth / 2, earningsFinalY);
+                            doc.text(formatCurrency(salary.grossSalary), pageWidth - 20, earningsFinalY, { align: 'right' });
+
+                            drawLine(earningsFinalY + 5);
+
+                            // Deductions Section
+                            doc.setFontSize(16);
+                            doc.setTextColor(0);
+                            doc.setFont(undefined, 'normal');
+                            doc.text('Deductions', 20, earningsFinalY + 20);
+                            
+                            const deductionsData = [
+                              ['Provident Fund (PF)', formatCurrency(salary.pf)],
+                              ['Professional Tax', formatCurrency(salary.professionalTax)],
+                              ['Income Tax (TDS)', formatCurrency(salary.tds)],
+                            ];
+                            
+                            doc.autoTable({
+                              head: [['Description', 'Amount']],
+                              body: deductionsData,
+                              startY: earningsFinalY + 30,
+                              theme: 'plain',
+                              styles: { fontSize: 11, cellPadding: 1.5 },
+                              headStyles: { fontStyle: 'bold' },
+                              columnStyles: {
+                                0: { cellWidth: 80 },
+                                1: { cellWidth: 40, halign: 'right' },
+                              },
+                            });
+
+                            const deductionsFinalY = doc.lastAutoTable.finalY + 10;
+                            doc.setFontSize(12);
+                            doc.setTextColor(0);
+                            doc.setFont(undefined, 'bold');
+                            doc.text('Total Deductions:', 20, deductionsFinalY);
+                            doc.text(formatCurrency(salary.pf + salary.professionalTax + salary.tds), 110, deductionsFinalY, { align: 'right' });
+
+                            drawLine(deductionsFinalY + 5);
+
+                            // Net Salary Section
+                            doc.setFillColor(colors.primaryRed);
+                            doc.rect(20, deductionsFinalY + 15, pageWidth - 40, 20, 'F');
+                            
+                            doc.setFontSize(16);
+                            doc.setTextColor(255);
+                            doc.text('Net Salary for the month:', 25, deductionsFinalY + 29);
+                            doc.setFontSize(18);
+                            doc.text(formatCurrency(salary.netSalary), pageWidth - 25, deductionsFinalY + 29, { align: 'right' });
+                            
+                            // Footer
+                            doc.setFontSize(10);
+                            doc.setTextColor(150);
+                            doc.text('This is a computer-generated document and does not require a signature.', pageWidth / 2, doc.internal.pageSize.getHeight() - 15, { align: 'center' });
+                            
+                            // Save the PDF
+                            doc.save(`Payslip_${employeeData.name.replace(' ', '_')}_${salary.month.replace(' ', '_')}.pdf`);
+                          }}
+                        >
+                          <FaDownload />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+      </Card>
+    </Container>
+  );
+
+  // All Bills View
+  const AllBillsView = () => (
+    <Container fluid className="px-3 px-md-4 py-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div className="d-flex align-items-center mb-3 mb-md-0">
+          <Button 
+            variant="link" 
+            className="p-0 me-3"
+            style={{ color: colors.primaryRed }}
+            onClick={() => setShowAllBills(false)}
+          >
+            <FaArrowLeft size={20} />
+          </Button>
+          <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>
+            All Bills
+          </h2>
+        </div>
+        <div className="d-flex">
+          <InputGroup style={{ maxWidth: '300px' }}>
+            <Form.Control
+              placeholder="Search bills..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ fontSize: '14px' }}
+            />
+            <Button variant="outline-secondary">
+              <FaSearch />
+            </Button>
+          </InputGroup>
+        </div>
+      </div>
+
+      <Card style={cardStyle}>
+        <Card.Body className="p-0">
+          <div className="table-responsive">
+            <Table hover className="align-middle mb-0" style={{ fontSize: '13px' }}>
+              <thead>
+                <tr>
+                  <th>Bill Name</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBills.map(bill => (
+                  <tr key={bill.id}>
+                    <td style={{ fontSize: '12px' }}>{bill.name}</td>
+                    <td style={{ fontSize: '12px' }}>{bill.description}</td>
+                    <td style={{ fontWeight: '600', fontSize: '12px' }}>{formatCurrency(bill.amount)}</td>
+                    <td style={{ fontSize: '12px' }}>{formatDate(bill.dueDate)}</td>
+                    <td>
+                      <Badge bg={bill.status === 'Paid' ? 'success' : 'danger'} style={{ fontSize: '12px' }}>
+                        {bill.status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="d-flex">
+                        {bill.status === 'Pending' && (
+                          <Button 
+                            size="sm"
+                            style={buttonStyle}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                            onClick={() => handlePayBill(bill.id)}
+                          >
+                            Pay
+                          </Button>
+                        )}
+                        <Button 
+                          variant="link" 
+                          size="sm"
+                          style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                          onClick={() => {
+                            // Create a bill receipt
+                            const doc = new jsPDF();
+                            const pageWidth = doc.internal.pageSize.getWidth();
+                            
+                            // Title
+                            doc.setFontSize(20);
+                            doc.setTextColor(colors.primaryRed);
+                            doc.text('Bill Details', pageWidth / 2, 25, { align: 'center' });
+                            
+                            // Bill Details
+                            doc.setFontSize(16);
+                            doc.setTextColor(0);
+                            doc.text('Bill Information', 20, 50);
+                            
+                            doc.setFontSize(12);
+                            doc.setTextColor(60);
+                            doc.text(`Bill Name: ${bill.name}`, 20, 60);
+                            doc.text(`Description: ${bill.description}`, 20, 70);
+                            doc.text(`Amount: ${formatCurrency(bill.amount)}`, 20, 80);
+                            doc.text(`Due Date: ${formatDate(bill.dueDate)}`, 20, 90);
+                            doc.text(`Status: ${bill.status}`, 20, 100);
+                            
+                            // Employee Details
+                            doc.setFontSize(16);
+                            doc.text('Employee Details', 20, 120);
+                            
+                            doc.setFontSize(12);
+                            doc.setTextColor(60);
+                            doc.text(`Name: ${employeeData.name}`, 20, 130);
+                            doc.text(`Employee ID: ${employeeData.id}`, 20, 140);
+                            doc.text(`Department: ${employeeData.department}`, 20, 150);
+                            
+                            // Footer
+                            doc.setFontSize(10);
+                            doc.setTextColor(150);
+                            doc.text('This is a computer-generated document and does not require a signature.', pageWidth / 2, doc.internal.pageSize.getHeight() - 15, { align: 'center' });
+                            
+                            // Save the PDF
+                            doc.save(`Bill_${bill.name.replace(' ', '_')}_Details.pdf`);
+                          }}
+                        >
+                          <FaDownload />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+      </Card>
+    </Container>
+  );
+
   // Responsive transaction table component
   const ResponsiveTransactionTable = () => {
     if (windowWidth < 768) {
       // Mobile view - card layout
       return (
         <div className="transaction-cards">
-          {transactions.map(transaction => (
+          {transactions.slice(0, 5).map(transaction => (
             <Card key={transaction.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <div>
                     <Badge 
-                      bg={transaction.type === 'Salary' ? 'success' : transaction.type === 'Payment' ? 'info' : 'warning'}
+                      bg={transaction.type === 'Salary' ? 'success' : transaction.type === 'Payment' ? 'info' : transaction.type === 'Reimbursement' ? 'primary' : 'warning'}
                       style={{ fontSize: '12px' }}
                     >
                       {transaction.type}
@@ -282,12 +970,12 @@ const EmployeeDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.map(transaction => (
+              {transactions.slice(0, 5).map(transaction => (
                 <tr key={transaction.id}>
                   <td style={{ fontSize: '12px' }}>{transaction.id}</td>
                   <td>
                     <Badge 
-                      bg={transaction.type === 'Salary' ? 'success' : transaction.type === 'Payment' ? 'info' : 'warning'}
+                      bg={transaction.type === 'Salary' ? 'success' : transaction.type === 'Payment' ? 'info' : transaction.type === 'Reimbursement' ? 'primary' : 'warning'}
                       style={{ fontSize: '12px' }}
                     >
                       {transaction.type}
@@ -302,14 +990,24 @@ const EmployeeDashboard = () => {
                     </Badge>
                   </td>
                   <td>
-                    <Button 
-                      variant="link" 
-                      size="sm"
-                      style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                      onClick={() => handleViewTransactionDetails(transaction)}
-                    >
-                      <FaEye />
-                    </Button>
+                    <div className="d-flex">
+                      <Button 
+                        variant="link" 
+                        size="sm"
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                        onClick={() => handleViewTransactionDetails(transaction)}
+                      >
+                        <FaEye />
+                      </Button>
+                      <Button 
+                        variant="link" 
+                        size="sm"
+                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                        onClick={() => downloadTransactionReceipt(transaction)}
+                      >
+                        <FaDownload />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -320,46 +1018,31 @@ const EmployeeDashboard = () => {
     }
   };
 
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: colors.lightBg }}>
-
-      <Container fluid className="px-3 px-md-4 py-4">
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-          <h2 style={{ color: colors.black, marginBottom: windowWidth < 768 ? '15px' : '0', fontSize: '20px' }}>
-            Welcome, {employeeData.name.split(' ')[0]}!
-          </h2>
-          <div className="d-flex flex-column flex-sm-row">
-            <Button 
-              style={secondaryButtonStyle}
-              className="mb-2 mb-sm-0 me-sm-2"
-              onClick={() => navigate('/Employee/reports')}
-            >
-              <FaChartPie className="me-2" />
-              {windowWidth < 576 ? 'Reports' : 'View Reports'}
-            </Button>
-            <Button 
-              style={buttonStyle}
-              onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-              onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-            >
-              <FaDownload className="me-2" />
-              {windowWidth < 576 ? 'Payslip' : 'Download Payslip'}
-            </Button>
-          </div>
+  // Main Dashboard View
+  const DashboardView = () => (
+    <Container fluid className="px-3 px-md-4 py-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <h2 style={{ color: colors.black, marginBottom: windowWidth < 768 ? '15px' : '0', fontSize: '20px' }}>
+          Welcome, {employeeData.name.split(' ')[0]}!
+        </h2>
+        <div className="d-flex flex-column flex-sm-row">
+      
         </div>
+      </div>
 
-        <Row className="g-3 g-md-4">
-          {/* Employee Profile Card */}
-          <Col xs={12} lg={4} md={6}>
-            <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaUser className="me-2" /> Employee Profile
-              </div>
-              <Card.Body className="text-center p-3 p-md-4">
+      <Row className="g-3 g-md-4">
+        {/* Employee Profile Card */}
+        <Col xs={12} lg={4} md={6}>
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaUser className="me-2" /> Employee Profile
+            </div>
+            <Card.Body className="text-center p-3 p-md-4">
+              <div className="position-relative d-inline-block mb-3">
                 <img 
                   src={employeeData.profileImage} 
                   alt="Profile" 
-                  className="rounded-circle mb-3" 
+                  className="rounded-circle" 
                   style={{ 
                     width: windowWidth < 576 ? '80px' : '120px', 
                     height: windowWidth < 576 ? '80px' : '120px', 
@@ -367,171 +1050,202 @@ const EmployeeDashboard = () => {
                     border: `3px solid ${colors.primaryRed}` 
                   }}
                 />
-                <h4 style={{ color: colors.black, marginBottom: '5px', fontSize: windowWidth < 576 ? '18px' : '24px' }}>
-                  {employeeData.name}
-                </h4>
-                <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
-                  {employeeData.position}
-                </p>
-                <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
-                  {employeeData.department}
-                </p>
-                <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
-                  ID: {employeeData.id}
-                </p>
-                <p style={{ 
-                  color: colors.darkGray, 
-                  marginBottom: '15px', 
-                  fontSize: windowWidth < 576 ? '12px' : '14px',
-                  wordBreak: 'break-all'
+                <div 
+                  className="position-absolute bottom-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    backgroundColor: colors.primaryRed,
+                    width: windowWidth < 576 ? '30px' : '36px',
+                    height: windowWidth < 576 ? '30px' : '36px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <FaCamera color={colors.white} size={windowWidth < 576 ? 14 : 16} />
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  onChange={handleProfileImageChange}
+                />
+              </div>
+              <h4 style={{ color: colors.black, marginBottom: '5px', fontSize: windowWidth < 576 ? '18px' : '24px' }}>
+                {employeeData.name}
+              </h4>
+              <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
+                {employeeData.position}
+              </p>
+              <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
+                {employeeData.department}
+              </p>
+              <p style={{ color: colors.darkGray, marginBottom: '5px', fontSize: windowWidth < 576 ? '14px' : '16px' }}>
+                ID: {employeeData.id}
+              </p>
+              <p style={{ 
+                color: colors.darkGray, 
+                marginBottom: '15px', 
+                fontSize: windowWidth < 576 ? '12px' : '14px',
+                wordBreak: 'break-all'
+              }}>
+                {employeeData.email}
+              </p>
+              <Button 
+                style={buttonStyle}
+                onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                onClick={() => {
+                  setProfileImagePreview(employeeData.profileImage);
+                  setShowProfileModal(true);
+                }}
+              >
+                Edit Profile
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Salary Information Card */}
+        <Col xs={12} lg={4} md={6}>
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaMoneyBillWave className="me-2" /> Salary Information
+            </div>
+            <Card.Body className="p-3 p-md-4">
+              <div className="mb-3 mb-md-4">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Current Month Salary</h5>
+                <h3 style={{ 
+                  color: colors.primaryRed, 
+                  fontWeight: '700',
+                  fontSize: windowWidth < 576 ? '24px' : '28px'
                 }}>
-                  {employeeData.email}
+                  {formatCurrency(salaryData.currentMonthSalary)}
+                </h3>
+              </div>
+              <div className="mb-3 mb-md-4">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Last Salary Received</h5>
+                <p style={{ color: colors.black, display: 'flex', alignItems: 'center', margin: 0, fontSize: '13px' }}>
+                  <FaCalendarAlt className="me-2" /> {formatDate(salaryData.lastSalaryDate)}
                 </p>
-                <Button 
-                  style={buttonStyle}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                  onClick={() => setShowProfileModal(true)}
-                >
-                  Edit Profile
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          {/* Salary Information Card */}
-          <Col xs={12} lg={4} md={6}>
-            <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaMoneyBillWave className="me-2" /> Salary Information
               </div>
-              <Card.Body className="p-3 p-md-4">
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Current Month Salary</h5>
-                  <h3 style={{ 
-                    color: colors.primaryRed, 
-                    fontWeight: '700',
-                    fontSize: windowWidth < 576 ? '24px' : '28px'
-                  }}>
-                    {formatCurrency(salaryData.currentMonthSalary)}
-                  </h3>
-                </div>
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Last Salary Received</h5>
-                  <p style={{ color: colors.black, display: 'flex', alignItems: 'center', margin: 0, fontSize: '13px' }}>
-                    <FaCalendarAlt className="me-2" /> {formatDate(salaryData.lastSalaryDate)}
-                  </p>
-                </div>
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Year-to-Date Salary</h5>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(salaryData.yearToDateSalary)}
-                  </h5>
-                </div>
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Monthly Average</h5>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(salaryData.monthlyAverage)}
-                  </h5>
-                </div>
-                <Button 
-                  style={secondaryButtonStyle}
-                  className="w-100"
-                  onClick={() => navigate('/Employee/salary-details')}
-                >
-                  <FaChartLine className="me-2" />
-                  {windowWidth < 576 ? 'Salary History' : 'View Salary History'}
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          {/* Bills Card */}
-          <Col xs={12} lg={4} md={12}>
-            <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaFileInvoiceDollar className="me-2" /> Bills & Payments
+              <div className="mb-3 mb-md-4">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Year-to-Date Salary</h5>
+                <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
+                  {formatCurrency(salaryData.yearToDateSalary)}
+                </h5>
               </div>
-              <Card.Body className="p-3 p-md-4">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Pending Bills</h5>
-                  <Badge bg="danger" style={{ fontSize: '14px', padding: '5px 10px' }}>
-                    {salaryData.pendingBills}
-                  </Badge>
-                </div>
-                <div className="d-flex justify-content-between align-items-center mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Total Payments</h5>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(salaryData.totalBillPayments)}
-                  </h5>
-                </div>
-                <div className="mb-3 mb-md-4">
-                  <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500', marginBottom: '10px' }}>
-                    Recent Bills
-                  </h5>
-                  {bills.slice(0, 2).map(bill => (
-                    <div key={bill.id} className="d-flex justify-content-between align-items-center mb-2 p-2" style={{ backgroundColor: colors.lightBg, borderRadius: '6px' }}>
-                      <div>
-                        <p style={{ margin: 0, color: colors.black, fontWeight: '500', fontSize: '12px' }}>{bill.name}</p>
-                        <p style={{ margin: 0, color: colors.darkGray, fontSize: '12px' }}>
-                          Due: {formatDate(bill.dueDate)}
-                        </p>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <span style={{ color: colors.black, fontWeight: '600', marginRight: '10px', fontSize: '12px' }}>
-                          {formatCurrency(bill.amount)}
-                        </span>
-                        <Button 
-                          size="sm"
-                          style={buttonStyle}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                          onClick={() => handlePayBill(bill.id)}
-                        >
-                          Pay
-                        </Button>
-                      </div>
+              <div className="mb-3 mb-md-4">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Monthly Average</h5>
+                <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
+                  {formatCurrency(salaryData.monthlyAverage)}
+                </h5>
+              </div>
+              <Button 
+                style={secondaryButtonStyle}
+                className="w-100"
+                onClick={handleViewSalaryHistory}
+              >
+                <FaChartLine className="me-2" />
+                {windowWidth < 576 ? 'Salary History' : 'View Salary History'}
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Bills Card */}
+        <Col xs={12} lg={4} md={12}>
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaFileInvoiceDollar className="me-2" /> Bills & Payments
+            </div>
+            <Card.Body className="p-3 p-md-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Pending Bills</h5>
+                <Badge bg="danger" style={{ fontSize: '14px', padding: '5px 10px' }}>
+                  {salaryData.pendingBills}
+                </Badge>
+              </div>
+              <div className="d-flex justify-content-between align-items-center mb-3 mb-md-4">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Total Payments</h5>
+                <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
+                  {formatCurrency(salaryData.totalBillPayments)}
+                </h5>
+              </div>
+              <div className="mb-3 mb-md-4">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500', marginBottom: '10px' }}>
+                  Recent Bills
+                </h5>
+                {bills.slice(0, 2).map(bill => (
+                  <div key={bill.id} className="d-flex justify-content-between align-items-center mb-2 p-2" style={{ backgroundColor: colors.lightBg, borderRadius: '6px' }}>
+                    <div>
+                      <p style={{ margin: 0, color: colors.black, fontWeight: '500', fontSize: '12px' }}>{bill.name}</p>
+                      <p style={{ margin: 0, color: colors.darkGray, fontSize: '12px' }}>
+                        Due: {formatDate(bill.dueDate)}
+                      </p>
                     </div>
-                  ))}
-                </div>
+                    <div className="d-flex align-items-center">
+                      <span style={{ color: colors.black, fontWeight: '600', marginRight: '10px', fontSize: '12px' }}>
+                        {formatCurrency(bill.amount)}
+                      </span>
+                      <Button 
+                        size="sm"
+                        style={buttonStyle}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                        onClick={() => handlePayBill(bill.id)}
+                      >
+                        Pay
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                variant="primary" 
+                className="w-100"
+                style={buttonStyle}
+                onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                onClick={handleViewAllBills}
+              >
+                View All Bills
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Latest Transactions Card */}
+        <Col xs={12}>
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaHistory className="me-2" /> Latest Transactions
+            </div>
+            <Card.Body className="p-3 p-md-4">
+              <ResponsiveTransactionTable />
+              <div className="text-center mt-4">
                 <Button 
-                  variant="primary" 
-                  className="w-100"
+                  variant="primary"
                   style={buttonStyle}
                   onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
                   onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                  onClick={handleViewBills}
+                  onClick={handleViewAllTransactions}
                 >
-                  View All Bills
+                  View All Transactions
                 </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          {/* Latest Transactions Card */}
-          <Col xs={12}>
-            <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaHistory className="me-2" /> Latest Transactions
               </div>
-              <Card.Body className="p-3 p-md-4">
-                <ResponsiveTransactionTable />
-                <div className="text-center mt-4">
-                  <Button 
-                    variant="primary"
-                    style={buttonStyle}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                    onClick={handleViewAllTransactions}
-                  >
-                    View All Transactions
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
+  );
+
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: colors.lightBg }}>
+      {showAllTransactions ? <AllTransactionsView /> : 
+       showSalaryHistory ? <SalaryHistoryView /> : 
+       showAllBills ? <AllBillsView /> : 
+       <DashboardView />}
 
       {/* Profile Modal */}
       <Modal 
@@ -545,6 +1259,45 @@ const EmployeeDashboard = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleProfileUpdate}>
+            {/* Profile Image Upload Section */}
+            <div className="text-center mb-4">
+              <div className="position-relative d-inline-block">
+                <Image 
+                  src={profileImagePreview} 
+                  alt="Profile Preview" 
+                  roundedCircle 
+                  style={{ 
+                    width: '120px', 
+                    height: '120px', 
+                    objectFit: 'cover', 
+                    border: `3px solid ${colors.primaryRed}` 
+                  }}
+                />
+                <div 
+                  className="position-absolute bottom-0 end-0 rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    backgroundColor: colors.primaryRed,
+                    width: '36px',
+                    height: '36px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <FaCamera color={colors.white} size={16} />
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  onChange={handleProfileImageChange}
+                />
+              </div>
+              <p className="mt-2" style={{ fontSize: '13px', color: colors.darkGray }}>
+                Click on the camera icon to change profile picture
+              </p>
+            </div>
+            
             <Form.Group className="mb-3">
               <Form.Label style={{ fontSize: '13px' }}>Name</Form.Label>
               <Form.Control
@@ -621,7 +1374,7 @@ const EmployeeDashboard = () => {
               <div className="mb-3">
                 <h5 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Type</h5>
                 <Badge 
-                  bg={selectedTransaction.type === 'Salary' ? 'success' : selectedTransaction.type === 'Payment' ? 'info' : 'warning'}
+                  bg={selectedTransaction.type === 'Salary' ? 'success' : selectedTransaction.type === 'Payment' ? 'info' : selectedTransaction.type === 'Reimbursement' ? 'primary' : 'warning'}
                   style={{ fontSize: '12px' }}
                 >
                   {selectedTransaction.type}
@@ -652,6 +1405,7 @@ const EmployeeDashboard = () => {
                   style={buttonStyle}
                   onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
                   onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                  onClick={() => downloadTransactionReceipt(selectedTransaction)}
                 >
                   <FaDownload className="me-2" />
                   Download Receipt
