@@ -9,8 +9,10 @@ import {
   faWallet,
   faHandHoldingUsd,
   faMoneyBillWave,
-  faUserGroup ,
-  faClapperboard
+  faUserGroup,
+  faClipboard,
+  faBriefcase,
+  faFileInvoiceDollar
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Sidebar.css";
@@ -52,91 +54,109 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       {
         name: "Dashboard",
         icon: faChartBar,
-        path: "/admin/dashboard",
+        path: "/Admin/dashboard",
       },
       {
         name: "Assign Credit",
         icon: faWallet,
-        path: "/admin/add",
+        path: "/Admin/add",
       },
-
       {
         name: "Employers",
         icon: faUsers,
-        path: "/admin/assign-credit",
+        path: "/Admin/employers",
       },
-       {
+      {
         name: "Job Portal",
         icon: faUserGroup,
-        path: "/admin/job-portal",
-
+        path: "/Admin/job-portal",
       },
       {
         name: "Bill Companies",
-        icon: faClapperboard,
-        path: "/admin/bill-companies",
-
+        icon: faClipboard,
+        path: "/Admin/bill-companies",
       },
       {
         name: "Transactions",
         icon: faList,
-        path: "/admin/transactions",
+        path: "/Admin/transactions",
       },
     ],
-
-    EMPLOYER: [
-      {
-        name: "Dashboard",
-        icon: faChartBar,
-        path: "/employer/dashboard",
-      },
-      {
-        name: "Add Employee/Vendor",
-        icon: faWallet,
-        path: "/employer/AddEmployee",
-      },
-      {
-        name: "My Credits",
-        icon: faWallet,
-        path: "/employer/credits/balance",
-      },
-      {
-        name: "Pay Employee /Vendor",
-        icon: faHandHoldingUsd,
-        path: "/employer/payment/employee",
-      },
-      {
-        name: "Transactions",
-        icon: faList,
-        path: "/employer/transactions",
-      },
-    ],
-
+EMPLOYER: [
+  {
+    name: "Dashboard",
+    icon: faChartBar,
+    path: "/employer/dashboard",
+  },
+  {
+    name: "My Credits",
+    icon: faWallet,
+    path: "/employer/credits/balance",
+  },
+  {
+    name: "Job Vacancy",
+    icon: faWallet,
+    path: "/employer/job-vacancies",
+  },
+  {
+    name: "Payment",
+    icon: faHandHoldingUsd,
+    path: "/employer/payment",
+  },
+  {
+    name: "Transactions",
+    icon: faList,
+    path: "/employer/transactions",
+  },
+],
     EMPLOYEE: [
       {
         name: "Dashboard",
         icon: faChartBar,
-        path: "/employee/dashboard",
+        path: "/Employee/dashboard",
       },
       {
         name: "My Salary",
         icon: faMoneyBillWave,
-        path: "/employee/salary",
+        path: "/Employee/salary",
       },
       {
         name: "Bill Payment",
         icon: faCreditCard,
-        path: "/employee/bill-payment",
+        path: "/Employee/bill-payment",
       },
       {
         name: "Monthly Salary",
-        icon: faCreditCard,
-        path: "/employee/monthly-salary",
+        icon: faFileInvoiceDollar,
+        path: "/Employee/monthly-salary",
       },
       {
         name: "Job Application",
+        icon: faBriefcase,
+        path: "/Employee/job-application",
+      }
+    ],
+    
+    JOBSEEKER: [
+      {
+        name: "Dashboard",
+        icon: faChartBar,
+        path: "/job-portal/dashboard",
+      },
+      {
+        name: "Job List",
+        icon: faBriefcase,
+        path: "/job-portal/job-list",
+      },
+      {
+        name: "Submit Resume",
+        icon: faFileInvoiceDollar,
+        path: "/job-portal/submit-resume",
+      },
+      {
+        name: "Apply For Jobs",
         icon: faUsers,
-        path: "/employee/job-application",
+        path: "/job-portal/apply",
       }
     ],
 
@@ -144,14 +164,14 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       {
         name: "Dashboard",
         icon: faChartBar,
-        path: "/vendor/dashboard",
+        path: "/Vendor/dashboard",
       },
       {
         name: "My Payments",
         icon: faMoneyBillWave,
-        path: "/vendor/payments",
+        path: "/Vendor/payments",
       },
-    ],
+      ],
   };
 
   const userMenus = userRole ? allMenus[userRole] : allMenus.ADMIN;

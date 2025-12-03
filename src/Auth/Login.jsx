@@ -19,6 +19,12 @@ const buttonStyles = {
   color: colors.white,
   border: 'none',
   transition: 'background-color 0.2s ease-in-out',
+  padding: '8px 16px',
+  borderRadius: '6px',
+  fontWeight: '500',
+  fontSize: '14px',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
 };
 
 const buttonHoverStyles = {
@@ -87,7 +93,7 @@ const Login = () => {
 
   return (
     // Main container with new light beige background
-    <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center px-3">
+    <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center px-3" style={{ backgroundColor: colors.lightBeige }}>
       <div className="card shadow w-100" style={{ maxWidth: "950px", borderRadius: "1.5rem", backgroundColor: colors.white }}>
         <div className="row g-0">
           <div className="col-md-6 d-none d-md-block">
@@ -107,20 +113,20 @@ const Login = () => {
           <div className="col-md-6 d-flex align-items-center p-5">
             <div className="w-100">
               {/* Heading with new black color */}
-              <h2 className="fw-bold mb-3 text-center" style={{ color: colors.black }}>Welcome Back!</h2>
+              <h2 className="fw-bold mb-3 text-center" style={{ color: colors.black, fontFamily: 'inherit' }}>Welcome Back!</h2>
               {/* Sub-heading with new dark gray color */}
-              <p className="text-center mb-4" style={{ color: colors.darkGray }}>Please login to your account</p>
+              <p className="text-center mb-4" style={{ color: colors.darkGray, fontFamily: 'inherit' }}>Please login to your account</p>
 
               {/* Quick login buttons */}
               <div className="mb-4">
                 {/* Label with new dark gray color */}
-                <p className="mb-2" style={{ color: colors.darkGray }}><strong>Quick Login (Dev Mode):</strong></p>
+                <p className="mb-2 text-center" style={{ color: colors.darkGray, fontFamily: 'inherit' }}><strong>Quick Login (Dev Mode):</strong></p>
                 <div className="d-flex flex-wrap gap-2 justify-content-center">
                   {Object.keys(roleRedirectMap).map((role) => (
                     <button
                       key={role}
                       type="button"
-                      className="btn btn-sm"
+                      className="btn"
                       style={{ 
                         ...buttonStyles, 
                         ...(loading ? { backgroundColor: '#cccccc', cursor: 'not-allowed' } : {})
@@ -138,18 +144,19 @@ const Login = () => {
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label">Email address</label>
+                  <label className="form-label" style={{ fontFamily: 'inherit' }}>Email address</label>
                   <input
                     type="email"
                     className="form-control"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    style={{ fontFamily: 'inherit' }}
                   />
                 </div>
 
                 <div className="mb-3 position-relative">
-                  <label className="form-label">Password</label>
+                  <label className="form-label" style={{ fontFamily: 'inherit' }}>Password</label>
                   <div className="input-group">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -157,6 +164,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      style={{ fontFamily: 'inherit' }}
                     />
                     <span
                       className="position-absolute top-50 end-0 translate-middle-y pe-3"
@@ -176,7 +184,10 @@ const Login = () => {
                 <button
                   type="submit"
                   className="btn w-100 py-2"
-                  style={{ ...buttonStyles, ...(loading ? { backgroundColor: '#cccccc', cursor: 'not-allowed' } : {}) }}
+                  style={{ 
+                    ...buttonStyles, 
+                    ...(loading ? { backgroundColor: '#cccccc', cursor: 'not-allowed' } : {})
+                  }}
                   disabled={loading}
                   onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = colors.darkRed)}
                   onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = colors.primaryRed)}
