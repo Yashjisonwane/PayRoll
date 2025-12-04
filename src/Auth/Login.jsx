@@ -84,12 +84,13 @@ const Login = () => {
     await handleLogin(email, password);
   };
 
-  const directLogin = (role) => {
+  // Modified function to only fill credentials without logging in
+  const fillCredentials = (role) => {
     const user = dummyUsers[role];
     if (user) {
       setEmail(user.email);
       setPassword("123456");
-      handleLogin(user.email, "123456");
+      // Removed the handleLogin call
     }
   };
 
@@ -139,7 +140,7 @@ const Login = () => {
                         ...buttonStyles, 
                         ...(loading ? { backgroundColor: '#cccccc', cursor: 'not-allowed' } : {})
                       }}
-                      onClick={() => directLogin(role)}
+                      onClick={() => fillCredentials(role)} // Changed from directLogin to fillCredentials
                       disabled={loading}
                       onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = colors.darkRed)}
                       onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = colors.primaryRed)}
