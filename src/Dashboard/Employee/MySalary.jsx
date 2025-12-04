@@ -13,7 +13,10 @@ import {
   FaArrowLeft,
   FaChartBar,
   FaReceipt,
-  FaInfoCircle
+  FaInfoCircle,
+  FaUniversity,
+  FaCreditCard,
+  FaExchangeAlt
 } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -44,6 +47,8 @@ const MySalary = () => {
     id: 'EMP102',
     department: 'Engineering',
     bankAccount: 'XXXXXX1234',
+    bankName: 'State Bank of India',
+    paymentMethod: 'Direct Deposit',
   };
   
   // Track window width for responsive adjustments
@@ -71,6 +76,10 @@ const MySalary = () => {
     pf: 6000,
     tax: 5000,
     otherDeductions: 1000,
+    paymentMethod: 'Direct Deposit',
+    paymentReference: 'TXN2023072501234',
+    bankName: 'State Bank of India',
+    lastDigits: '1234',
   });
 
   const [salaryHistory, setSalaryHistory] = useState([
@@ -90,6 +99,10 @@ const MySalary = () => {
       pf: 6000,
       tax: 5000,
       otherDeductions: 1000,
+      paymentMethod: 'Direct Deposit',
+      paymentReference: 'TXN2023072501234',
+      bankName: 'State Bank of India',
+      lastDigits: '1234',
     },
     { 
       id: 2, 
@@ -107,6 +120,10 @@ const MySalary = () => {
       pf: 6000,
       tax: 5000,
       otherDeductions: 500,
+      paymentMethod: 'Direct Deposit',
+      paymentReference: 'TXN2023062501234',
+      bankName: 'State Bank of India',
+      lastDigits: '1234',
     },
     { 
       id: 3, 
@@ -124,6 +141,10 @@ const MySalary = () => {
       pf: 6000,
       tax: 5000,
       otherDeductions: 0,
+      paymentMethod: 'Direct Deposit',
+      paymentReference: 'TXN2023052501234',
+      bankName: 'State Bank of India',
+      lastDigits: '1234',
     },
     { 
       id: 4, 
@@ -141,6 +162,10 @@ const MySalary = () => {
       pf: 6000,
       tax: 4500,
       otherDeductions: 0,
+      paymentMethod: 'Direct Deposit',
+      paymentReference: 'TXN2023042501234',
+      bankName: 'State Bank of India',
+      lastDigits: '1234',
     },
     { 
       id: 5, 
@@ -158,6 +183,10 @@ const MySalary = () => {
       pf: 6000,
       tax: 5000,
       otherDeductions: 1000,
+      paymentMethod: 'Direct Deposit',
+      paymentReference: '-',
+      bankName: 'State Bank of India',
+      lastDigits: '1234',
     },
   ]);
 
@@ -342,6 +371,9 @@ const MySalary = () => {
       doc.setFont(undefined, 'normal');
       doc.text(`Payment Date: ${formatDate(salary.paymentDate)}`, 20, 200);
       doc.text(`Status: ${salary.status}`, 20, 208);
+      doc.text(`Payment Method: ${salary.paymentMethod}`, 20, 216);
+      doc.text(`Bank: ${salary.bankName}`, 20, 224);
+      doc.text(`Reference: ${salary.paymentReference}`, 20, 232);
       
       // Footer
       doc.setFontSize(10);
@@ -401,6 +433,9 @@ const MySalary = () => {
                   <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
                     Payment Date: {formatDate(salary.paymentDate)}
                   </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    Method: {salary.paymentMethod}
+                  </p>
                 </div>
                 <div className="text-end">
                   <Button 
@@ -431,6 +466,7 @@ const MySalary = () => {
                 <th>Net Salary</th>
                 <th>Status</th>
                 <th>Payment Date</th>
+                <th>Payment Method</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -455,6 +491,7 @@ const MySalary = () => {
                     </Badge>
                   </td>
                   <td style={{ fontSize: '13px' }}>{formatDate(salary.paymentDate)}</td>
+                  <td style={{ fontSize: '13px' }}>{salary.paymentMethod}</td>
                   <td>
                     <Button 
                       variant="link" 
@@ -580,6 +617,72 @@ const MySalary = () => {
                     </div>
                   </Col>
                 </Row>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Payment Details Card */}
+        <Card style={cardStyle}>
+          <div style={headerStyle}>
+            <FaCreditCard className="me-2" />
+            Salary Payment Details
+          </div>
+          <Card.Body className="p-3">
+            <Row>
+              <Col md={6} className="mb-3 mb-md-0">
+                <h6 style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px', marginBottom: '10px' }}>Payment Information</h6>
+                <div className="d-flex align-items-center mb-3">
+                  <FaExchangeAlt className="me-2" color={colors.primaryRed} size={16} />
+                  <div>
+                    <h6 style={{ color: colors.darkGray, margin: 0, fontSize: windowWidth < 768 ? '11px' : '12px' }}>Payment Method</h6>
+                    <p style={{ color: colors.black, margin: 0, fontWeight: '500', fontSize: windowWidth < 768 ? '12px' : '14px' }}>
+                      {currentSalary.paymentMethod}
+                    </p>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center mb-3">
+                  <FaUniversity className="me-2" color={colors.primaryRed} size={16} />
+                  <div>
+                    <h6 style={{ color: colors.darkGray, margin: 0, fontSize: windowWidth < 768 ? '11px' : '12px' }}>Bank</h6>
+                    <p style={{ color: colors.black, margin: 0, fontWeight: '500', fontSize: windowWidth < 768 ? '12px' : '14px' }}>
+                      {currentSalary.bankName}
+                    </p>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center">
+                  <FaReceipt className="me-2" color={colors.primaryRed} size={16} />
+                  <div>
+                    <h6 style={{ color: colors.darkGray, margin: 0, fontSize: windowWidth < 768 ? '11px' : '12px' }}>Reference Number</h6>
+                    <p style={{ color: colors.black, margin: 0, fontWeight: '500', fontSize: windowWidth < 768 ? '12px' : '14px' }}>
+                      {currentSalary.paymentReference}
+                    </p>
+                  </div>
+                </div>
+              </Col>
+              <Col md={6}>
+                <h6 style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px', marginBottom: '10px' }}>Bank Account Details</h6>
+                <div className="d-flex align-items-center mb-3">
+                  <FaBuilding className="me-2" color={colors.primaryRed} size={16} />
+                  <div>
+                    <h6 style={{ color: colors.darkGray, margin: 0, fontSize: windowWidth < 768 ? '11px' : '12px' }}>Account Number</h6>
+                    <p style={{ color: colors.black, margin: 0, fontWeight: '500', fontSize: windowWidth < 768 ? '12px' : '14px' }}>
+                      {employeeData.bankAccount}
+                    </p>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center">
+                  <FaCheckCircle className="me-2" color={colors.successGreen} size={16} />
+                  <div>
+                    <h6 style={{ color: colors.darkGray, margin: 0, fontSize: windowWidth < 768 ? '11px' : '12px' }}>Direct Deposit Status</h6>
+                    <Badge 
+                      bg="success"
+                      style={{ fontSize: windowWidth < 768 ? '10px' : '12px', padding: '3px 8px' }}
+                    >
+                      Received
+                    </Badge>
+                  </div>
+                </div>
               </Col>
             </Row>
           </Card.Body>
@@ -784,6 +887,21 @@ const MySalary = () => {
                   <Badge bg={selectedSalary.status === 'Paid' ? 'success' : 'warning'}>
                     {selectedSalary.status}
                   </Badge>
+                </Col>
+              </Row>
+              
+              <Row className="mb-3">
+                <Col md={6}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Payment Method</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                    {selectedSalary.paymentMethod}
+                  </p>
+                </Col>
+                <Col md={6}>
+                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Reference Number</h6>
+                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
+                    {selectedSalary.paymentReference}
+                  </p>
                 </Col>
               </Row>
               

@@ -128,7 +128,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/Employee/bill-payment",
       },
       {
-        name: "Monthly Salary",
+        name: "Bank Details",
         icon: faFileInvoiceDollar,
         path: "/Employee/monthly-salary",
       },
@@ -150,11 +150,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faBriefcase,
         path: "/job-portal/job-list",
       },
-      // {
-      //   name: "Submit Resume",
-      //   icon: faFileInvoiceDollar,
-      //   path: "/job-portal/submit-resume",
-      // },
+      {
+        name: "Submit Resume",
+        icon: faFileInvoiceDollar,
+        path: "/job-portal/submit-resume",
+      },
       {
         name: "Apply For Jobs",
         icon: faUsers,

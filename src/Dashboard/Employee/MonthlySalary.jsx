@@ -1,26 +1,26 @@
-// src/pages/Employee/MonthlySalaryHistory.js
+// src/pages/Employee/BankDetails.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Badge, Button, Modal, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { Card, Row, Col, Table, Badge, Button, Modal, Form, Alert, ProgressBar, Nav, InputGroup } from 'react-bootstrap';
 import { 
-  FaMoneyBillWave, 
-  FaCalendarAlt, 
-  FaDownload, 
-  FaBuilding,
+  FaUniversity, 
+  FaPlus, 
   FaCheckCircle,
   FaTimesCircle,
   FaArrowLeft,
-  FaReceipt,
-  FaInfoCircle,
+  FaCreditCard,
+  FaShieldAlt,
+  FaExclamationTriangle,
+  FaHistory,
+  FaPiggyBank,
+  FaWallet,
+  FaMoneyCheckAlt,
+  FaUserCheck,
+  FaClock,
   FaSearch,
-  FaFilter,
-  FaSort,
-  FaSortUp,
-  FaSortDown,
-  FaFileInvoiceDollar,
-  FaMinusCircle,
-  FaPlusCircle,
-  FaEllipsisV
+  FaCopy,
+  FaEye,
+  FaEyeSlash
 } from 'react-icons/fa';
 
 // Color Palette
@@ -35,18 +35,22 @@ const colors = {
   successGreen: '#28A745',
   warningOrange: '#FFC107',
   lightRed: '#FFEBEE',
+  infoBlue: '#2196F3',
 };
 
-const MonthlySalaryHistory = () => {
+const BankDetails = () => {
   const navigate = useNavigate();
-  const [showPayslipModal, setShowPayslipModal] = useState(false);
-  const [showDeductionModal, setShowDeductionModal] = useState(false);
-  const [selectedSalary, setSelectedSalary] = useState(null);
+  const [showAddAccountModal, setShowAddAccountModal] = useState(false);
+  const [showVerifyAccountModal, setShowVerifyAccountModal] = useState(false);
+  const [showAccountDetailsModal, setShowAccountDetailsModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [activeTab, setActiveTab] = useState('accounts');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('month');
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [filterYear, setFilterYear] = useState('all');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showAccountNumber, setShowAccountNumber] = useState({});
+  const [verificationStep, setVerificationStep] = useState(1);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationProgress, setVerificationProgress] = useState(0);
   
   // Track window width for responsive adjustments
   useEffect(() => {
@@ -58,193 +62,65 @@ const MonthlySalaryHistory = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  const [salaryHistory, setSalaryHistory] = useState([
-    { 
-      id: 1, 
-      month: 'July 2023', 
-      grossSalary: 75000, 
-      deductions: 12000,
-      netSalary: 63000,
-      status: 'Paid', 
-      paymentDate: '2023-07-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 3500, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 800, autoDeducted: false }
-      ]
+  const [bankAccounts, setBankAccounts] = useState([
+    {
+      id: 1,
+      bankName: 'State Bank of India',
+      accountNumber: '123456789012',
+      accountType: 'Savings',
+      branch: 'Main Branch, Delhi',
+      ifscCode: 'SBIN0001234',
+      micrCode: '110002001',
+      isPrimary: true,
+      isVerified: true,
+      verificationDate: '2023-01-15',
+      balance: 45678.50,
+      status: 'Active'
     },
-    { 
-      id: 2, 
-      month: 'June 2023', 
-      grossSalary: 75000, 
-      deductions: 11500,
-      netSalary: 63500,
-      status: 'Paid', 
-      paymentDate: '2023-06-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 3200, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 750, autoDeducted: false }
-      ]
+    {
+      id: 2,
+      bankName: 'HDFC Bank',
+      accountNumber: '987654321098',
+      accountType: 'Current',
+      branch: 'Corporate Branch, Mumbai',
+      ifscCode: 'HDFC0001234',
+      micrCode: '400240001',
+      isPrimary: false,
+      isVerified: false,
+      verificationDate: null,
+      balance: 123456.78,
+      status: 'Pending Verification'
     },
-    { 
-      id: 3, 
-      month: 'May 2023', 
-      grossSalary: 75000, 
-      deductions: 11000,
-      netSalary: 64000,
-      status: 'Paid', 
-      paymentDate: '2023-05-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 3000, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 700, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 4, 
-      month: 'April 2023', 
-      grossSalary: 75000, 
-      deductions: 10500,
-      netSalary: 64500,
-      status: 'Paid', 
-      paymentDate: '2023-04-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 2800, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 650, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 5, 
-      month: 'March 2023', 
-      grossSalary: 75000, 
-      deductions: 10000,
-      netSalary: 65000,
-      status: 'Paid', 
-      paymentDate: '2023-03-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 2600, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 600, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 6, 
-      month: 'February 2023', 
-      grossSalary: 75000, 
-      deductions: 9500,
-      netSalary: 65500,
-      status: 'Paid', 
-      paymentDate: '2023-02-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 2400, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 550, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 7, 
-      month: 'January 2023', 
-      grossSalary: 75000, 
-      deductions: 9000,
-      netSalary: 66000,
-      status: 'Paid', 
-      paymentDate: '2023-01-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 2200, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 500, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 8, 
-      month: 'December 2022', 
-      grossSalary: 75000, 
-      deductions: 8500,
-      netSalary: 66500,
-      status: 'Paid', 
-      paymentDate: '2022-12-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 2000, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 450, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 9, 
-      month: 'November 2022', 
-      grossSalary: 75000, 
-      deductions: 8000,
-      netSalary: 67000,
-      status: 'Paid', 
-      paymentDate: '2022-11-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 1800, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 400, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 10, 
-      month: 'October 2022', 
-      grossSalary: 75000, 
-      deductions: 7500,
-      netSalary: 67500,
-      status: 'Paid', 
-      paymentDate: '2022-10-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 1600, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 350, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 11, 
-      month: 'September 2022', 
-      grossSalary: 75000, 
-      deductions: 7000,
-      netSalary: 68000,
-      status: 'Paid', 
-      paymentDate: '2022-09-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 1400, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 300, autoDeducted: false }
-      ]
-    },
-    { 
-      id: 12, 
-      month: 'August 2022', 
-      grossSalary: 75000, 
-      deductions: 6500,
-      netSalary: 68500,
-      status: 'Paid', 
-      paymentDate: '2022-08-25',
-      modeOfPayment: 'Bank Transfer',
-      billDeductions: [
-        { name: 'Electricity', amount: 1200, autoDeducted: true },
-        { name: 'Internet', amount: 1200, autoDeducted: true },
-        { name: 'Gas', amount: 250, autoDeducted: false }
-      ]
+    {
+      id: 3,
+      bankName: 'ICICI Bank',
+      accountNumber: '567890123456',
+      accountType: 'Savings',
+      branch: 'Electronic City, Bangalore',
+      ifscCode: 'ICIC0001234',
+      micrCode: '560229001',
+      isPrimary: false,
+      isVerified: true,
+      verificationDate: '2023-02-20',
+      balance: 78901.23,
+      status: 'Active'
     }
   ]);
+  
+  const [newAccount, setNewAccount] = useState({
+    bankName: '',
+    accountNumber: '',
+    accountType: 'Savings',
+    branch: '',
+    ifscCode: '',
+    micrCode: '',
+    isPrimary: false
+  });
 
   const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 15px',
+    padding: windowWidth < 768 ? '0 10px' : '0 15px',
   };
 
   const cardStyle = {
@@ -265,14 +141,14 @@ const MonthlySalaryHistory = () => {
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    fontSize: '14px',
+    fontSize: windowWidth < 768 ? '12px' : '14px',
   };
 
   const buttonStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
     border: 'none',
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '6px 10px' : '8px 14px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -280,14 +156,14 @@ const MonthlySalaryHistory = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '13px',
   };
 
   const secondaryButtonStyle = {
     backgroundColor: 'transparent',
     color: colors.primaryRed,
     border: `1px solid ${colors.primaryRed}`,
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '6px 10px' : '8px 14px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -295,155 +171,258 @@ const MonthlySalaryHistory = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '13px',
+  };
+
+  const tabStyle = {
+    padding: windowWidth < 768 ? '6px 10px' : '8px 14px',
+    cursor: 'pointer',
+    borderBottom: '3px solid transparent',
+    color: colors.darkGray,
+    fontWeight: '500',
+    transition: 'all 0.2s',
+    fontSize: windowWidth < 768 ? '11px' : '13px',
+  };
+
+  const activeTabStyle = {
+    ...tabStyle,
+    color: colors.primaryRed,
+    borderBottom: `3px solid ${colors.primaryRed}`,
   };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      minimumFractionDigits: 0,
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'Not Verified';
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleDownloadPayslip = (salary) => {
-    setSelectedSalary(salary);
-    setShowPayslipModal(true);
+  const maskAccountNumber = (accountNumber) => {
+    if (accountNumber.length <= 4) return accountNumber;
+    return accountNumber.substring(0, 4) + 'XXXXXX' + accountNumber.substring(accountNumber.length - 4);
   };
 
-  const handleViewDeductions = (salary) => {
-    setSelectedSalary(salary);
-    setShowDeductionModal(true);
-  };
-
-  const handleSort = (field) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('asc');
-    }
-  };
-
-  const getSortIcon = (field) => {
-    if (sortBy !== field) return <FaSort />;
-    return sortOrder === 'asc' ? <FaSortUp /> : <FaSortDown />;
-  };
-
-  const applyFiltersAndSort = () => {
-    let filtered = [...salaryHistory];
-    
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(salary => 
-        salary.month.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        salary.modeOfPayment.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    // Apply year filter
-    if (filterYear !== 'all') {
-      filtered = filtered.filter(salary => 
-        salary.month.includes(filterYear)
-      );
-    }
-    
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
-      
-      if (sortBy === 'month') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else if (sortBy === 'grossSalary' || sortBy === 'deductions' || sortBy === 'netSalary') {
-        aValue = parseFloat(aValue);
-        bValue = parseFloat(bValue);
-      }
-      
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
+  const handleAddAccount = (e) => {
+    e.preventDefault();
+    const newId = bankAccounts.length > 0 ? Math.max(...bankAccounts.map(a => a.id)) + 1 : 1;
+    const accountToAdd = {
+      ...newAccount,
+      id: newId,
+      isVerified: false,
+      verificationDate: null,
+      balance: 0,
+      status: 'Pending Verification'
+    };
+    setBankAccounts([...bankAccounts, accountToAdd]);
+    setNewAccount({
+      bankName: '',
+      accountNumber: '',
+      accountType: 'Savings',
+      branch: '',
+      ifscCode: '',
+      micrCode: '',
+      isPrimary: false
     });
+    setShowAddAccountModal(false);
     
-    return filtered;
+    // Show verification modal for the new account
+    setSelectedAccount(accountToAdd);
+    setShowVerifyAccountModal(true);
   };
 
-  const filteredSalaryHistory = applyFiltersAndSort();
+  const handleVerifyAccount = () => {
+    if (selectedAccount) {
+      setBankAccounts(bankAccounts.map(account => 
+        account.id === selectedAccount.id 
+          ? { 
+              ...account, 
+              isVerified: true, 
+              verificationDate: new Date().toISOString().split('T')[0],
+              status: 'Active'
+            } 
+          : account
+      ));
+      setShowVerifyAccountModal(false);
+      setVerificationStep(1);
+      setVerificationCode('');
+      setVerificationProgress(0);
+    }
+  };
 
-  // Get unique years for filter dropdown
-  const years = [...new Set(salaryHistory.map(salary => salary.month.split(' ')[1]))];
+  const handleSetPrimaryAccount = (accountId) => {
+    setBankAccounts(bankAccounts.map(account => 
+      ({ ...account, isPrimary: account.id === accountId })
+    ));
+  };
 
-  // Responsive salary table component
-  const ResponsiveSalaryTable = () => {
+  const handleDeleteAccount = (accountId) => {
+    setBankAccounts(bankAccounts.filter(account => account.id !== accountId));
+  };
+
+  const handleViewAccountDetails = (account) => {
+    setSelectedAccount(account);
+    setShowAccountDetailsModal(true);
+  };
+
+  const toggleAccountNumberVisibility = (accountId) => {
+    setShowAccountNumber(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId]
+    }));
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard!');
+  };
+
+  const simulateVerification = () => {
+    if (verificationStep < 3) {
+      setVerificationStep(verificationStep + 1);
+      setVerificationProgress(verificationProgress + 33);
+    } else {
+      handleVerifyAccount();
+    }
+  };
+
+  const filteredAccounts = bankAccounts.filter(account => 
+    account.bankName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    account.accountNumber.includes(searchTerm) ||
+    account.branch.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Responsive account cards for mobile view
+  const ResponsiveAccountCards = () => {
     if (windowWidth < 768) {
       // Mobile view - card layout
       return (
-        <div className="salary-cards">
-          {filteredSalaryHistory.map(salary => (
-            <Card key={salary.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body>
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <div>
-                    <h5 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>{salary.month}</h5>
-                    <Badge 
-                      bg={salary.status === 'Paid' ? 'success' : 'warning'}
-                      style={{ fontSize: '11px' }}
-                    >
-                      {salary.status}
-                    </Badge>
+        <div className="row">
+          {filteredAccounts.map((account) => (
+            <div key={account.id} className="col-12 mb-3">
+              <Card className="h-100" style={{ border: `1px solid ${colors.lightGray}` }}>
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h6 className="mb-1" style={{ fontSize: '14px', fontWeight: '600' }}>{account.bankName}</h6>
+                      <div className="d-flex flex-wrap gap-1">
+                        <Badge 
+                          bg={account.isVerified ? 'success' : 'warning'}
+                          style={{ fontSize: '10px' }}
+                        >
+                          {account.isVerified ? 'Verified' : 'Pending'}
+                        </Badge>
+                        {account.isPrimary && (
+                          <Badge 
+                            bg={colors.primaryRed}
+                            style={{ fontSize: '10px' }}
+                          >
+                            Primary
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-end">
+                      <h5 className="mb-0" style={{ color: colors.successGreen, fontWeight: '600', fontSize: '16px' }}>
+                        {formatCurrency(account.balance)}
+                      </h5>
+                    </div>
                   </div>
-                  <h5 style={{ fontSize: '14px', fontWeight: '600', color: colors.primaryRed, margin: 0 }}>
-                    {formatCurrency(salary.netSalary)}
-                  </h5>
-                </div>
-                
-                <div className="mb-2">
-                  <div className="d-flex justify-content-between mb-1">
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Gross Salary:</span>
-                    <span style={{ fontSize: '12px' }}>{formatCurrency(salary.grossSalary)}</span>
+                  
+                  <div className="mb-3">
+                    <div className="d-flex align-items-center mb-2">
+                      <small className="text-muted me-2">Account:</small>
+                      <small className="fw-bold">
+                        {showAccountNumber[account.id] ? account.accountNumber : maskAccountNumber(account.accountNumber)}
+                      </small>
+                      <div className="ms-auto">
+                        <Button 
+                          variant="link" 
+                          size="sm"
+                          style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
+                          onClick={() => toggleAccountNumberVisibility(account.id)}
+                        >
+                          {showAccountNumber[account.id] ? <FaEyeSlash /> : <FaEye />}
+                        </Button>
+                        <Button 
+                          variant="link" 
+                          size="sm"
+                          style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
+                          onClick={() => copyToClipboard(account.accountNumber)}
+                        >
+                          <FaCopy />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="row g-2">
+                      <div className="col-6">
+                        <small className="text-muted">Type:</small>
+                        <div className="fw-bold" style={{ fontSize: '12px' }}>{account.accountType}</div>
+                      </div>
+                      <div className="col-6">
+                        <small className="text-muted">IFSC:</small>
+                        <div className="fw-bold" style={{ fontSize: '12px' }}>{account.ifscCode}</div>
+                      </div>
+                      <div className="col-12">
+                        <small className="text-muted">Branch:</small>
+                        <div className="fw-bold" style={{ fontSize: '12px' }}>{account.branch}</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="d-flex justify-content-between mb-1">
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Deductions:</span>
-                    <span style={{ fontSize: '12px' }}>{formatCurrency(salary.deductions)}</span>
+                  
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <small className="text-muted">Status:</small>
+                      <Badge 
+                        bg={account.status === 'Active' ? 'success' : 'warning'}
+                        style={{ fontSize: '10px', marginLeft: '5px' }}
+                      >
+                        {account.status}
+                      </Badge>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm"
+                        style={{ fontSize: '12px', padding: '4px 8px' }}
+                        onClick={() => handleViewAccountDetails(account)}
+                      >
+                        <FaSearch />
+                      </Button>
+                      {!account.isVerified && (
+                        <Button 
+                          variant="outline-warning" 
+                          size="sm"
+                          style={{ fontSize: '12px', padding: '4px 8px' }}
+                          onClick={() => {
+                            setSelectedAccount(account);
+                            setShowVerifyAccountModal(true);
+                          }}
+                        >
+                          <FaShieldAlt />
+                        </Button>
+                      )}
+                      {!account.isPrimary && (
+                        <Button 
+                          variant="outline-secondary" 
+                          size="sm"
+                          style={{ fontSize: '12px', padding: '4px 8px' }}
+                          onClick={() => handleSetPrimaryAccount(account.id)}
+                        >
+                          <FaCreditCard />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="d-flex justify-content-between mb-1">
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Payment Date:</span>
-                    <span style={{ fontSize: '12px' }}>{formatDate(salary.paymentDate)}</span>
-                  </div>
-                  <div className="d-flex justify-content-between mb-2">
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Mode:</span>
-                    <span style={{ fontSize: '12px' }}>{salary.modeOfPayment}</span>
-                  </div>
-                </div>
-                
-                <div className="d-flex justify-content-between">
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                    onClick={() => handleViewDeductions(salary)}
-                  >
-                    <FaFileInvoiceDollar className="me-1" /> Deductions
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                    onClick={() => handleDownloadPayslip(salary)}
-                  >
-                    <FaDownload /> Download
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
+                </Card.Body>
+              </Card>
+            </div>
           ))}
         </div>
       );
@@ -454,62 +433,117 @@ const MonthlySalaryHistory = () => {
           <Table hover className="align-middle" style={{ fontSize: '13px' }}>
             <thead>
               <tr>
-                <th onClick={() => handleSort('month')} style={{ cursor: 'pointer' }}>
-                  Month {getSortIcon('month')}
-                </th>
-                <th onClick={() => handleSort('grossSalary')} style={{ cursor: 'pointer' }}>
-                  Gross Salary {getSortIcon('grossSalary')}
-                </th>
-                <th onClick={() => handleSort('deductions')} style={{ cursor: 'pointer' }}>
-                  Deductions {getSortIcon('deductions')}
-                </th>
-                <th onClick={() => handleSort('netSalary')} style={{ cursor: 'pointer' }}>
-                  Net Salary {getSortIcon('netSalary')}
-                </th>
+                <th>Bank Name</th>
+                <th>Account Number</th>
+                <th>Account Type</th>
+                <th>Branch</th>
+                <th>IFSC Code</th>
+                <th>Balance</th>
                 <th>Status</th>
-                <th>Payment Date</th>
-                <th>Mode of Payment</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredSalaryHistory.map(salary => (
-                <tr key={salary.id}>
-                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{salary.month}</td>
-                  <td style={{ fontSize: '12px' }}>{formatCurrency(salary.grossSalary)}</td>
-                  <td style={{ fontSize: '12px' }}>{formatCurrency(salary.deductions)}</td>
-                  <td style={{ fontWeight: '600', fontSize: '12px', color: colors.primaryRed }}>
-                    {formatCurrency(salary.netSalary)}
+              {filteredAccounts.map((account) => (
+                <tr key={account.id}>
+                  <td style={{ fontWeight: '600', fontSize: '12px' }}>
+                    {account.bankName}
+                    {account.isPrimary && (
+                      <Badge 
+                        bg={colors.primaryRed}
+                        style={{ fontSize: '10px', marginLeft: '5px' }}
+                      >
+                        Primary
+                      </Badge>
+                    )}
                   </td>
-                  <td>
-                    <Badge 
-                      bg={salary.status === 'Paid' ? 'success' : 'warning'}
-                      style={{ fontSize: '11px' }}
-                    >
-                      {salary.status}
-                    </Badge>
-                  </td>
-                  <td style={{ fontSize: '12px' }}>{formatDate(salary.paymentDate)}</td>
-                  <td style={{ fontSize: '12px' }}>{salary.modeOfPayment}</td>
-                  <td>
-                    <div className="d-flex">
+                  <td style={{ fontSize: '12px' }}>
+                    <div className="d-flex align-items-center">
+                      {showAccountNumber[account.id] ? account.accountNumber : maskAccountNumber(account.accountNumber)}
                       <Button 
                         variant="link" 
                         size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px', marginRight: '8px' }}
-                        onClick={() => handleViewDeductions(salary)}
-                        title="View Deductions"
+                        style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '10px', marginLeft: '5px' }}
+                        onClick={() => toggleAccountNumberVisibility(account.id)}
                       >
-                        <FaFileInvoiceDollar />
+                        {showAccountNumber[account.id] ? <FaEyeSlash /> : <FaEye />}
                       </Button>
                       <Button 
                         variant="link" 
                         size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                        onClick={() => handleDownloadPayslip(salary)}
-                        title="Download Payslip"
+                        style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '10px', marginLeft: '5px' }}
+                        onClick={() => copyToClipboard(account.accountNumber)}
                       >
-                        <FaDownload />
+                        <FaCopy />
+                      </Button>
+                    </div>
+                  </td>
+                  <td style={{ fontSize: '12px' }}>{account.accountType}</td>
+                  <td style={{ fontSize: '12px' }}>{account.branch}</td>
+                  <td style={{ fontSize: '12px' }}>{account.ifscCode}</td>
+                  <td style={{ fontWeight: '600', color: colors.successGreen, fontSize: '12px' }}>
+                    {formatCurrency(account.balance)}
+                  </td>
+                  <td>
+                    <div className="d-flex flex-column gap-1">
+                      <Badge 
+                        bg={account.isVerified ? 'success' : 'warning'}
+                        style={{ fontSize: '10px' }}
+                      >
+                        {account.isVerified ? 'Verified' : 'Pending'}
+                      </Badge>
+                      <Badge 
+                        bg={account.status === 'Active' ? 'success' : 'warning'}
+                        style={{ fontSize: '10px' }}
+                      >
+                        {account.status}
+                      </Badge>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="btn-group" role="group">
+                      <Button 
+                        variant="outline-primary" 
+                        size="sm"
+                        style={{ fontSize: '12px' }}
+                        onClick={() => handleViewAccountDetails(account)}
+                        title="View Details"
+                      >
+                        <FaSearch />
+                      </Button>
+                      {!account.isVerified && (
+                        <Button 
+                          variant="outline-warning" 
+                          size="sm"
+                          style={{ fontSize: '12px' }}
+                          onClick={() => {
+                            setSelectedAccount(account);
+                            setShowVerifyAccountModal(true);
+                          }}
+                          title="Verify Account"
+                        >
+                          <FaShieldAlt />
+                        </Button>
+                      )}
+                      {!account.isPrimary && (
+                        <Button 
+                          variant="outline-secondary" 
+                          size="sm"
+                          style={{ fontSize: '12px' }}
+                          onClick={() => handleSetPrimaryAccount(account.id)}
+                          title="Set as Primary"
+                        >
+                          <FaCreditCard />
+                        </Button>
+                      )}
+                      <Button 
+                        variant="outline-danger" 
+                        size="sm"
+                        style={{ fontSize: '12px' }}
+                        onClick={() => handleDeleteAccount(account.id)}
+                        title="Delete Account"
+                      >
+                        <FaTimesCircle />
                       </Button>
                     </div>
                   </td>
@@ -523,7 +557,7 @@ const MonthlySalaryHistory = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div style={{minHeight: '100vh', backgroundColor: colors.lightBg }}>
       {/* Header */}
       <div style={{ 
         backgroundColor: colors.white, 
@@ -545,39 +579,30 @@ const MonthlySalaryHistory = () => {
               >
                 <FaArrowLeft size={18} />
               </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Monthly Salary History</h2>
+              <h2 style={{ color: colors.black, margin: 0, fontSize: windowWidth < 768 ? '18px' : '20px' }}>Bank Details</h2>
             </div>
             <div className="d-flex align-items-center">
-              <div className="input-group me-2" style={{ maxWidth: '250px' }}>
-                <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
+              <InputGroup className="me-2" style={{ maxWidth: windowWidth < 768 ? '150px' : '250px' }}>
+                <InputGroup.Text style={{ backgroundColor: colors.lightGray, border: 'none' }}>
                   <FaSearch size={14} color={colors.darkGray} />
-                </span>
-                <input
+                </InputGroup.Text>
+                <Form.Control
                   type="text"
-                  className="form-control"
-                  placeholder="Search salary history..."
+                  placeholder="Search accounts..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: windowWidth < 768 ? '11px' : '12px' }}
                 />
-              </div>
-              <Dropdown>
-                <Dropdown.Toggle 
-                  variant="outline-secondary" 
-                  id="dropdown-year-filter"
-                  style={{ fontSize: '12px' }}
-                >
-                  {filterYear === 'all' ? 'All Years' : filterYear}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => setFilterYear('all')}>All Years</Dropdown.Item>
-                  {years.map(year => (
-                    <Dropdown.Item key={year} onClick={() => setFilterYear(year)}>
-                      {year}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown.Menu>
-              </Dropdown>
+              </InputGroup>
+              <Button 
+                style={buttonStyle}
+                onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                onClick={() => setShowAddAccountModal(true)}
+              >
+                <FaPlus className="me-1" />
+                <span className="d-none d-md-inline">Add Account</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -585,298 +610,536 @@ const MonthlySalaryHistory = () => {
 
       <div style={containerStyle} className="py-4">
         {/* Summary Cards */}
-        <Row className="mb-4">
-          <Col xs={12} md={4}>
+        <Row className="mb-4 g-3">
+          <Col xs={6} lg={3}>
             <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaMoneyBillWave className="me-2" />
-                Salary Summary
-              </div>
               <Card.Body className="p-3">
-                <div className="mb-2">
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Total Gross Salary</h6>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(salaryHistory.reduce((sum, salary) => sum + salary.grossSalary, 0))}
-                  </h5>
-                </div>
-                <div className="mb-2">
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Total Deductions</h6>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(salaryHistory.reduce((sum, salary) => sum + salary.deductions, 0))}
-                  </h5>
-                </div>
-                <div>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Total Net Salary</h6>
-                  <h5 style={{ color: colors.primaryRed, fontWeight: '700', fontSize: '18px' }}>
-                    {formatCurrency(salaryHistory.reduce((sum, salary) => sum + salary.netSalary, 0))}
-                  </h5>
+                <div className="d-flex align-items-center">
+                  <div style={{ 
+                    backgroundColor: colors.lightRed, 
+                    padding: '10px', 
+                    borderRadius: '8px',
+                    marginRight: '15px'
+                  }}>
+                    <FaUniversity size={24} color={colors.primaryRed} />
+                  </div>
+                  <div className="flex-grow-1">
+                    <h6 className="mb-1" style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px' }}>Total Accounts</h6>
+                    <h4 className="mb-0" style={{ color: colors.black, fontWeight: '600', fontSize: windowWidth < 768 ? '16px' : '20px' }}>
+                      {bankAccounts.length}
+                    </h4>
+                  </div>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-          
-          <Col xs={12} md={4}>
+          <Col xs={6} lg={3}>
             <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaReceipt className="me-2" />
-                Bill Auto-Deduction
-              </div>
               <Card.Body className="p-3">
-                <div className="mb-2">
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Total Auto-Deducted</h6>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(
-                      salaryHistory.reduce((sum, salary) => 
-                        sum + salary.billDeductions
-                          .filter(bill => bill.autoDeducted)
-                          .reduce((billSum, bill) => billSum + bill.amount, 0)
-                      , 0)
-                    )}
-                  </h5>
-                </div>
-                <div className="mb-2">
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Total Self-Paid</h6>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(
-                      salaryHistory.reduce((sum, salary) => 
-                        sum + salary.billDeductions
-                          .filter(bill => !bill.autoDeducted)
-                          .reduce((billSum, bill) => billSum + bill.amount, 0)
-                      , 0)
-                    )}
-                  </h5>
-                </div>
-                <div>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Total Bill Amount</h6>
-                  <h5 style={{ color: colors.warningOrange, fontWeight: '700', fontSize: '18px' }}>
-                    {formatCurrency(
-                      salaryHistory.reduce((sum, salary) => 
-                        sum + salary.billDeductions
-                          .reduce((billSum, bill) => billSum + bill.amount, 0)
-                      , 0)
-                    )}
-                  </h5>
+                <div className="d-flex align-items-center">
+                  <div style={{ 
+                    backgroundColor: colors.lightRed, 
+                    padding: '10px', 
+                    borderRadius: '8px',
+                    marginRight: '15px'
+                  }}>
+                    <FaCheckCircle size={24} color={colors.successGreen} />
+                  </div>
+                  <div className="flex-grow-1">
+                    <h6 className="mb-1" style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px' }}>Verified Accounts</h6>
+                    <h4 className="mb-0" style={{ color: colors.black, fontWeight: '600', fontSize: windowWidth < 768 ? '16px' : '20px' }}>
+                      {bankAccounts.filter(a => a.isVerified).length}
+                    </h4>
+                  </div>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-          
-          <Col xs={12} md={4}>
+          <Col xs={6} lg={3}>
             <Card style={cardStyle}>
-              <div style={headerStyle}>
-                <FaCalendarAlt className="me-2" />
-                Payment Statistics
-              </div>
               <Card.Body className="p-3">
-                <div className="mb-2">
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Average Monthly Salary</h6>
-                  <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(
-                      Math.round(salaryHistory.reduce((sum, salary) => sum + salary.netSalary, 0) / salaryHistory.length)
-                    )}
-                  </h5>
+                <div className="d-flex align-items-center">
+                  <div style={{ 
+                    backgroundColor: colors.lightRed, 
+                    padding: '10px', 
+                    borderRadius: '8px',
+                    marginRight: '15px'
+                  }}>
+                    <FaPiggyBank size={24} color={colors.primaryRed} />
+                  </div>
+                  <div className="flex-grow-1">
+                    <h6 className="mb-1" style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px' }}>Total Balance</h6>
+                    <h4 className="mb-0" style={{ color: colors.black, fontWeight: '600', fontSize: windowWidth < 768 ? '16px' : '20px' }}>
+                      {formatCurrency(bankAccounts.reduce((sum, account) => sum + account.balance, 0))}
+                    </h4>
+                  </div>
                 </div>
-                <div className="mb-2">
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Highest Salary</h6>
-                  <h5 style={{ color: colors.successGreen, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(Math.max(...salaryHistory.map(salary => salary.netSalary)))}
-                  </h5>
-                </div>
-                <div>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px', fontWeight: '500' }}>Lowest Salary</h6>
-                  <h5 style={{ color: colors.warningOrange, fontWeight: '600', fontSize: '16px' }}>
-                    {formatCurrency(Math.min(...salaryHistory.map(salary => salary.netSalary)))}
-                  </h5>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col xs={6} lg={3}>
+            <Card style={cardStyle}>
+              <Card.Body className="p-3">
+                <div className="d-flex align-items-center">
+                  <div style={{ 
+                    backgroundColor: colors.lightRed, 
+                    padding: '10px', 
+                    borderRadius: '8px',
+                    marginRight: '15px'
+                  }}>
+                    <FaCreditCard size={24} color={colors.warningOrange} />
+                  </div>
+                  <div className="flex-grow-1">
+                    <h6 className="mb-1" style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px' }}>Primary Account</h6>
+                    <h4 className="mb-0" style={{ color: colors.black, fontWeight: '600', fontSize: windowWidth < 768 ? '12px' : '16px' }}>
+                      {bankAccounts.find(a => a.isPrimary)?.bankName || 'None'}
+                    </h4>
+                  </div>
                 </div>
               </Card.Body>
             </Card>
           </Col>
         </Row>
 
-        {/* Salary History Table */}
-        <Card style={cardStyle}>
-          <div style={headerStyle}>
-            <FaCalendarAlt className="me-2" />
-            Month-wise Salary History
-            <div className="ms-auto d-flex">
-              <Button 
-                variant="outline-light"
-                size="sm"
-                className="me-2 d-none d-md-inline-flex"
-                onClick={() => handleSort('month')}
-              >
-                Month {getSortIcon('month')}
-              </Button>
-              <Button 
-                variant="outline-light"
-                size="sm"
-                className="me-2 d-none d-md-inline-flex"
-                onClick={() => handleSort('netSalary')}
-              >
-                Amount {getSortIcon('netSalary')}
-              </Button>
+        {/* Tabs */}
+        <Nav variant="tabs" className="mb-3" style={{ borderBottom: `1px solid ${colors.lightGray}` }}>
+          <Nav.Item>
+            <Nav.Link 
+              className={activeTab === 'accounts' ? 'active' : ''}
+              style={activeTab === 'accounts' ? activeTabStyle : tabStyle}
+              onClick={() => setActiveTab('accounts')}
+            >
+              <FaUniversity className="me-1" />
+              Bank Accounts
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link 
+              className={activeTab === 'verification' ? 'active' : ''}
+              style={activeTab === 'verification' ? activeTabStyle : tabStyle}
+              onClick={() => setActiveTab('verification')}
+            >
+              <FaShieldAlt className="me-1" />
+              Verification Status
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link 
+              className={activeTab === 'transactions' ? 'active' : ''}
+              style={activeTab === 'transactions' ? activeTabStyle : tabStyle}
+              onClick={() => setActiveTab('transactions')}
+            >
+              <FaHistory className="me-1" />
+              <span className="d-none d-md-inline">Transaction History</span>
+              <span className="d-md-none">History</span>
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+
+        {activeTab === 'accounts' && (
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaUniversity className="me-2" />
+              Bank Accounts ({filteredAccounts.length})
             </div>
-          </div>
-          <Card.Body className="p-3">
-            {filteredSalaryHistory.length > 0 ? (
-              <ResponsiveSalaryTable />
-            ) : (
+            <Card.Body className="p-3">
+              {filteredAccounts.length > 0 ? (
+                <ResponsiveAccountCards />
+              ) : (
+                <div className="text-center py-4">
+                  <FaUniversity size={40} color={colors.lightGray} />
+                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>No bank accounts found</p>
+                  <Button 
+                    style={buttonStyle}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                    onClick={() => setShowAddAccountModal(true)}
+                  >
+                    <FaPlus className="me-1" />
+                    Add New Account
+                  </Button>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        )}
+
+        {activeTab === 'verification' && (
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaShieldAlt className="me-2" />
+              Verification Status
+            </div>
+            <Card.Body className="p-3">
+              <Row>
+                <Col md={6} className="mb-3 mb-md-0">
+                  <h5 style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '14px' : '16px', marginBottom: '15px' }}>Verified Accounts</h5>
+                  {bankAccounts.filter(a => a.isVerified).length > 0 ? (
+                    bankAccounts.filter(a => a.isVerified).map((account) => (
+                      <div key={account.id} className="mb-3 p-3" style={{ 
+                        backgroundColor: colors.lightBg, 
+                        borderRadius: '8px',
+                        border: `1px solid ${colors.lightGray}`
+                      }}>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 style={{ color: colors.black, fontWeight: '600', fontSize: '14px' }}>{account.bankName}</h6>
+                            <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                              {maskAccountNumber(account.accountNumber)} - {account.accountType}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                              Verified on: {formatDate(account.verificationDate)}
+                            </p>
+                          </div>
+                          <Badge bg="success" style={{ fontSize: '12px' }}>
+                            <FaCheckCircle className="me-1" />
+                            Verified
+                          </Badge>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-3">
+                      <FaCheckCircle size={30} color={colors.lightGray} />
+                      <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '12px' }}>No verified accounts</p>
+                    </div>
+                  )}
+                </Col>
+                <Col md={6}>
+                  <h5 style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '14px' : '16px', marginBottom: '15px' }}>Pending Verification</h5>
+                  {bankAccounts.filter(a => !a.isVerified).length > 0 ? (
+                    bankAccounts.filter(a => !a.isVerified).map((account) => (
+                      <div key={account.id} className="mb-3 p-3" style={{ 
+                        backgroundColor: colors.lightBg, 
+                        borderRadius: '8px',
+                        border: `1px solid ${colors.lightGray}`
+                      }}>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 style={{ color: colors.black, fontWeight: '600', fontSize: '14px' }}>{account.bankName}</h6>
+                            <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                              {maskAccountNumber(account.accountNumber)} - {account.accountType}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                              Status: {account.status}
+                            </p>
+                          </div>
+                          <Button 
+                            style={buttonStyle}
+                            size="sm"
+                            onClick={() => {
+                              setSelectedAccount(account);
+                              setShowVerifyAccountModal(true);
+                            }}
+                          >
+                            <FaShieldAlt className="me-1" />
+                            Verify
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-3">
+                      <FaClock size={30} color={colors.lightGray} />
+                      <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '12px' }}>No pending verifications</p>
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        )}
+
+        {activeTab === 'transactions' && (
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaHistory className="me-2" />
+              Transaction History
+            </div>
+            <Card.Body className="p-3">
               <div className="text-center py-4">
-                <FaCalendarAlt size={40} color={colors.lightGray} />
-                <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
-                  No salary history found matching your criteria
-                </p>
+                <FaHistory size={40} color={colors.lightGray} />
+                <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>Transaction history will be displayed here</p>
+                <p style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '10px' : '12px' }}>This feature is coming soon</p>
               </div>
-            )}
-          </Card.Body>
-        </Card>
+            </Card.Body>
+          </Card>
+        )}
       </div>
 
-      {/* Payslip Download Modal */}
-      <Modal show={showPayslipModal} onHide={() => setShowPayslipModal(false)} centered size="md">
+      {/* Add Account Modal */}
+      <Modal show={showAddAccountModal} onHide={() => setShowAddAccountModal(false)} centered size="md">
         <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
-          <Modal.Title>Download Salary Slip</Modal.Title>
+          <Modal.Title>Add New Bank Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedSalary && (
-            <div>
-              <div className="text-center mb-4">
-                <div style={{ 
-                  backgroundColor: colors.lightRed, 
-                  padding: '15px', 
-                  borderRadius: '8px',
-                  marginBottom: '15px'
-                }}>
-                  <h5 style={{ color: colors.darkGray, marginBottom: '5px', fontSize: '14px' }}>Salary Slip for</h5>
-                  <h4 style={{ color: colors.black, fontWeight: '600', fontSize: '18px' }}>{selectedSalary.month}</h4>
-                </div>
-              </div>
-              
-              <Row className="mb-3">
-                <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Gross Salary</h6>
-                  <p style={{ color: colors.black, fontWeight: '600', margin: 0, fontSize: '16px' }}>
-                    {formatCurrency(selectedSalary.grossSalary)}
-                  </p>
-                </Col>
-                <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Net Salary</h6>
-                  <p style={{ color: colors.successGreen, fontWeight: '600', margin: 0, fontSize: '16px' }}>
-                    {formatCurrency(selectedSalary.netSalary)}
-                  </p>
-                </Col>
-              </Row>
-              
-              <Row className="mb-3">
-                <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Deductions</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
-                    {formatCurrency(selectedSalary.deductions)}
-                  </p>
-                </Col>
-                <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Payment Status</h6>
-                  <Badge bg={selectedSalary.status === 'Paid' ? 'success' : 'warning'}>
-                    {selectedSalary.status}
-                  </Badge>
-                </Col>
-              </Row>
-              
-              <Row className="mb-3">
-                <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Payment Date</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
-                    {formatDate(selectedSalary.paymentDate)}
-                  </p>
-                </Col>
-                <Col md={6}>
-                  <h6 style={{ color: colors.darkGray, fontSize: '13px' }}>Mode of Payment</h6>
-                  <p style={{ color: colors.black, margin: 0, fontSize: '14px' }}>
-                    {selectedSalary.modeOfPayment}
-                  </p>
-                </Col>
-              </Row>
-              
-              <div className="text-center mt-4">
-                <Button 
-                  style={buttonStyle}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                >
-                  <FaDownload className="me-1" />
-                  Confirm Download
-                </Button>
-              </div>
+          <Form onSubmit={handleAddAccount}>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontSize: '13px' }}>Bank Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={newAccount.bankName}
+                onChange={(e) => setNewAccount({...newAccount, bankName: e.target.value})}
+                required
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontSize: '13px' }}>Account Number</Form.Label>
+              <Form.Control
+                type="text"
+                value={newAccount.accountNumber}
+                onChange={(e) => setNewAccount({...newAccount, accountNumber: e.target.value})}
+                required
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontSize: '13px' }}>Account Type</Form.Label>
+              <Form.Select
+                value={newAccount.accountType}
+                onChange={(e) => setNewAccount({...newAccount, accountType: e.target.value})}
+                style={{ fontSize: '13px' }}
+              >
+                <option value="Savings">Savings</option>
+                <option value="Current">Current</option>
+                <option value="Salary">Salary</option>
+                <option value="NRE">NRE</option>
+                <option value="NRO">NRO</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontSize: '13px' }}>Branch</Form.Label>
+              <Form.Control
+                type="text"
+                value={newAccount.branch}
+                onChange={(e) => setNewAccount({...newAccount, branch: e.target.value})}
+                required
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontSize: '13px' }}>IFSC Code</Form.Label>
+              <Form.Control
+                type="text"
+                value={newAccount.ifscCode}
+                onChange={(e) => setNewAccount({...newAccount, ifscCode: e.target.value})}
+                required
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontSize: '13px' }}>MICR Code</Form.Label>
+              <Form.Control
+                type="text"
+                value={newAccount.micrCode}
+                onChange={(e) => setNewAccount({...newAccount, micrCode: e.target.value})}
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Set as Primary Account"
+                checked={newAccount.isPrimary}
+                onChange={(e) => setNewAccount({...newAccount, isPrimary: e.target.checked})}
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <div className="d-flex justify-content-end">
+              <Button 
+                variant="secondary" 
+                className="me-2"
+                onClick={() => setShowAddAccountModal(false)}
+                style={{ fontSize: '13px' }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" style={buttonStyle}>
+                Add Account
+              </Button>
             </div>
-          )}
+          </Form>
         </Modal.Body>
       </Modal>
 
-      {/* Bill Deductions Modal */}
-      <Modal show={showDeductionModal} onHide={() => setShowDeductionModal(false)} centered size="md">
+      {/* Verify Account Modal */}
+      <Modal show={showVerifyAccountModal} onHide={() => setShowVerifyAccountModal(false)} centered size="md">
         <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
-          <Modal.Title>Bill Deductions</Modal.Title>
+          <Modal.Title>Verify Bank Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedSalary && (
+          {selectedAccount && (
             <div>
-              <div className="text-center mb-4">
-                <div style={{ 
-                  backgroundColor: colors.lightRed, 
-                  padding: '15px', 
+              <div className="mb-3">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>Account Details</h5>
+                <div className="p-3" style={{ 
+                  backgroundColor: colors.lightBg, 
                   borderRadius: '8px',
-                  marginBottom: '15px'
+                  border: `1px solid ${colors.lightGray}`
                 }}>
-                  <h5 style={{ color: colors.darkGray, marginBottom: '5px', fontSize: '14px' }}>Bill Deductions for</h5>
-                  <h4 style={{ color: colors.black, fontWeight: '600', fontSize: '18px' }}>{selectedSalary.month}</h4>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Bank:</strong> {selectedAccount.bankName}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Account:</strong> {maskAccountNumber(selectedAccount.accountNumber)}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Branch:</strong> {selectedAccount.branch}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>IFSC:</strong> {selectedAccount.ifscCode}
+                  </p>
                 </div>
               </div>
-              
-              <div className="mb-4">
-                <h6 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500', marginBottom: '15px' }}>Bill Details</h6>
-                {selectedSalary.billDeductions.map((bill, index) => (
-                  <div key={index} className="d-flex justify-content-between align-items-center mb-3 p-2" style={{ backgroundColor: colors.lightBg, borderRadius: '6px' }}>
-                    <div className="d-flex align-items-center">
-                      {bill.autoDeducted ? 
-                        <FaMinusCircle className="me-2" color={colors.primaryRed} /> :
-                        <FaPlusCircle className="me-2" color={colors.successGreen} />
-                      }
-                      <div>
-                        <p style={{ margin: 0, color: colors.black, fontWeight: '500', fontSize: '13px' }}>{bill.name}</p>
-                        <p style={{ margin: 0, color: colors.darkGray, fontSize: '11px' }}>
-                          {bill.autoDeducted ? 'Auto-deducted from salary' : 'Paid separately'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-end">
-                      <p style={{ margin: 0, color: colors.black, fontWeight: '600', fontSize: '14px' }}>
-                        {formatCurrency(bill.amount)}
-                      </p>
-                      <Badge 
-                        bg={bill.autoDeducted ? 'primary' : 'success'}
-                        style={{ fontSize: '10px' }}
-                      >
-                        {bill.autoDeducted ? 'Auto' : 'Self'}
-                      </Badge>
-                    </div>
+
+              <div className="mb-3">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>Verification Process</h5>
+                <ProgressBar now={verificationProgress} style={{ height: '10px', marginBottom: '15px' }} />
+                
+                {verificationStep === 1 && (
+                  <div className="text-center py-3">
+                    <FaUserCheck size={40} color={colors.primaryRed} />
+                    <h6 style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>Identity Verification</h6>
+                    <p style={{ color: colors.darkGray, fontSize: '12px' }}>We'll verify your identity using your PAN and Aadhaar details</p>
                   </div>
-                ))}
+                )}
+                
+                {verificationStep === 2 && (
+                  <div className="text-center py-3">
+                    <FaMoneyCheckAlt size={40} color={colors.primaryRed} />
+                    <h6 style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>Micro-Deposits</h6>
+                    <p style={{ color: colors.darkGray, fontSize: '12px' }}>We'll send small amounts to your account for verification</p>
+                  </div>
+                )}
+                
+                {verificationStep === 3 && (
+                  <div className="text-center py-3">
+                    <FaShieldAlt size={40} color={colors.primaryRed} />
+                    <h6 style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>Final Verification</h6>
+                    <p style={{ color: colors.darkGray, fontSize: '12px' }}>Enter verification code sent to your registered mobile</p>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter verification code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      style={{ fontSize: '13px', maxWidth: '200px', margin: '0 auto' }}
+                    />
+                  </div>
+                )}
               </div>
-              
-              <div className="d-flex justify-content-between align-items-center p-2" style={{ backgroundColor: colors.lightRed, borderRadius: '6px' }}>
-                <h6 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500', margin: 0 }}>Total Bill Deductions</h6>
-                <h5 style={{ color: colors.primaryRed, fontWeight: '700', fontSize: '16px', margin: 0 }}>
-                  {formatCurrency(
-                    selectedSalary.billDeductions.reduce((sum, bill) => sum + bill.amount, 0)
-                  )}
-                </h5>
+
+              <Alert variant="info" style={{ fontSize: '12px' }}>
+                <FaExclamationTriangle className="me-2" />
+                Verification usually takes 2-3 business days. You'll receive notifications about the status.
+              </Alert>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowVerifyAccountModal(false)}
+            style={{ fontSize: '13px' }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            style={buttonStyle}
+            onClick={simulateVerification}
+          >
+            {verificationStep < 3 ? 'Next Step' : 'Complete Verification'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Account Details Modal */}
+      <Modal show={showAccountDetailsModal} onHide={() => setShowAccountDetailsModal(false)} centered size="md">
+        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
+          <Modal.Title>Account Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedAccount && (
+            <div>
+              <div className="mb-3">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>Bank Information</h5>
+                <div className="p-3" style={{ 
+                  backgroundColor: colors.lightBg, 
+                  borderRadius: '8px',
+                  border: `1px solid ${colors.lightGray}`
+                }}>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Bank Name:</strong> {selectedAccount.bankName}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Branch:</strong> {selectedAccount.branch}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>IFSC Code:</strong> {selectedAccount.ifscCode}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>MICR Code:</strong> {selectedAccount.micrCode}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>Account Information</h5>
+                <div className="p-3" style={{ 
+                  backgroundColor: colors.lightBg, 
+                  borderRadius: '8px',
+                  border: `1px solid ${colors.lightGray}`
+                }}>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Account Number:</strong> {selectedAccount.accountNumber}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Account Type:</strong> {selectedAccount.accountType}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Current Balance:</strong> {formatCurrency(selectedAccount.balance)}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Status:</strong> {selectedAccount.status}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>Verification Status</h5>
+                <div className="p-3" style={{ 
+                  backgroundColor: colors.lightBg, 
+                  borderRadius: '8px',
+                  border: `1px solid ${colors.lightGray}`
+                }}>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Verification Status:</strong> 
+                    <Badge 
+                      bg={selectedAccount.isVerified ? 'success' : 'warning'}
+                      style={{ fontSize: '11px', marginLeft: '5px' }}
+                    >
+                      {selectedAccount.isVerified ? 'Verified' : 'Pending'}
+                    </Badge>
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    <strong>Verification Date:</strong> {formatDate(selectedAccount.verificationDate)}
+                  </p>
+                </div>
               </div>
             </div>
           )}
         </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            style={buttonStyle}
+            onClick={() => setShowAccountDetailsModal(false)}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
 };
 
-export default MonthlySalaryHistory;
+export default BankDetails;

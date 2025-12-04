@@ -1,7 +1,7 @@
 // src/pages/Employee/JobApplication.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Badge, Button, Modal, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { Card, Row, Col, Table, Badge, Button, Modal, Form, InputGroup, Dropdown, Alert, Spinner } from 'react-bootstrap';
 import { 
   FaBriefcase, 
   FaPlus, 
@@ -20,7 +20,12 @@ import {
   FaSortDown,
   FaInfoCircle,
   FaUserTie,
-  FaEllipsisV
+  FaEllipsisV,
+  FaFileUpload,
+  FaFileAlt,
+  FaTrash,
+  FaEye,
+  FaDownload
 } from 'react-icons/fa';
 
 // Color Palette
@@ -49,6 +54,12 @@ const JobApplication = () => {
   const [filterLocation, setFilterLocation] = useState('all');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
+  const [resumePreview, setResumePreview] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const fileInputRef = useRef(null);
   
   // Track window width for responsive adjustments
   useEffect(() => {
@@ -60,6 +71,8 @@ const JobApplication = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
+  // Data source: This would typically come from an API call to fetch job applications
+  // API endpoint: GET /api/employee/job-applications
   const [currentApplications, setCurrentApplications] = useState([
     { 
       id: 1, 
@@ -73,7 +86,8 @@ const JobApplication = () => {
       experience: '3-5 years',
       skills: ['React', 'Node.js', 'MongoDB'],
       jobType: 'Full-time',
-      description: 'We are looking for an experienced React developer to join our team.'
+      description: 'We are looking for an experienced React developer to join our team.',
+      resumeUrl: 'https://example.com/resume1.pdf'
     },
     { 
       id: 2, 
@@ -87,7 +101,8 @@ const JobApplication = () => {
       experience: '2-4 years',
       skills: ['HTML', 'CSS', 'JavaScript', 'React'],
       jobType: 'Full-time',
-      description: 'Join our frontend team to build amazing user experiences.'
+      description: 'Join our frontend team to build amazing user experiences.',
+      resumeUrl: 'https://example.com/resume2.pdf'
     },
     { 
       id: 3, 
@@ -101,10 +116,13 @@ const JobApplication = () => {
       experience: '1-3 years',
       skills: ['Figma', 'Adobe XD', 'Sketch'],
       jobType: 'Full-time',
-      description: 'Looking for a creative designer to enhance our product design.'
+      description: 'Looking for a creative designer to enhance our product design.',
+      resumeUrl: 'https://example.com/resume3.pdf'
     },
   ]);
   
+  // Data source: This would typically come from an API call to fetch available jobs
+  // API endpoint: GET /api/employee/available-jobs
   const [newJobs, setNewJobs] = useState([
     { 
       id: 4, 
@@ -179,7 +197,7 @@ const JobApplication = () => {
   const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 15px',
+    padding: windowWidth < 768 ? '0 10px' : '0 15px',
   };
 
   const cardStyle = {
@@ -196,18 +214,18 @@ const JobApplication = () => {
   const headerStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
-    padding: '10px 14px',
+    padding: windowWidth < 768 ? '8px 12px' : '10px 14px',
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    fontSize: '14px',
+    fontSize: windowWidth < 768 ? '12px' : '14px',
   };
 
   const buttonStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
     border: 'none',
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '6px 10px' : '6px 12px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -215,14 +233,14 @@ const JobApplication = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '12px',
   };
 
   const secondaryButtonStyle = {
     backgroundColor: 'transparent',
     color: colors.primaryRed,
     border: `1px solid ${colors.primaryRed}`,
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '6px 10px' : '6px 12px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -230,17 +248,17 @@ const JobApplication = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '11px' : '12px',
   };
 
   const tabStyle = {
-    padding: '8px 14px',
+    padding: windowWidth < 768 ? '6px 10px' : '8px 14px',
     cursor: 'pointer',
     borderBottom: '3px solid transparent',
     color: colors.darkGray,
     fontWeight: '500',
     transition: 'all 0.2s',
-    fontSize: '13px',
+    fontSize: windowWidth < 768 ? '11px' : '13px',
   };
 
   const activeTabStyle = {
@@ -264,21 +282,95 @@ const JobApplication = () => {
     setShowApplyModal(true);
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file type
+      if (file.type !== 'application/pdf' && 
+          file.type !== 'application/msword' && 
+          file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        alert('Please upload a PDF or Word document');
+        return;
+      }
+      
+      // Check file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+      
+      setResumeFile(file);
+      
+      // Create preview for PDF files
+      if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setResumePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setResumePreview(null);
+      }
+    }
+  };
+
+  const handleUploadResume = () => {
+    if (!resumeFile) {
+      alert('Please select a resume file');
+      return;
+    }
+    
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    // Simulate upload progress
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+    
+    // In a real app, this would be an API call to upload resume
+    // API endpoint: POST /api/employee/upload-resume
+    // Request body: FormData with resume file
+    // Response: { success: true, fileUrl: 'https://example.com/resume.pdf' }
+  };
+
+  const handleRemoveResume = () => {
+    setResumeFile(null);
+    setResumePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleApplySubmit = (e) => {
     e.preventDefault();
     
-    // Add the job to current applications with "Pending" status
+    if (!resumeFile) {
+      alert('Please upload your resume');
+      return;
+    }
+    
+    // Create a new application object
     const newApplication = {
       ...selectedJob,
       id: currentApplications.length + newJobs.length + 1,
       appliedDate: new Date().toISOString().split('T')[0],
       status: 'Pending',
+      resumeUrl: URL.createObjectURL(resumeFile) // In a real app, this would be URL from upload response
     };
     
-    setCurrentApplications([...currentApplications, newApplication]);
+    // Update state using functional update to ensure proper re-render
+    setCurrentApplications(prevApplications => [...prevApplications, newApplication]);
     
-    // Remove the job from new jobs
-    setNewJobs(newJobs.filter(job => job.id !== selectedJob.id));
+    // Remove job from new jobs
+    setNewJobs(prevNewJobs => prevNewJobs.filter(job => job.id !== selectedJob.id));
     
     // Reset form and close modal
     setApplicationForm({
@@ -288,11 +380,34 @@ const JobApplication = () => {
       currentCTC: '',
       noticePeriod: '',
     });
+    setResumeFile(null);
+    setResumePreview(null);
     setShowApplyModal(false);
     setShowJobDetailModal(false);
     
     // Show success message
-    alert('Application submitted successfully!');
+    setShowSuccessAlert(true);
+    
+    // Switch to applications tab to show new application
+    setActiveTab('applications');
+    
+    // Hide success alert after 3 seconds
+    setTimeout(() => {
+      setShowSuccessAlert(false);
+    }, 3000);
+    
+    // In a real app, this would be an API call to submit application
+    // API endpoint: POST /api/employee/apply-job
+    // Request body: {
+    //   jobId: selectedJob.id,
+    //   coverLetter: applicationForm.coverLetter,
+    //   expectedSalary: applicationForm.expectedSalary,
+    //   availableFromDate: applicationForm.availableFromDate,
+    //   currentCTC: applicationForm.currentCTC,
+    //   noticePeriod: applicationForm.noticePeriod,
+    //   resumeUrl: resumeUrl
+    // }
+    // Response: { success: true, applicationId: newApplication.id }
   };
 
   const handleSort = (field) => {
@@ -362,56 +477,73 @@ const JobApplication = () => {
     if (windowWidth < 768) {
       // Mobile view - card layout
       return (
-        <div className="application-cards">
+        <div className="row">
           {filteredApplications.map(application => (
-            <Card key={application.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body>
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <div>
-                    <h5 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>{application.title}</h5>
-                    <p style={{ fontSize: '12px', color: colors.darkGray, margin: 0 }}>{application.company}</p>
+            <div key={application.id} className="col-12 mb-3">
+              <Card className="h-100" style={{ border: `1px solid ${colors.lightGray}` }}>
+                <Card.Body className="p-3">
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h5 className="mb-1" style={{ fontSize: '14px', fontWeight: '600' }}>{application.title}</h5>
+                      <p className="mb-1" style={{ fontSize: '12px', color: colors.darkGray }}>{application.company}</p>
+                      <div className="d-flex flex-wrap gap-1">
+                        <Badge 
+                          bg={
+                            application.status === 'Accepted' ? 'success' : 
+                            application.status === 'Rejected' ? 'danger' : 'warning'
+                          }
+                          style={{ fontSize: '10px' }}
+                        >
+                          {application.status}
+                        </Badge>
+                        <Badge bg="light" text="dark" style={{ fontSize: '10px' }}>
+                          {application.experience}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-end">
+                      <h5 className="mb-0" style={{ fontSize: '14px', fontWeight: '600', color: colors.primaryRed }}>
+                        {application.salary}
+                      </h5>
+                    </div>
                   </div>
-                  <Badge 
-                    bg={
-                      application.status === 'Accepted' ? 'success' : 
-                      application.status === 'Rejected' ? 'danger' : 'warning'
-                    }
-                    style={{ fontSize: '11px' }}
-                  >
-                    {application.status}
-                  </Badge>
-                </div>
-                
-                <div className="mb-2">
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{application.location}</span>
+                  
+                  <div className="mb-2">
+                    <div className="d-flex align-items-center mb-1">
+                      <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
+                      <span style={{ fontSize: '12px', color: colors.darkGray }}>{application.location}</span>
+                    </div>
+                    <div className="d-flex align-items-center">
+                      <FaCalendarAlt className="me-2" size={12} color={colors.darkGray} />
+                      <span style={{ fontSize: '12px', color: colors.darkGray }}>Applied: {formatDate(application.appliedDate)}</span>
+                    </div>
                   </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMoneyBillWave className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{application.salary}</span>
+                  
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div className="d-flex flex-wrap gap-1">
+                      {application.skills.slice(0, 3).map((skill, index) => (
+                        <Badge key={index} bg="light" text="dark" style={{ fontSize: '10px' }}>
+                          {skill}
+                        </Badge>
+                      ))}
+                      {application.skills.length > 3 && (
+                        <Badge bg="light" text="dark" style={{ fontSize: '10px' }}>
+                          +{application.skills.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
+                      onClick={() => handleViewJobDetails(application)}
+                    >
+                      <FaInfoCircle /> Details
+                    </Button>
                   </div>
-                  <div className="d-flex align-items-center">
-                    <FaCalendarAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Applied: {formatDate(application.appliedDate)}</span>
-                  </div>
-                </div>
-                
-                <div className="d-flex justify-content-between">
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                    onClick={() => handleViewJobDetails(application)}
-                  >
-                    <FaInfoCircle /> Details
-                  </Button>
-                  <Badge bg="light" text="dark" style={{ fontSize: '11px' }}>
-                    {application.experience}
-                  </Badge>
-                </div>
-              </Card.Body>
-            </Card>
+                </Card.Body>
+              </Card>
+            </div>
           ))}
         </div>
       );
@@ -480,50 +612,64 @@ const JobApplication = () => {
     if (windowWidth < 768) {
       // Mobile view - card layout
       return (
-        <div className="job-cards">
+        <div className="row">
           {filteredNewJobs.map(job => (
-            <Card key={job.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body>
-                <div className="mb-2">
-                  <h5 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>{job.title}</h5>
-                  <p style={{ fontSize: '12px', color: colors.darkGray, margin: 0 }}>{job.company}</p>
-                </div>
-                
-                <div className="mb-2">
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{job.location}</span>
+            <div key={job.id} className="col-12 mb-3">
+              <Card className="h-100" style={{ border: `1px solid ${colors.lightGray}` }}>
+                <Card.Body className="p-3">
+                  <div className="mb-2">
+                    <h5 className="mb-1" style={{ fontSize: '14px', fontWeight: '600' }}>{job.title}</h5>
+                    <p className="mb-1" style={{ fontSize: '12px', color: colors.darkGray }}>{job.company}</p>
+                    <div className="d-flex flex-wrap gap-1">
+                      <Badge bg="light" text="dark" style={{ fontSize: '10px' }}>
+                        {job.experience}
+                      </Badge>
+                      <Badge bg="light" text="dark" style={{ fontSize: '10px' }}>
+                        {job.jobType}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMoneyBillWave className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{job.salary}</span>
+                  
+                  <div className="mb-2">
+                    <div className="d-flex align-items-center mb-1">
+                      <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
+                      <span style={{ fontSize: '12px', color: colors.darkGray }}>{job.location}</span>
+                    </div>
+                    <div className="d-flex align-items-center mb-1">
+                      <FaMoneyBillWave className="me-2" size={12} color={colors.darkGray} />
+                      <span style={{ fontSize: '12px', color: colors.darkGray }}>{job.salary}</span>
+                    </div>
+                    <div className="d-flex align-items-center">
+                      <FaCalendarAlt className="me-2" size={12} color={colors.darkGray} />
+                      <span style={{ fontSize: '12px', color: colors.darkGray }}>Posted: {formatDate(job.postedDate)}</span>
+                    </div>
                   </div>
-                  <div className="d-flex align-items-center">
-                    <FaCalendarAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Posted: {formatDate(job.postedDate)}</span>
+                  
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div className="d-flex flex-wrap gap-1">
+                      {job.skills.slice(0, 3).map((skill, index) => (
+                        <Badge key={index} bg="light" text="dark" style={{ fontSize: '10px' }}>
+                          {skill}
+                        </Badge>
+                      ))}
+                      {job.skills.length > 3 && (
+                        <Badge bg="light" text="dark" style={{ fontSize: '10px' }}>
+                          +{job.skills.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                    <Button 
+                      style={buttonStyle}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                      onClick={() => handleApplyJob(job)}
+                    >
+                      Apply
+                    </Button>
                   </div>
-                </div>
-                
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <Badge bg="light" text="dark" style={{ fontSize: '11px', marginRight: '5px' }}>
-                      {job.experience}
-                    </Badge>
-                    <Badge bg="light" text="dark" style={{ fontSize: '11px' }}>
-                      {job.jobType}
-                    </Badge>
-                  </div>
-                  <Button 
-                    style={buttonStyle}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
-                    onClick={() => handleApplyJob(job)}
-                  >
-                    Apply
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
+                </Card.Body>
+              </Card>
+            </div>
           ))}
         </div>
       );
@@ -592,7 +738,7 @@ const JobApplication = () => {
   };
 
   return (
-    <div style={{  minHeight: '100vh' }}>
+    <div style={{minHeight: '100vh', backgroundColor: colors.lightBg }}>
       {/* Header */}
       <div style={{ 
         backgroundColor: colors.white, 
@@ -614,22 +760,21 @@ const JobApplication = () => {
               >
                 <FaArrowLeft size={18} />
               </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Job Applications</h2>
+              <h2 style={{ color: colors.black, margin: 0, fontSize: windowWidth < 768 ? '18px' : '20px' }}>Job Applications</h2>
             </div>
             <div className="d-flex align-items-center">
-              <div className="input-group me-2" style={{ maxWidth: '250px' }}>
-                <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
+              <InputGroup className="me-2" style={{ maxWidth: windowWidth < 768 ? '150px' : '250px' }}>
+                <InputGroup.Text style={{ backgroundColor: colors.lightGray, border: 'none' }}>
                   <FaSearch size={14} color={colors.darkGray} />
-                </span>
-                <input
+                </InputGroup.Text>
+                <Form.Control
                   type="text"
-                  className="form-control"
                   placeholder="Search jobs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: windowWidth < 768 ? '11px' : '12px' }}
                 />
-              </div>
+              </InputGroup>
               
             </div>
           </div>
@@ -637,6 +782,20 @@ const JobApplication = () => {
       </div>
 
       <div style={containerStyle} className="py-4">
+        {/* Success Alert */}
+        {showSuccessAlert && (
+          <Alert 
+            variant="success" 
+            className="d-flex align-items-center mb-3"
+            style={{ fontSize: windowWidth < 768 ? '12px' : '14px' }}
+            onClose={() => setShowSuccessAlert(false)}
+            dismissible
+          >
+            <FaCheckCircle className="me-2" />
+            Your application has been submitted successfully!
+          </Alert>
+        )}
+
         {/* Tabs */}
         <div className="d-flex mb-3" style={{ borderBottom: `1px solid ${colors.lightGray}` }}>
           <div 
@@ -663,7 +822,7 @@ const JobApplication = () => {
                   <Dropdown.Toggle 
                     variant="outline-light" 
                     id="dropdown-status-filter"
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                   >
                     Status: {filterStatus === 'all' ? 'All' : filterStatus}
                   </Dropdown.Toggle>
@@ -678,6 +837,7 @@ const JobApplication = () => {
                   variant="outline-light"
                   size="sm"
                   onClick={() => handleSort('appliedDate')}
+                  style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                 >
                   Applied Date {getSortIcon('appliedDate')}
                 </Button>
@@ -689,7 +849,7 @@ const JobApplication = () => {
               ) : (
                 <div className="text-center py-4">
                   <FaBriefcase size={40} color={colors.lightGray} />
-                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
+                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>
                     No applications found matching your criteria
                   </p>
                 </div>
@@ -708,7 +868,7 @@ const JobApplication = () => {
                   <Dropdown.Toggle 
                     variant="outline-light" 
                     id="dropdown-location-filter"
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                   >
                     Location: {filterLocation === 'all' ? 'All' : filterLocation}
                   </Dropdown.Toggle>
@@ -725,6 +885,7 @@ const JobApplication = () => {
                   variant="outline-light"
                   size="sm"
                   onClick={() => handleSort('postedDate')}
+                  style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                 >
                   Posted Date {getSortIcon('postedDate')}
                 </Button>
@@ -736,7 +897,7 @@ const JobApplication = () => {
               ) : (
                 <div className="text-center py-4">
                   <FaBriefcase size={40} color={colors.lightGray} />
-                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
+                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>
                     No jobs found matching your criteria
                   </p>
                 </div>
@@ -827,6 +988,23 @@ const JobApplication = () => {
                 </div>
               )}
               
+              {selectedJob.resumeUrl && (
+                <div className="mb-4">
+                  <h6 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500' }}>Resume:</h6>
+                  <div className="d-flex align-items-center">
+                    <FaFileAlt className="me-2" color={colors.primaryRed} />
+                    <a 
+                      href={selectedJob.resumeUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: colors.primaryRed, textDecoration: 'none', fontSize: '13px' }}
+                    >
+                      View Resume
+                    </a>
+                  </div>
+                </div>
+              )}
+              
               <div className="d-flex justify-content-end">
                 {!selectedJob.status && (
                   <Button 
@@ -852,83 +1030,178 @@ const JobApplication = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Apply Job Modal */}
-      <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)} centered size="lg">
-        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
-          <Modal.Title>Apply for Job</Modal.Title>
+      {/* Apply Job Modal - Made more compact */}
+      <Modal 
+        show={showApplyModal} 
+        onHide={() => setShowApplyModal(false)} 
+        centered 
+        size="md"
+        dialogClassName={windowWidth < 768 ? "modal-90w" : ""}
+        contentClassName={windowWidth < 768 ? "p-2" : ""}
+      >
+        <Modal.Header 
+          closeButton 
+          style={{ 
+            backgroundColor: colors.primaryRed, 
+            color: colors.white,
+            padding: windowWidth < 768 ? '8px 12px' : '10px 15px'
+          }}
+        >
+          <Modal.Title style={{ fontSize: windowWidth < 768 ? '14px' : '16px' }}>
+            Apply for Job
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ padding: windowWidth < 768 ? '10px' : '15px' }}>
           {selectedJob && (
             <div>
-              <div className="mb-4">
-                <h5 style={{ color: colors.black, fontWeight: '600', fontSize: '16px' }}>{selectedJob.title}</h5>
-                <h6 style={{ color: colors.darkGray, fontSize: '14px' }}>{selectedJob.company}</h6>
+              <div className="mb-3">
+                <h5 style={{ color: colors.black, fontWeight: '600', fontSize: windowWidth < 768 ? '14px' : '16px' }}>
+                  {selectedJob.title}
+                </h5>
+                <h6 style={{ color: colors.darkGray, fontSize: windowWidth < 768 ? '12px' : '14px' }}>
+                  {selectedJob.company}
+                </h6>
               </div>
               
               <Form onSubmit={handleApplySubmit}>
                 <Form.Group className="mb-3">
-                  <Form.Label style={{ fontSize: '13px' }}>Cover Letter</Form.Label>
+                  <Form.Label style={{ fontSize: '13px' }}>Resume *</Form.Label>
+                  <div className="border rounded p-2" style={{ backgroundColor: colors.lightBg }}>
+                    {resumeFile ? (
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center">
+                          <FaFileAlt className="me-2" color={colors.primaryRed} />
+                          <span style={{ fontSize: '12px' }}>{resumeFile.name}</span>
+                          <span className="ms-2 text-muted" style={{ fontSize: '11px' }}>
+                            ({(resumeFile.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                        </div>
+                        <Button 
+                          variant="link" 
+                          className="text-danger p-0"
+                          onClick={handleRemoveResume}
+                          style={{ fontSize: '12px' }}
+                        >
+                          <FaTrash />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div 
+                          className="text-center p-2 border-dashed rounded"
+                          style={{ 
+                            border: '2px dashed #ccc', 
+                            cursor: 'pointer',
+                            backgroundColor: '#f9f9f9',
+                            padding: windowWidth < 768 ? '10px' : '15px'
+                          }}
+                          onClick={() => fileInputRef.current.click()}
+                        >
+                          <FaFileUpload size={windowWidth < 768 ? 20 : 24} color={colors.darkGray} />
+                          <p className="mt-1 mb-0" style={{ fontSize: '12px', color: colors.darkGray }}>
+                            Click to upload
+                          </p>
+                          <p className="mb-0" style={{ fontSize: '10px', color: colors.darkGray }}>
+                            PDF or Word, max 5MB
+                          </p>
+                        </div>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          onChange={handleFileChange}
+                          style={{ display: 'none' }}
+                        />
+                      </div>
+                    )}
+                    
+                    {isUploading && (
+                      <div className="mt-2">
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <span style={{ fontSize: '11px' }}>Uploading...</span>
+                          <span style={{ fontSize: '11px' }}>{uploadProgress}%</span>
+                        </div>
+                        <div className="progress" style={{ height: '4px' }}>
+                          <div 
+                            className="progress-bar" 
+                            role="progressbar" 
+                            style={{ 
+                              width: `${uploadProgress}%`,
+                              backgroundColor: colors.primaryRed
+                            }}
+                            aria-valuenow={uploadProgress} 
+                            aria-valuemin="0" 
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Form.Group>
+                
+                <Form.Group className="mb-3">
+                  <Form.Label style={{ fontSize: '13px' }}>Cover Letter *</Form.Label>
                   <Form.Control
                     as="textarea"
-                    rows={4}
+                    rows={windowWidth < 768 ? 2 : 3}
                     value={applicationForm.coverLetter}
                     onChange={(e) => setApplicationForm({...applicationForm, coverLetter: e.target.value})}
                     placeholder="Tell us why you're a good fit for this role..."
                     required
-                    style={{ fontSize: '13px' }}
+                    style={{ fontSize: '12px' }}
                   />
                 </Form.Group>
                 
                 <Row>
-                  <Col md={6}>
+                  <Col xs={12} md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ fontSize: '13px' }}>Expected Salary</Form.Label>
+                      <Form.Label style={{ fontSize: '13px' }}>Expected Salary *</Form.Label>
                       <Form.Control
                         type="text"
                         value={applicationForm.expectedSalary}
                         onChange={(e) => setApplicationForm({...applicationForm, expectedSalary: e.target.value})}
                         placeholder="e.g., ₹12 LPA"
                         required
-                        style={{ fontSize: '13px' }}
+                        style={{ fontSize: '12px' }}
                       />
                     </Form.Group>
                   </Col>
-                  <Col md={6}>
+                  <Col xs={12} md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ fontSize: '13px' }}>Current CTC</Form.Label>
+                      <Form.Label style={{ fontSize: '13px' }}>Current CTC *</Form.Label>
                       <Form.Control
                         type="text"
                         value={applicationForm.currentCTC}
                         onChange={(e) => setApplicationForm({...applicationForm, currentCTC: e.target.value})}
                         placeholder="e.g., ₹10 LPA"
                         required
-                        style={{ fontSize: '13px' }}
+                        style={{ fontSize: '12px' }}
                       />
                     </Form.Group>
                   </Col>
                 </Row>
                 
                 <Row>
-                  <Col md={6}>
+                  <Col xs={12} md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ fontSize: '13px' }}>Available From</Form.Label>
+                      <Form.Label style={{ fontSize: '13px' }}>Available From *</Form.Label>
                       <Form.Control
                         type="date"
                         value={applicationForm.availableFromDate}
                         onChange={(e) => setApplicationForm({...applicationForm, availableFromDate: e.target.value})}
                         required
-                        style={{ fontSize: '13px' }}
+                        style={{ fontSize: '12px' }}
                       />
                     </Form.Group>
                   </Col>
-                  <Col md={6}>
+                  <Col xs={12} md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label style={{ fontSize: '13px' }}>Notice Period</Form.Label>
+                      <Form.Label style={{ fontSize: '13px' }}>Notice Period *</Form.Label>
                       <Form.Select
                         value={applicationForm.noticePeriod}
                         onChange={(e) => setApplicationForm({...applicationForm, noticePeriod: e.target.value})}
                         required
-                        style={{ fontSize: '13px' }}
+                        style={{ fontSize: '12px' }}
                       >
                         <option value="">Select Notice Period</option>
                         <option value="Immediate">Immediate</option>
@@ -946,12 +1219,30 @@ const JobApplication = () => {
                     variant="secondary" 
                     className="me-2"
                     onClick={() => setShowApplyModal(false)}
-                    style={{ fontSize: '13px' }}
+                    style={{ fontSize: '12px' }}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" style={buttonStyle}>
-                    Submit Application
+                  <Button 
+                    type="submit" 
+                    style={buttonStyle} 
+                    disabled={isUploading}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit Application'
+                    )}
                   </Button>
                 </div>
               </Form>

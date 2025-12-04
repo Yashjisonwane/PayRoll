@@ -1,7 +1,7 @@
 // src/pages/Employee/BillPayments.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Badge, Button, Modal, Form, Nav, InputGroup, Dropdown } from 'react-bootstrap';
+import { Card, Row, Col, Table, Badge, Button, Modal, Form, Nav, InputGroup, Dropdown, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { 
   FaFileInvoiceDollar, 
   FaPlus, 
@@ -20,7 +20,13 @@ import {
   FaSortDown,
   FaMobileAlt,
   FaWindowClose,
-  FaEllipsisV
+  FaEllipsisV,
+  FaHistory,
+  FaToggleOn,
+  FaToggleOff,
+  FaClock,
+  FaCreditCard,
+  FaRobot
 } from 'react-icons/fa';
 
 // Color Palette
@@ -43,6 +49,7 @@ const BillPayments = () => {
   const [showEditCompanyModal, setShowEditCompanyModal] = useState(false);
   const [showAddBillModal, setShowAddBillModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showAutoDeductionModal, setShowAutoDeductionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('bills');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingCompany, setEditingCompany] = useState(null);
@@ -50,23 +57,34 @@ const BillPayments = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterPaidByEmployer, setFilterPaidByEmployer] = useState('all');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  // Track window width for responsive adjustments
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const [companies, setCompanies] = useState([
-    { id: 1, name: 'Electricity Board', category: 'Utilities', contact: '1912', website: 'www.electricityboard.gov.in' },
-    { id: 2, name: 'Airtel Broadband', category: 'Internet', contact: '121', website: 'www.airtel.in' },
-    { id: 3, name: 'Gas Agency', category: 'Utilities', contact: '1800-123-4567', website: 'www.gasagency.in' },
-    { id: 4, name: 'Water Supply', category: 'Utilities', contact: '1800-180-1234', website: 'www.watersupply.gov.in' },
-    { id: 5, name: 'Jio Fiber', category: 'Internet', contact: '1800-889-9999', website: 'www.jio.com' },
-    { id: 6, name: 'BSNL Landline', category: 'Telecom', contact: '1800-345-1500', website: 'www.bsnl.co.in' },
-    { id: 7, name: 'Indane Gas', category: 'Utilities', contact: '1800-233-3555', website: 'www.indane.co.in' },
-    { id: 8, name: 'HDFC Life Insurance', category: 'Insurance', contact: '1800-266-9777', website: 'www.hdfclife.com' },
-    { id: 9, name: 'LIC India', category: 'Insurance', contact: '022-6827-6827', website: 'www.licindia.in' },
-    { id: 10, name: 'SBI Home Loan', category: 'Loan', contact: '1800-11-22-11', website: 'www.sbi.co.in' },
-    { id: 11, name: 'ICICI Bank Loan', category: 'Loan', contact: '1800-103-8181', website: 'www.icicibank.com' },
-    { id: 12, name: 'Airtel Mobile', category: 'Telecom', contact: '121', website: 'www.airtel.in' },
-    { id: 13, name: 'Vodafone Idea', category: 'Telecom', contact: '199', website: 'www.vi.in' },
-    { id: 14, name: 'Tata Sky DTH', category: 'Entertainment', contact: '1800-208-6633', website: 'www.tatasky.com' },
-    { id: 15, name: 'Dish TV', category: 'Entertainment', contact: '1800-315-0315', website: 'www.dishtv.in' },
+    { id: 1, name: 'Electricity Board', category: 'Utilities', contact: '1912', website: 'www.electricityboard.gov.in', autoDeduction: true },
+    { id: 2, name: 'Airtel Broadband', category: 'Internet', contact: '121', website: 'www.airtel.in', autoDeduction: false },
+    { id: 3, name: 'Gas Agency', category: 'Utilities', contact: '1800-123-4567', website: 'www.gasagency.in', autoDeduction: true },
+    { id: 4, name: 'Water Supply', category: 'Utilities', contact: '1800-180-1234', website: 'www.watersupply.gov.in', autoDeduction: false },
+    { id: 5, name: 'Jio Fiber', category: 'Internet', contact: '1800-889-9999', website: 'www.jio.com', autoDeduction: false },
+    { id: 6, name: 'BSNL Landline', category: 'Telecom', contact: '1800-345-1500', website: 'www.bsnl.co.in', autoDeduction: true },
+    { id: 7, name: 'Indane Gas', category: 'Utilities', contact: '1800-233-3555', website: 'www.indane.co.in', autoDeduction: true },
+    { id: 8, name: 'HDFC Life Insurance', category: 'Insurance', contact: '1800-266-9777', website: 'www.hdfclife.com', autoDeduction: true },
+    { id: 9, name: 'LIC India', category: 'Insurance', contact: '022-6827-6827', website: 'www.licindia.in', autoDeduction: false },
+    { id: 10, name: 'SBI Home Loan', category: 'Loan', contact: '1800-11-22-11', website: 'www.sbi.co.in', autoDeduction: true },
+    { id: 11, name: 'ICICI Bank Loan', category: 'Loan', contact: '1800-103-8181', website: 'www.icicibank.com', autoDeduction: false },
+    { id: 12, name: 'Airtel Mobile', category: 'Telecom', contact: '121', website: 'www.airtel.in', autoDeduction: false },
+    { id: 13, name: 'Vodafone Idea', category: 'Telecom', contact: '199', website: 'www.vi.in', autoDeduction: false },
+    { id: 14, name: 'Tata Sky DTH', category: 'Entertainment', contact: '1800-208-6633', website: 'www.tatasky.com', autoDeduction: true },
+    { id: 15, name: 'Dish TV', category: 'Entertainment', contact: '1800-315-0315', website: 'www.dishtv.in', autoDeduction: false },
   ]);
   
   const [pendingBills, setPendingBills] = useState([
@@ -78,7 +96,8 @@ const BillPayments = () => {
       dueDate: '2023-07-15', 
       status: 'Pending',
       paidByEmployer: false,
-      category: 'Utilities'
+      category: 'Utilities',
+      autoDeduction: true
     },
     { 
       id: 2, 
@@ -88,7 +107,8 @@ const BillPayments = () => {
       dueDate: '2023-07-20', 
       status: 'Pending',
       paidByEmployer: true,
-      category: 'Internet'
+      category: 'Internet',
+      autoDeduction: false
     },
     { 
       id: 3, 
@@ -98,7 +118,8 @@ const BillPayments = () => {
       dueDate: '2023-07-25', 
       status: 'Pending',
       paidByEmployer: false,
-      category: 'Utilities'
+      category: 'Utilities',
+      autoDeduction: true
     },
     { 
       id: 4, 
@@ -108,7 +129,8 @@ const BillPayments = () => {
       dueDate: '2023-07-28', 
       status: 'Pending',
       paidByEmployer: false,
-      category: 'Internet'
+      category: 'Internet',
+      autoDeduction: false
     },
     { 
       id: 5, 
@@ -118,7 +140,8 @@ const BillPayments = () => {
       dueDate: '2023-07-30', 
       status: 'Pending',
       paidByEmployer: true,
-      category: 'Telecom'
+      category: 'Telecom',
+      autoDeduction: true
     },
   ]);
   
@@ -132,7 +155,9 @@ const BillPayments = () => {
       paidDate: '2023-06-10', 
       status: 'Paid',
       paidByEmployer: true,
-      category: 'Utilities'
+      category: 'Utilities',
+      autoDeduction: false,
+      paymentMethod: 'Auto-Deduction'
     },
     { 
       id: 7, 
@@ -143,7 +168,9 @@ const BillPayments = () => {
       paidDate: '2023-06-08', 
       status: 'Paid',
       paidByEmployer: false,
-      category: 'Utilities'
+      category: 'Utilities',
+      autoDeduction: true,
+      paymentMethod: 'Manual'
     },
     { 
       id: 8, 
@@ -154,7 +181,9 @@ const BillPayments = () => {
       paidDate: '2023-06-01', 
       status: 'Paid',
       paidByEmployer: true,
-      category: 'Utilities'
+      category: 'Utilities',
+      autoDeduction: true,
+      paymentMethod: 'Auto-Deduction'
     },
     { 
       id: 9, 
@@ -165,7 +194,9 @@ const BillPayments = () => {
       paidDate: '2023-05-15', 
       status: 'Paid',
       paidByEmployer: false,
-      category: 'Insurance'
+      category: 'Insurance',
+      autoDeduction: true,
+      paymentMethod: 'Auto-Deduction'
     },
     { 
       id: 10, 
@@ -176,7 +207,9 @@ const BillPayments = () => {
       paidDate: '2023-05-08', 
       status: 'Paid',
       paidByEmployer: true,
-      category: 'Entertainment'
+      category: 'Entertainment',
+      autoDeduction: true,
+      paymentMethod: 'Auto-Deduction'
     },
   ]);
   
@@ -184,7 +217,8 @@ const BillPayments = () => {
     name: '',
     category: 'Utilities',
     contact: '',
-    website: ''
+    website: '',
+    autoDeduction: false
   });
   
   const [newBill, setNewBill] = useState({
@@ -193,13 +227,14 @@ const BillPayments = () => {
     amount: '',
     dueDate: '',
     paidByEmployer: false,
-    category: 'Utilities'
+    category: 'Utilities',
+    autoDeduction: false
   });
 
   const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 15px',
+    padding: windowWidth < 768 ? '0 10px' : '0 15px',
   };
 
   const cardStyle = {
@@ -220,14 +255,14 @@ const BillPayments = () => {
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    fontSize: '14px',
+    fontSize: windowWidth < 768 ? '12px' : '14px',
   };
 
   const buttonStyle = {
     backgroundColor: colors.primaryRed,
     color: colors.white,
     border: 'none',
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '4px 8px' : '6px 12px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -235,14 +270,14 @@ const BillPayments = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '10px' : '12px',
   };
 
   const secondaryButtonStyle = {
     backgroundColor: 'transparent',
     color: colors.primaryRed,
     border: `1px solid ${colors.primaryRed}`,
-    padding: '6px 12px',
+    padding: windowWidth < 768 ? '4px 8px' : '6px 12px',
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -250,7 +285,7 @@ const BillPayments = () => {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '12px',
+    fontSize: windowWidth < 768 ? '10px' : '12px',
   };
 
   const tabStyle = {
@@ -260,7 +295,7 @@ const BillPayments = () => {
     color: colors.darkGray,
     fontWeight: '500',
     transition: 'all 0.2s',
-    fontSize: '13px',
+    fontSize: windowWidth < 768 ? '11px' : '13px',
   };
 
   const activeTabStyle = {
@@ -286,7 +321,7 @@ const BillPayments = () => {
     e.preventDefault();
     const newId = companies.length > 0 ? Math.max(...companies.map(c => c.id)) + 1 : 1;
     setCompanies([...companies, { ...newCompany, id: newId }]);
-    setNewCompany({ name: '', category: 'Utilities', contact: '', website: '' });
+    setNewCompany({ name: '', category: 'Utilities', contact: '', website: '', autoDeduction: false });
     setShowAddCompanyModal(false);
   };
 
@@ -315,7 +350,8 @@ const BillPayments = () => {
       amount: '',
       dueDate: '',
       paidByEmployer: false,
-      category: 'Utilities'
+      category: 'Utilities',
+      autoDeduction: false
     });
     setShowAddBillModal(false);
   };
@@ -326,7 +362,8 @@ const BillPayments = () => {
       const updatedBill = {
         ...billToPay,
         status: 'Paid',
-        paidDate: new Date().toISOString().split('T')[0]
+        paidDate: new Date().toISOString().split('T')[0],
+        paymentMethod: billToPay.autoDeduction ? 'Auto-Deduction' : 'Manual'
       };
       setPaidBills([...paidBills, updatedBill]);
       setPendingBills(pendingBills.filter(bill => bill.id !== billId));
@@ -340,6 +377,19 @@ const BillPayments = () => {
   const handleEditCompanyClick = (company) => {
     setEditingCompany(company);
     setShowEditCompanyModal(true);
+  };
+
+  const handleToggleAutoDeduction = (companyId) => {
+    setCompanies(companies.map(company => 
+      company.id === companyId ? { ...company, autoDeduction: !company.autoDeduction } : company
+    ));
+    
+    // Also update pending bills for this company
+    setPendingBills(pendingBills.map(bill => 
+      bill.company === companies.find(c => c.id === companyId).name 
+        ? { ...bill, autoDeduction: !companies.find(c => c.id === companyId).autoDeduction } 
+        : bill
+    ));
   };
 
   const handleSort = (field) => {
@@ -413,8 +463,279 @@ const BillPayments = () => {
     setShowFilterModal(false);
   };
 
+  // Responsive company cards for mobile view
+  const ResponsiveCompanyCards = () => {
+    if (windowWidth < 768) {
+      // Mobile view - card layout
+      return (
+        <div className="company-cards">
+          {filteredCompanies.map((company) => (
+            <Card key={company.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 style={{ fontSize: '14px', fontWeight: '600' }}>{company.name}</h6>
+                    <Badge bg="light" text="dark" style={{ fontSize: '11px' }}>{company.category}</Badge>
+                  </div>
+                  <div className="d-flex">
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.darkGray, padding: '0', textDecoration: 'none', fontSize: '12px', marginRight: '10px' }}
+                      onClick={() => handleEditCompanyClick(company)}
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
+                      onClick={() => handleDeleteCompany(company.id)}
+                    >
+                      <FaTrash />
+                    </Button>
+                  </div>
+                </div>
+                <div className="mb-2">
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    Contact: {company.contact}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    Website: {company.website}
+                  </p>
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Auto-Deduction:</span>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ 
+                        color: company.autoDeduction ? colors.successGreen : colors.darkGray, 
+                        padding: '0', 
+                        textDecoration: 'none', 
+                        fontSize: '12px',
+                        marginLeft: '5px'
+                      }}
+                      onClick={() => handleToggleAutoDeduction(company.id)}
+                    >
+                      {company.autoDeduction ? <FaToggleOn size={20} /> : <FaToggleOff size={20} />}
+                    </Button>
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          ))}
+        </div>
+      );
+    } else {
+      // Desktop view - table layout
+      return (
+        <div className="table-responsive">
+          <Table hover className="align-middle" style={{ fontSize: '13px' }}>
+            <thead>
+              <tr>
+                <th>Company Name</th>
+                <th>Category</th>
+                <th>Contact</th>
+                <th>Website</th>
+                <th>Auto-Deduction</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCompanies.map((company) => (
+                <tr key={company.id}>
+                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{company.name}</td>
+                  <td style={{ fontSize: '12px' }}>{company.category}</td>
+                  <td style={{ fontSize: '12px' }}>{company.contact}</td>
+                  <td style={{ fontSize: '12px' }}>{company.website}</td>
+                  <td>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ 
+                        color: company.autoDeduction ? colors.successGreen : colors.darkGray, 
+                        padding: '0', 
+                        textDecoration: 'none', 
+                        fontSize: '12px'
+                      }}
+                      onClick={() => handleToggleAutoDeduction(company.id)}
+                    >
+                      {company.autoDeduction ? <FaToggleOn size={20} /> : <FaToggleOff size={20} />}
+                    </Button>
+                  </td>
+                  <td>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.darkGray, padding: '0', textDecoration: 'none', fontSize: '12px', marginRight: '10px' }}
+                      onClick={() => handleEditCompanyClick(company)}
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
+                      onClick={() => handleDeleteCompany(company.id)}
+                    >
+                      <FaTrash />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      );
+    }
+  };
+
+  // Responsive bill cards for mobile view
+  const ResponsiveBillCards = ({ bills, type }) => {
+    if (windowWidth < 768) {
+      // Mobile view - card layout
+      return (
+        <div className="bill-cards">
+          {bills.map((bill) => (
+            <Card key={bill.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 style={{ fontSize: '14px', fontWeight: '600' }}>{bill.company}</h6>
+                    <Badge bg={bill.status === 'Paid' ? 'success' : 'warning'} style={{ fontSize: '11px' }}>
+                      {bill.status}
+                    </Badge>
+                  </div>
+                  <h5 style={{ color: colors.primaryRed, fontWeight: '600', fontSize: '16px' }}>
+                    {formatCurrency(bill.amount)}
+                  </h5>
+                </div>
+                <div className="mb-2">
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    Bill No: {bill.billNumber}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    Due Date: {formatDate(bill.dueDate)}
+                  </p>
+                  {bill.status === 'Paid' && (
+                    <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                      Paid Date: {formatDate(bill.paidDate)}
+                    </p>
+                  )}
+                  <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                    Paid by Employer: {bill.paidByEmployer ? 'Yes' : 'No'}
+                  </p>
+                  {bill.paymentMethod && (
+                    <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray }}>
+                      Payment Method: {bill.paymentMethod}
+                    </p>
+                  )}
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span style={{ fontSize: '12px', color: colors.darkGray }}>Auto-Deduction:</span>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      color: bill.autoDeduction ? colors.successGreen : colors.darkGray,
+                      marginLeft: '5px'
+                    }}>
+                      {bill.autoDeduction ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                  {bill.status === 'Pending' && (
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
+                      onClick={() => handlePayBill(bill.id)}
+                    >
+                      <FaMoneyBillWave /> Pay Now
+                    </Button>
+                  )}
+                </div>
+              </Card.Body>
+            </Card>
+          ))}
+        </div>
+      );
+    } else {
+      // Desktop view - table layout
+      return (
+        <div className="table-responsive">
+          <Table hover className="align-middle" style={{ fontSize: '13px' }}>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Bill Number</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                {type === 'paid' && <th>Paid Date</th>}
+                <th>Paid by Employer</th>
+                <th>Auto-Deduction</th>
+                {type === 'paid' && <th>Payment Method</th>}
+                {type === 'pending' && <th>Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {bills.map((bill) => (
+                <tr key={bill.id}>
+                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{bill.company}</td>
+                  <td style={{ fontSize: '12px' }}>{bill.billNumber}</td>
+                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{formatCurrency(bill.amount)}</td>
+                  <td style={{ fontSize: '12px' }}>{formatDate(bill.dueDate)}</td>
+                  {type === 'paid' && <td style={{ fontSize: '12px' }}>{formatDate(bill.paidDate)}</td>}
+                  <td>
+                    <Badge 
+                      bg={bill.paidByEmployer ? 'success' : 'warning'}
+                      style={{ fontSize: '11px' }}
+                    >
+                      {bill.paidByEmployer ? 'Yes' : 'No'}
+                    </Badge>
+                  </td>
+                  <td>
+                    <Badge 
+                      bg={bill.autoDeduction ? 'success' : 'secondary'}
+                      style={{ fontSize: '11px' }}
+                    >
+                      {bill.autoDeduction ? 'Enabled' : 'Disabled'}
+                    </Badge>
+                  </td>
+                  {type === 'paid' && (
+                    <td>
+                      <Badge 
+                        bg={bill.paymentMethod === 'Auto-Deduction' ? 'info' : 'light'}
+                        text={bill.paymentMethod === 'Auto-Deduction' ? 'white' : 'dark'}
+                        style={{ fontSize: '11px' }}
+                      >
+                        {bill.paymentMethod}
+                      </Badge>
+                    </td>
+                  )}
+                  {type === 'pending' && (
+                    <td>
+                      <Button 
+                        variant="link" 
+                        size="sm"
+                        style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
+                        onClick={() => handlePayBill(bill.id)}
+                      >
+                        <FaMoneyBillWave /> Pay Now
+                      </Button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      );
+    }
+  };
+
   return (
-    <div style={{  minHeight: '100vh' }}>
+    <div style={{minHeight: '100vh', backgroundColor: colors.lightBg }}>
       {/* Header */}
       <div style={{ 
         backgroundColor: colors.white, 
@@ -436,10 +757,10 @@ const BillPayments = () => {
               >
                 <FaArrowLeft size={18} />
               </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: '20px' }}>Bill Payments</h2>
+              <h2 style={{ color: colors.black, margin: 0, fontSize: windowWidth < 768 ? '18px' : '20px' }}>Bill Payments</h2>
             </div>
             <div className="d-flex align-items-center">
-              <div className="input-group me-2" style={{ maxWidth: '250px' }}>
+              <div className="input-group me-2" style={{ maxWidth: windowWidth < 768 ? '150px' : '250px' }}>
                 <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
                   <FaSearch size={14} color={colors.darkGray} />
                 </span>
@@ -449,7 +770,7 @@ const BillPayments = () => {
                   placeholder={getSearchPlaceholder()}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: windowWidth < 768 ? '11px' : '12px' }}
                 />
               </div>
               {activeTab === 'bills' && (
@@ -458,17 +779,26 @@ const BillPayments = () => {
                     variant="outline-secondary"
                     className="me-2 d-none d-md-inline-flex"
                     onClick={() => setShowFilterModal(true)}
-                    style={{ fontSize: '12px' }}
+                    style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                   >
                     <FaFilter className="me-1" />
                     Filter
                   </Button>
-                  <Dropdown>
+                  {/* <Button 
+                    variant="outline-secondary"
+                    className="me-2 d-none d-md-inline-flex"
+                    onClick={() => setShowAutoDeductionModal(true)}
+                    style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
+                  >
+                    <FaRobot className="me-1" />
+                    Auto-Deduction
+                  </Button> */}
+                  {/* <Dropdown>
                     <Dropdown.Toggle 
                       variant="outline-secondary" 
                       id="dropdown-actions"
                       className="d-md-none"
-                      style={{ fontSize: '12px' }}
+                      style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                     >
                       <FaEllipsisV />
                     </Dropdown.Toggle>
@@ -476,6 +806,10 @@ const BillPayments = () => {
                       <Dropdown.Item onClick={() => setShowFilterModal(true)}>
                         <FaFilter className="me-2" />
                         Filter
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setShowAutoDeductionModal(true)}>
+                        <FaRobot className="me-2" />
+                        Auto-Deduction
                       </Dropdown.Item>
                       <Dropdown.Item onClick={() => setShowAddBillModal(true)}>
                         <FaPlus className="me-2" />
@@ -490,11 +824,20 @@ const BillPayments = () => {
                         Sort by Amount
                       </Dropdown.Item>
                     </Dropdown.Menu>
-                  </Dropdown>
+                  </Dropdown> */}
                 </>
               )}
-       
-              
+              {activeTab === 'companies' && (
+                <Button 
+                  style={buttonStyle}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = colors.primaryRed}
+                  onClick={() => setShowAddCompanyModal(true)}
+                >
+                  <FaPlus className="me-1" />
+                  <span className="d-none d-md-inline">Add Company</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -515,6 +858,14 @@ const BillPayments = () => {
           >
             Companies ({companies.length})
           </div>
+          <div 
+            style={activeTab === 'history' ? activeTabStyle : tabStyle}
+            onClick={() => setActiveTab('history')}
+          >
+            <FaHistory className="me-1" />
+            <span className="d-none d-md-inline">Payment History</span>
+            <span className="d-md-none">History</span>
+          </div>
         </div>
 
         {activeTab === 'bills' && (
@@ -530,6 +881,7 @@ const BillPayments = () => {
                     size="sm"
                     className="me-2 d-none d-md-inline-flex"
                     onClick={() => handleSort('dueDate')}
+                    style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                   >
                     Due Date {getSortIcon('dueDate')}
                   </Button>
@@ -538,6 +890,7 @@ const BillPayments = () => {
                     size="sm"
                     className="me-2 d-none d-md-inline-flex"
                     onClick={() => handleSort('amount')}
+                    style={{ fontSize: windowWidth < 768 ? '10px' : '12px' }}
                   >
                     Amount {getSortIcon('amount')}
                   </Button>
@@ -554,52 +907,11 @@ const BillPayments = () => {
               </div>
               <Card.Body className="p-3">
                 {filteredPendingBills.length > 0 ? (
-                  <div className="table-responsive">
-                    <Table hover className="align-middle" style={{ fontSize: '13px' }}>
-                      <thead>
-                        <tr>
-                          <th>Company</th>
-                          <th className="d-none d-md-table-cell">Bill Number</th>
-                          <th>Amount</th>
-                          <th>Due Date</th>
-                          <th className="d-none d-md-table-cell">Paid by Employer</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPendingBills.map((bill) => (
-                          <tr key={bill.id}>
-                            <td style={{ fontWeight: '600', fontSize: '12px' }}>{bill.company}</td>
-                            <td className="d-none d-md-table-cell" style={{ fontSize: '12px' }}>{bill.billNumber}</td>
-                            <td style={{ fontWeight: '600', fontSize: '12px' }}>{formatCurrency(bill.amount)}</td>
-                            <td style={{ fontSize: '12px' }}>{formatDate(bill.dueDate)}</td>
-                            <td className="d-none d-md-table-cell">
-                              <Badge 
-                                bg={bill.paidByEmployer ? 'success' : 'warning'}
-                                style={{ fontSize: '11px' }}
-                              >
-                                {bill.paidByEmployer ? 'Yes' : 'No'}
-                              </Badge>
-                            </td>
-                            <td>
-                              <Button 
-                                variant="link" 
-                                size="sm"
-                                style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
-                                onClick={() => handlePayBill(bill.id)}
-                              >
-                                <FaMoneyBillWave /> <span className="d-none d-md-inline">Pay Now</span>
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  </div>
+                  <ResponsiveBillCards bills={filteredPendingBills} type="pending" />
                 ) : (
                   <div className="text-center py-4">
                     <FaFileInvoiceDollar size={40} color={colors.lightGray} />
-                    <p style={{ color: colors.darkGray, marginTop: '10px' }}>No pending bills found</p>
+                    <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>No pending bills found</p>
                     <Button 
                       style={buttonStyle}
                       onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
@@ -622,49 +934,11 @@ const BillPayments = () => {
               </div>
               <Card.Body className="p-3">
                 {filteredPaidBills.length > 0 ? (
-                  <div className="table-responsive">
-                    <Table hover className="align-middle" style={{ fontSize: '13px' }}>
-                      <thead>
-                        <tr>
-                          <th>Company</th>
-                          <th className="d-none d-md-table-cell">Bill Number</th>
-                          <th>Amount</th>
-                          <th>Due Date</th>
-                          <th className="d-none d-md-table-cell">Paid Date</th>
-                          <th className="d-none d-md-table-cell">Paid by Employer</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPaidBills.map((bill) => (
-                          <tr key={bill.id}>
-                            <td style={{ fontWeight: '600', fontSize: '12px' }}>{bill.company}</td>
-                            <td className="d-none d-md-table-cell" style={{ fontSize: '12px' }}>{bill.billNumber}</td>
-                            <td style={{ fontWeight: '600', fontSize: '12px' }}>{formatCurrency(bill.amount)}</td>
-                            <td style={{ fontSize: '12px' }}>{formatDate(bill.dueDate)}</td>
-                            <td className="d-none d-md-table-cell" style={{ fontSize: '12px' }}>{formatDate(bill.paidDate)}</td>
-                            <td className="d-none d-md-table-cell">
-                              <Badge 
-                                bg={bill.paidByEmployer ? 'success' : 'warning'}
-                                style={{ fontSize: '11px' }}
-                              >
-                                {bill.paidByEmployer ? 'Yes' : 'No'}
-                              </Badge>
-                            </td>
-                            <td>
-                              <Badge bg="success" style={{ fontSize: '11px' }}>
-                                Paid
-                              </Badge>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  </div>
+                  <ResponsiveBillCards bills={filteredPaidBills} type="paid" />
                 ) : (
                   <div className="text-center py-4">
                     <FaCheckCircle size={40} color={colors.lightGray} />
-                    <p style={{ color: colors.darkGray, marginTop: '10px' }}>No paid bills found</p>
+                    <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>No paid bills found</p>
                   </div>
                 )}
               </Card.Body>
@@ -689,51 +963,11 @@ const BillPayments = () => {
             </div>
             <Card.Body className="p-3">
               {filteredCompanies.length > 0 ? (
-                <div className="table-responsive">
-                  <Table hover className="align-middle" style={{ fontSize: '13px' }}>
-                    <thead>
-                      <tr>
-                        <th>Company Name</th>
-                        <th className="d-none d-md-table-cell">Category</th>
-                        <th className="d-none d-md-table-cell">Contact</th>
-                        <th className="d-none d-md-table-cell">Website</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredCompanies.map((company) => (
-                        <tr key={company.id}>
-                          <td style={{ fontWeight: '600', fontSize: '12px' }}>{company.name}</td>
-                          <td className="d-none d-md-table-cell" style={{ fontSize: '12px' }}>{company.category}</td>
-                          <td className="d-none d-md-table-cell" style={{ fontSize: '12px' }}>{company.contact}</td>
-                          <td className="d-none d-md-table-cell" style={{ fontSize: '12px' }}>{company.website}</td>
-                          <td>
-                            <Button 
-                              variant="link" 
-                              size="sm"
-                              style={{ color: colors.darkGray, padding: '0', textDecoration: 'none', fontSize: '12px', marginRight: '10px' }}
-                              onClick={() => handleEditCompanyClick(company)}
-                            >
-                              <FaEdit />
-                            </Button>
-                            <Button 
-                              variant="link" 
-                              size="sm"
-                              style={{ color: colors.primaryRed, padding: '0', textDecoration: 'none', fontSize: '12px' }}
-                              onClick={() => handleDeleteCompany(company.id)}
-                            >
-                              <FaTrash />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </div>
+                <ResponsiveCompanyCards />
               ) : (
                 <div className="text-center py-4">
                   <FaBuilding size={40} color={colors.lightGray} />
-                  <p style={{ color: colors.darkGray, marginTop: '10px' }}>No companies found</p>
+                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>No companies found</p>
                   <Button 
                     style={buttonStyle}
                     onMouseEnter={(e) => e.target.style.backgroundColor = colors.darkRed}
@@ -743,6 +977,25 @@ const BillPayments = () => {
                     <FaPlus className="me-1" />
                     Add Company
                   </Button>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        )}
+
+        {activeTab === 'history' && (
+          <Card style={cardStyle}>
+            <div style={headerStyle}>
+              <FaHistory className="me-2" />
+              Bill Payment History
+            </div>
+            <Card.Body className="p-3">
+              {filteredPaidBills.length > 0 ? (
+                <ResponsiveBillCards bills={filteredPaidBills} type="paid" />
+              ) : (
+                <div className="text-center py-4">
+                  <FaHistory size={40} color={colors.lightGray} />
+                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: windowWidth < 768 ? '12px' : '14px' }}>No payment history found</p>
                 </div>
               )}
             </Card.Body>
@@ -798,6 +1051,15 @@ const BillPayments = () => {
                 type="text"
                 value={newCompany.website}
                 onChange={(e) => setNewCompany({...newCompany, website: e.target.value})}
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Enable Auto-Deduction"
+                checked={newCompany.autoDeduction}
+                onChange={(e) => setNewCompany({...newCompany, autoDeduction: e.target.checked})}
                 style={{ fontSize: '13px' }}
               />
             </Form.Group>
@@ -869,6 +1131,15 @@ const BillPayments = () => {
                 style={{ fontSize: '13px' }}
               />
             </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Enable Auto-Deduction"
+                checked={editingCompany?.autoDeduction || false}
+                onChange={(e) => setEditingCompany({...editingCompany, autoDeduction: e.target.checked})}
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
             <div className="d-flex justify-content-end">
               <Button 
                 variant="secondary" 
@@ -902,7 +1173,8 @@ const BillPayments = () => {
                   setNewBill({
                     ...newBill, 
                     company: e.target.value,
-                    category: selectedCompany ? selectedCompany.category : 'Utilities'
+                    category: selectedCompany ? selectedCompany.category : 'Utilities',
+                    autoDeduction: selectedCompany ? selectedCompany.autoDeduction : false
                   });
                 }}
                 required
@@ -950,6 +1222,15 @@ const BillPayments = () => {
                 label="Paid by Employer"
                 checked={newBill.paidByEmployer}
                 onChange={(e) => setNewBill({...newBill, paidByEmployer: e.target.checked})}
+                style={{ fontSize: '13px' }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="Enable Auto-Deduction"
+                checked={newBill.autoDeduction}
+                onChange={(e) => setNewBill({...newBill, autoDeduction: e.target.checked})}
                 style={{ fontSize: '13px' }}
               />
             </Form.Group>
@@ -1023,6 +1304,63 @@ const BillPayments = () => {
               </Button>
             </div>
           </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Auto-Deduction Modal */}
+      <Modal show={showAutoDeductionModal} onHide={() => setShowAutoDeductionModal(false)} centered size="lg">
+        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
+          <Modal.Title>Auto-Deduction Settings</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-3">
+            <h5 style={{ color: colors.darkGray, fontSize: '14px' }}>Enable/Disable Auto-Deduction for Companies</h5>
+            <p style={{ fontSize: '12px', color: colors.darkGray }}>
+              Auto-deduction allows bills to be paid automatically on their due date. You can enable or disable this feature for each company below.
+            </p>
+          </div>
+          <div className="table-responsive">
+            <Table hover className="align-middle" style={{ fontSize: '13px' }}>
+              <thead>
+                <tr>
+                  <th>Company Name</th>
+                  <th>Category</th>
+                  <th>Auto-Deduction</th>
+                </tr>
+              </thead>
+              <tbody>
+                {companies.map((company) => (
+                  <tr key={company.id}>
+                    <td style={{ fontWeight: '600', fontSize: '12px' }}>{company.name}</td>
+                    <td style={{ fontSize: '12px' }}>{company.category}</td>
+                    <td>
+                      <Button 
+                        variant="link" 
+                        size="sm"
+                        style={{ 
+                          color: company.autoDeduction ? colors.successGreen : colors.darkGray, 
+                          padding: '0', 
+                          textDecoration: 'none', 
+                          fontSize: '12px'
+                        }}
+                        onClick={() => handleToggleAutoDeduction(company.id)}
+                      >
+                        {company.autoDeduction ? <FaToggleOn size={20} /> : <FaToggleOff size={20} />}
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+          <div className="d-flex justify-content-end mt-3">
+            <Button 
+              style={buttonStyle}
+              onClick={() => setShowAutoDeductionModal(false)}
+            >
+              Done
+            </Button>
+          </div>
         </Modal.Body>
       </Modal>
     </div>
