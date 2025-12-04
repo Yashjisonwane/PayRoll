@@ -9,12 +9,17 @@ const colors = {
   blackText: '#000000',
   darkGrayText: '#4A4A4A',
   lightGrayBorder: '#E2E2E2',
-  // lightBackground: '#F9F9F9', // Removed background color
+  lightBackground: '#F9F9F9',
+  successGreen: '#4CAF50',
+  warningOrange: '#FF9800',
 };
 
 const AddCredit = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showTrashModal, setShowTrashModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCredit, setSelectedCredit] = useState(null);
   const [totalCredits, setTotalCredits] = useState(0);
   const [totalEmployers, setTotalEmployers] = useState(0);
@@ -49,6 +54,27 @@ const AddCredit = () => {
     txnId: "",
   });
 
+  const [addFormData, setAddFormData] = useState({
+    employer: "",
+    amount: "",
+    reference: "",
+    mode: "",
+    txnId: "",
+  });
+
+  const [editFormData, setEditFormData] = useState({
+    employer: "",
+    amount: "",
+    reference: "",
+    mode: "",
+    txnId: "",
+  });
+
+  const [trashFormData, setTrashFormData] = useState({
+    reason: "",
+    note: "",
+  });
+
   // Calculate statistics when component mounts or history changes
   useEffect(() => {
     const credits = history.reduce((sum, item) => sum + parseInt(item.amount), 0);
@@ -70,9 +96,84 @@ const AddCredit = () => {
     setFormData({ employer: "", amount: "", reference: "", mode: "", txnId: "" });
   };
 
+  const handleAddSubmit = (e) => {
+    e.preventDefault();
+    const newEntry = {
+      date: new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }),
+      ...addFormData,
+      addedBy: "Admin"
+    };
+    setHistory([newEntry, ...history]);
+    alert("Credit Added Successfully");
+    setShowAddModal(false);
+    setAddFormData({ employer: "", amount: "", reference: "", mode: "", txnId: "" });
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    // Find the index of the selected credit
+    const index = history.findIndex(item => item === selectedCredit);
+    if (index !== -1) {
+      // Create a new array with the updated credit
+      const updatedHistory = [...history];
+      updatedHistory[index] = {
+        ...selectedCredit,
+        ...editFormData,
+        addedBy: "Admin"
+      };
+      setHistory(updatedHistory);
+      alert("Credit Updated Successfully");
+      setShowEditModal(false);
+    }
+  };
+
+  const handleTrashSubmit = (e) => {
+    e.preventDefault();
+    // Find the index of the selected credit
+    const index = history.findIndex(item => item === selectedCredit);
+    if (index !== -1) {
+      // Create a new array without the deleted credit
+      const updatedHistory = history.filter((_, i) => i !== index);
+      setHistory(updatedHistory);
+      alert("Credit Removed Successfully");
+      setShowTrashModal(false);
+      setTrashFormData({ reason: "", note: "" });
+    }
+  };
+
   const handleViewDetails = (credit) => {
     setSelectedCredit(credit);
     setShowDetailsModal(true);
+  };
+
+  const handleAddCredit = (credit) => {
+    setSelectedCredit(credit);
+    setAddFormData({
+      employer: credit.employer,
+      amount: "",
+      reference: "",
+      mode: "",
+      txnId: "",
+    });
+    setShowAddModal(true);
+  };
+
+  const handleEditCredit = (credit) => {
+    setSelectedCredit(credit);
+    setEditFormData({
+      employer: credit.employer,
+      amount: credit.amount,
+      reference: credit.ref,
+      mode: credit.mode,
+      txnId: credit.txnId,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleTrashCredit = (credit) => {
+    setSelectedCredit(credit);
+    setTrashFormData({ reason: "", note: "" });
+    setShowTrashModal(true);
   };
 
   return (
@@ -167,58 +268,78 @@ const AddCredit = () => {
           >
             <h5 className="fw-bold mb-4 text-center" style={{ color: colors.primaryRed, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Add Credit to Employer</h5>
 
-            <select
-              className="form-control mb-3"
-              required
-              value={formData.employer}
-              onChange={(e) => setFormData({ ...formData, employer: e.target.value })}
-              style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
-            >
-              <option value="">Select Employer</option>
-              {employers.map((emp) => (
-                <option key={emp} value={emp}>{emp}</option>
-              ))}
-            </select>
+            {/* Employer Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Employer</label>
+              <select
+                className="form-control"
+                required
+                value={formData.employer}
+                onChange={(e) => setFormData({ ...formData, employer: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                <option value="">Select Employer</option>
+                {employers.map((emp) => (
+                  <option key={emp} value={emp}>{emp}</option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              type="number"
-              className="form-control mb-3"
-              placeholder="Amount"
-              required
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
-            />
+            {/* Amount Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Amount</label>
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Enter Amount"
+                required
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
 
-            <input
-              className="form-control mb-3"
-              placeholder="Reference / Note"
-              value={formData.reference}
-              onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-              style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
-            />
+            {/* Reference Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Reference / Note</label>
+              <input
+                className="form-control"
+                placeholder="Enter Reference / Note"
+                value={formData.reference}
+                onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
 
-            <select
-              className="form-control mb-3"
-              required
-              value={formData.mode}
-              onChange={(e) => setFormData({ ...formData, mode: e.target.value })}
-              style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
-            >
-              <option value="">Select Mode</option>
-              <option value="Bank">Bank</option>
-              <option value="UPI">UPI</option>
-              <option value="Cash">Cash</option>
-              <option value="Wallet">Wallet</option>
-            </select>
+            {/* Mode Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Payment Mode</label>
+              <select
+                className="form-control"
+                required
+                value={formData.mode}
+                onChange={(e) => setFormData({ ...formData, mode: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                <option value="">Select Mode</option>
+                <option value="Bank">Bank</option>
+                <option value="UPI">UPI</option>
+                <option value="Cash">Cash</option>
+                <option value="Wallet">Wallet</option>
+              </select>
+            </div>
 
-            <input
-              className="form-control mb-4"
-              placeholder="Transaction ID (Optional)"
-              value={formData.txnId}
-              onChange={(e) => setFormData({ ...formData, txnId: e.target.value })}
-              style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
-            />
+            {/* Transaction ID Field with Label */}
+            <div className="mb-4">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Transaction ID (Optional)</label>
+              <input
+                className="form-control"
+                placeholder="Enter Transaction ID"
+                value={formData.txnId}
+                onChange={(e) => setFormData({ ...formData, txnId: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
 
             <div className="d-flex gap-2">
               <button
@@ -233,6 +354,279 @@ const AddCredit = () => {
                 className="btn fw-semibold w-100"
                 style={{ border: `1px solid ${colors.lightGrayBorder}`, color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}
                 onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ADD CREDIT MODAL */}
+      {showAddModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
+          style={{ background: "rgba(0,0,0,0.60)", zIndex: 9999 }}
+        >
+          <form
+            onSubmit={handleAddSubmit}
+            className="bg-white p-4 rounded shadow"
+            style={{ 
+              width: isMobile ? "100%" : "400px", 
+              maxWidth: isMobile ? "100%" : "400px",
+              animation: "zoomIn 0.2s" 
+            }}
+          >
+            <h5 className="fw-bold mb-4 text-center" style={{ color: colors.primaryRed, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Add Credit to {addFormData.employer}</h5>
+
+            {/* Amount Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Amount</label>
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Enter Amount"
+                required
+                value={addFormData.amount}
+                onChange={(e) => setAddFormData({ ...addFormData, amount: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            {/* Reference Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Reference / Note</label>
+              <input
+                className="form-control"
+                placeholder="Enter Reference / Note"
+                value={addFormData.reference}
+                onChange={(e) => setAddFormData({ ...addFormData, reference: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            {/* Mode Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Payment Mode</label>
+              <select
+                className="form-control"
+                required
+                value={addFormData.mode}
+                onChange={(e) => setAddFormData({ ...addFormData, mode: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                <option value="">Select Mode</option>
+                <option value="Bank">Bank</option>
+                <option value="UPI">UPI</option>
+                <option value="Cash">Cash</option>
+                <option value="Wallet">Wallet</option>
+              </select>
+            </div>
+
+            {/* Transaction ID Field with Label */}
+            <div className="mb-4">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Transaction ID (Optional)</label>
+              <input
+                className="form-control"
+                placeholder="Enter Transaction ID"
+                value={addFormData.txnId}
+                onChange={(e) => setAddFormData({ ...addFormData, txnId: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            <div className="d-flex gap-2">
+              <button
+                type="submit"
+                className="btn text-white fw-semibold w-100"
+                style={{ background: colors.primaryRed, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                Submit
+              </button>
+              <button
+                type="button"
+                className="btn fw-semibold w-100"
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}
+                onClick={() => setShowAddModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* EDIT CREDIT MODAL */}
+      {showEditModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
+          style={{ background: "rgba(0,0,0,0.60)", zIndex: 9999 }}
+        >
+          <form
+            onSubmit={handleEditSubmit}
+            className="bg-white p-4 rounded shadow"
+            style={{ 
+              width: isMobile ? "100%" : "400px", 
+              maxWidth: isMobile ? "100%" : "400px",
+              animation: "zoomIn 0.2s" 
+            }}
+          >
+            <h5 className="fw-bold mb-4 text-center" style={{ color: colors.primaryRed, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Edit Credit for {editFormData.employer}</h5>
+
+            {/* Employer Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Employer</label>
+              <select
+                className="form-control"
+                required
+                value={editFormData.employer}
+                onChange={(e) => setEditFormData({ ...editFormData, employer: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                {employers.map((emp) => (
+                  <option key={emp} value={emp}>{emp}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Amount Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Amount</label>
+              <input
+                type="number"
+                className="form-control"
+                placeholder="Enter Amount"
+                required
+                value={editFormData.amount}
+                onChange={(e) => setEditFormData({ ...editFormData, amount: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            {/* Reference Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Reference / Note</label>
+              <input
+                className="form-control"
+                placeholder="Enter Reference / Note"
+                value={editFormData.reference}
+                onChange={(e) => setEditFormData({ ...editFormData, reference: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            {/* Mode Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Payment Mode</label>
+              <select
+                className="form-control"
+                required
+                value={editFormData.mode}
+                onChange={(e) => setEditFormData({ ...editFormData, mode: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                <option value="">Select Mode</option>
+                <option value="Bank">Bank</option>
+                <option value="UPI">UPI</option>
+                <option value="Cash">Cash</option>
+                <option value="Wallet">Wallet</option>
+              </select>
+            </div>
+
+            {/* Transaction ID Field with Label */}
+            <div className="mb-4">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Transaction ID (Optional)</label>
+              <input
+                className="form-control"
+                placeholder="Enter Transaction ID"
+                value={editFormData.txnId}
+                onChange={(e) => setEditFormData({ ...editFormData, txnId: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            <div className="d-flex gap-2">
+              <button
+                type="submit"
+                className="btn text-white fw-semibold w-100"
+                style={{ background: colors.primaryRed, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                className="btn fw-semibold w-100"
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}
+                onClick={() => setShowEditModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* TRASH CREDIT MODAL */}
+      {showTrashModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
+          style={{ background: "rgba(0,0,0,0.60)", zIndex: 9999 }}
+        >
+          <form
+            onSubmit={handleTrashSubmit}
+            className="bg-white p-4 rounded shadow"
+            style={{ 
+              width: isMobile ? "100%" : "400px", 
+              maxWidth: isMobile ? "100%" : "400px",
+              animation: "zoomIn 0.2s" 
+            }}
+          >
+            <h5 className="fw-bold mb-4 text-center" style={{ color: colors.primaryRed, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Remove Credit from {selectedCredit?.employer}</h5>
+
+            {/* Reason Field with Label */}
+            <div className="mb-3">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Reason for Removal</label>
+              <select
+                className="form-control"
+                required
+                value={trashFormData.reason}
+                onChange={(e) => setTrashFormData({ ...trashFormData, reason: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                <option value="">Select Reason</option>
+                <option value="Error in transaction">Error in transaction</option>
+                <option value="Duplicate entry">Duplicate entry</option>
+                <option value="Refund processed">Refund processed</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            {/* Note Field with Label */}
+            <div className="mb-4">
+              <label className="form-label" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Additional Note</label>
+              <textarea
+                className="form-control"
+                placeholder="Enter Additional Note"
+                rows="3"
+                value={trashFormData.note}
+                onChange={(e) => setTrashFormData({ ...trashFormData, note: e.target.value })}
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              />
+            </div>
+
+            <div className="d-flex gap-2">
+              <button
+                type="submit"
+                className="btn text-white fw-semibold w-100"
+                style={{ background: colors.primaryRed, fontSize: isMobile ? '0.875rem' : '1rem' }}
+              >
+                Remove Credit
+              </button>
+              <button
+                type="button"
+                className="btn fw-semibold w-100"
+                style={{ border: `1px solid ${colors.lightGrayBorder}`, color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}
+                onClick={() => setShowTrashModal(false)}
               >
                 Cancel
               </button>
@@ -275,19 +669,48 @@ const AddCredit = () => {
                         <span style={{ fontSize: '0.8rem' }}>{row.txnId || "-"}</span>
                       </div>
                     </div>
-                    <div className="mt-2 text-end">
+                    <div className="mt-2 d-flex justify-content-end gap-1">
                       <button
                         className="btn btn-sm"
                         style={{ 
-                          color: colors.primaryRed, 
-                          backgroundColor: "transparent", 
+                          color: colors.pureWhite, 
+                          backgroundColor: colors.primaryRed, 
                           border: "none",
+                          borderRadius: "4px",
                           padding: "0.25rem 0.5rem",
                           fontSize: '0.8rem'
                         }}
                         onClick={() => handleViewDetails(row)}
                       >
-                        <i className="bi bi-eye-fill me-1"></i>View
+                        <i className="bi bi-eye-fill"></i>
+                      </button>
+                      <button
+                        className="btn btn-sm"
+                        style={{ 
+                          color: colors.pureWhite, 
+                          backgroundColor: colors.primaryRed, 
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "0.25rem 0.5rem",
+                          fontSize: '0.8rem'
+                        }}
+                        onClick={() => handleEditCredit(row)}
+                      >
+                        <i className="bi bi-pencil-fill"></i>
+                      </button>
+                      <button
+                        className="btn btn-sm"
+                        style={{ 
+                          color: colors.pureWhite, 
+                          backgroundColor: colors.primaryRed, 
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "0.25rem 0.5rem",
+                          fontSize: '0.8rem'
+                        }}
+                        onClick={() => handleTrashCredit(row)}
+                      >
+                        <i className="bi bi-trash-fill"></i>
                       </button>
                     </div>
                   </div>
@@ -319,18 +742,50 @@ const AddCredit = () => {
                       <td style={{ color: colors.blackText }}>{row.mode}</td>
                       <td style={{ color: colors.blackText }}>{row.txnId || "-"}</td>
                       <td className="text-center">
-                        <button
-                          className="btn btn-sm"
-                          style={{ 
-                            color: colors.primaryRed, 
-                            backgroundColor: "transparent", 
-                            border: "none",
-                            padding: "0.25rem 0.5rem"
-                          }}
-                          onClick={() => handleViewDetails(row)}
-                        >
-                          <i className="bi bi-eye-fill me-1"></i>View
-                        </button>
+                        <div className="d-flex justify-content-center gap-1">
+                          <button
+                            className="btn btn-sm"
+                            style={{ 
+                              color: colors.pureWhite, 
+                              backgroundColor: colors.primaryRed, 
+                              border: "none",
+                              borderRadius: "4px",
+                              padding: "0.25rem 0.5rem",
+                              fontSize: '0.8rem'
+                            }}
+                            onClick={() => handleViewDetails(row)}
+                          >
+                            <i className="bi bi-eye-fill"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm"
+                            style={{ 
+                              color: colors.pureWhite, 
+                              backgroundColor: colors.primaryRed, 
+                              border: "none",
+                              borderRadius: "4px",
+                              padding: "0.25rem 0.5rem",
+                              fontSize: '0.8rem'
+                            }}
+                            onClick={() => handleEditCredit(row)}
+                          >
+                            <i className="bi bi-pencil-fill"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm"
+                            style={{ 
+                              color: colors.pureWhite, 
+                              backgroundColor: colors.primaryRed, 
+                              border: "none",
+                              borderRadius: "4px",
+                              padding: "0.25rem 0.5rem",
+                              fontSize: '0.8rem'
+                            }}
+                            onClick={() => handleTrashCredit(row)}
+                          >
+                            <i className="bi bi-trash-fill"></i>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

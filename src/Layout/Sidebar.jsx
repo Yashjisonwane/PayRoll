@@ -57,7 +57,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/Admin/dashboard",
       },
       {
-        name: "Assign Credit",
+        name: " Credit",
         icon: faWallet,
         path: "/Admin/AddCredit",
       },
