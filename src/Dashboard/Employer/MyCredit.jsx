@@ -10,6 +10,9 @@ const MyCredits = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [requestAmount, setRequestAmount] = useState('');
   const [requestReason, setRequestReason] = useState('');
+  const [requestType, setRequestType] = useState('Added');
+  const [requestStatus, setRequestStatus] = useState('Pending');
+  const [requestDate, setRequestDate] = useState(new Date().toISOString().split('T')[0]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -91,26 +94,39 @@ const MyCredits = () => {
   };
 
   const handleRequestCredits = () => {
-    if (!requestAmount || !requestReason) {
-      alert('Please enter both an amount and a reason.');
+    if (!requestAmount || !requestReason || !requestDate || !requestType || !requestStatus) {
+      alert('Please fill in all fields.');
       return;
     }
 
     const newTransaction = {
       id: creditHistory.length + 1,
-      date: new Date().toISOString().split('T')[0],
-      type: 'Added',
+      date: requestDate,
+      type: requestType,
       amount: parseFloat(requestAmount),
-      status: 'Pending',
+      status: requestStatus,
       notes: requestReason,
     };
 
     setCreditHistory([newTransaction, ...creditHistory]);
 
-    alert(`Your request for ₹${parseFloat(requestAmount).toLocaleString()} has been submitted!`);
+    // Update credit balance if the transaction is successful
+    if (requestStatus === 'Success') {
+      if (requestType === 'Added') {
+        setCreditBalance(creditBalance + parseFloat(requestAmount));
+      } else {
+        setCreditBalance(creditBalance - parseFloat(requestAmount));
+      }
+    }
 
+    alert(`Your transaction has been ${requestStatus === 'Pending' ? 'submitted for approval' : 'processed'}!`);
+
+    // Reset form fields
     setRequestAmount('');
     setRequestReason('');
+    setRequestType('Added');
+    setRequestStatus('Pending');
+    setRequestDate(new Date().toISOString().split('T')[0]);
     setShowRequestModal(false);
   };
 
@@ -434,6 +450,30 @@ const MyCredits = () => {
 
               <div className="modal-body">
                 <div className="mb-3">
+                  <label className="form-label fw-semibold">Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    style={{ borderRadius: "8px", border: "1px solid #E2E2E2" }}
+                    value={requestDate}
+                    onChange={(e) => setRequestDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Type</label>
+                  <select
+                    className="form-select"
+                    style={{ borderRadius: "8px", border: "1px solid #E2E2E2" }}
+                    value={requestType}
+                    onChange={(e) => setRequestType(e.target.value)}
+                  >
+                    <option value="Added">Added</option>
+                    <option value="Deducted">Deducted</option>
+                  </select>
+                </div>
+
+                <div className="mb-3">
                   <label className="form-label fw-semibold">Amount (₹)</label>
                   <input
                     type="number"
@@ -446,12 +486,26 @@ const MyCredits = () => {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label fw-semibold">Reason</label>
+                  <label className="form-label fw-semibold">Status</label>
+                  <select
+                    className="form-select"
+                    style={{ borderRadius: "8px", border: "1px solid #E2E2E2" }}
+                    value={requestStatus}
+                    onChange={(e) => setRequestStatus(e.target.value)}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Success">Success</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Notes</label>
                   <textarea
                     className="form-control"
                     style={{ borderRadius: "8px", border: "1px solid #E2E2E2" }}
                     rows="3"
-                    placeholder="Explain why you need more credits"
+                    placeholder="Enter notes or reason"
                     value={requestReason}
                     onChange={(e) => setRequestReason(e.target.value)}
                   ></textarea>
