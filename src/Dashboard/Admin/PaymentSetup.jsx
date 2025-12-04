@@ -13,6 +13,24 @@ const colors = {
   lightBackground: '#F9F9F9',
 };
 
+// Predefined logos for payment gateways
+const getGatewayLogo = (gatewayName) => {
+  switch(gatewayName) {
+    case "Razorpay":
+      return "https://cdn.iconscout.com/icon/free/png-256/free-razorpay-3629155-3030152.png";
+    case "Stripe":
+      return "https://cdn.iconscout.com/icon/free/png-256/free-stripe-3629147-3030144.png";
+    case "PayPal":
+      return "https://cdn.iconscout.com/icon/free/png-256/free-paypal-3629149-3030146.png";
+    case "PayU":
+      return "https://cdn.iconscout.com/icon/free/png-256/free-payu-3629151-3030148.png";
+    case "CCAvenue":
+      return "https://cdn.iconscout.com/icon/free/png-256/free-ccavenue-3629153-3030150.png";
+    default:
+      return "https://cdn.iconscout.com/icon/free/png-256/free-payment-gateway-3629156-3030153.png";
+  }
+};
+
 const PaymentSetup = () => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -42,7 +60,7 @@ const PaymentSetup = () => {
       status: "Active",
       transactionFee: "2%",
       supportedMethods: ["Credit Card", "Debit Card", "UPI", "Net Banking"],
-      logo: "https://example.com/images/razorpay.png"
+      logo: getGatewayLogo("Razorpay")
     },
     {
       id: 2,
@@ -52,7 +70,7 @@ const PaymentSetup = () => {
       status: "Active",
       transactionFee: "2.9% + $0.30",
       supportedMethods: ["Credit Card", "Debit Card", "Apple Pay", "Google Pay"],
-      logo: "https://example.com/images/stripe.png"
+      logo: getGatewayLogo("Stripe")
     },
     {
       id: 3,
@@ -62,7 +80,7 @@ const PaymentSetup = () => {
       status: "Inactive",
       transactionFee: "3.4% + $0.30",
       supportedMethods: ["PayPal Balance", "Credit Card", "Debit Card"],
-      logo: "https://example.com/images/paypal.png"
+      logo: getGatewayLogo("PayPal")
     }
   ]);
 
@@ -94,7 +112,7 @@ const PaymentSetup = () => {
 
   // Handlers for payment gateways
   const openAddGatewayModal = () => {
-    setCurrentGateway({ status: "Active" });
+    setCurrentGateway({ status: "Active", logo: getGatewayLogo("") });
     setEditMode(false);
     setIsModalOpen(true);
   };
@@ -134,7 +152,7 @@ const PaymentSetup = () => {
       const newGateway = { 
         ...currentGateway, 
         id: Date.now(),
-        logo: "https://example.com/images/default.png"
+        logo: currentGateway.logo || getGatewayLogo(currentGateway.name)
       };
       setPaymentGateways([...paymentGateways, newGateway]);
     }
@@ -171,7 +189,28 @@ const PaymentSetup = () => {
 
   const handleGatewayInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentGateway({ ...currentGateway, [name]: value });
+    if (name === "name") {
+      setCurrentGateway({ 
+        ...currentGateway, 
+        [name]: value,
+        logo: getGatewayLogo(value)
+      });
+    } else {
+      setCurrentGateway({ ...currentGateway, [name]: value });
+    }
+  };
+
+  const handleGatewayImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // In a real app, you would upload this to a server
+      // For now, we'll use a FileReader to create a local URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCurrentGateway({ ...currentGateway, logo: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleBankInputChange = (e) => {
@@ -286,7 +325,24 @@ const PaymentSetup = () => {
                     <div className="card-body p-3">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <div className="d-flex align-items-center">
-                          <img src={gateway.logo} alt={gateway.name} style={{ width: "40px", height: "40px", marginRight: "10px" }} />
+                          <img 
+                            src={gateway.logo} 
+                            alt={gateway.name} 
+                            style={{ 
+                              width: "40px", 
+                              height: "40px", 
+                              marginRight: "10px",
+                              objectFit: "contain",
+                              backgroundColor: colors.pureWhite,
+                              padding: "5px",
+                              borderRadius: "4px",
+                              border: `1px solid ${colors.lightGrayBorder}`
+                            }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = getGatewayLogo("");
+                            }}
+                          />
                           <h6 className="fw-bold mb-0" style={{ color: colors.blackText, fontSize: '0.9rem' }}>{gateway.name}</h6>
                         </div>
                         <span className={`badge px-2 py-1 ${gateway.status === "Active" ? "bg-success" : "bg-secondary"}`} style={{ fontSize: '0.75rem' }}>
@@ -382,7 +438,24 @@ const PaymentSetup = () => {
                       <tr key={gateway.id}>
                         <td className="py-3">
                           <div className="d-flex align-items-center">
-                            <img src={gateway.logo} alt={gateway.name} style={{ width: "40px", height: "40px", marginRight: "10px" }} />
+                            <img 
+                              src={gateway.logo} 
+                              alt={gateway.name} 
+                              style={{ 
+                                width: "40px", 
+                                height: "40px", 
+                                marginRight: "10px",
+                                objectFit: "contain",
+                                backgroundColor: colors.pureWhite,
+                                padding: "5px",
+                                borderRadius: "4px",
+                                border: `1px solid ${colors.lightGrayBorder}`
+                              }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = getGatewayLogo("");
+                              }}
+                            />
                             <span style={{ color: colors.blackText }}>{gateway.name}</span>
                           </div>
                         </td>
@@ -660,6 +733,24 @@ const PaymentSetup = () => {
                   <div className={`col-12 ${!isMobile ? 'col-md-7' : ''} pe-0`}>
                     <div className="p-4" style={{ backgroundColor: colors.lightBackground, borderRadius: "0 0 12px 12px" }}>
                       <form onSubmit={handleSaveGateway}>
+                        {/* Logo Preview */}
+                        {currentGateway.logo && (
+                          <div className="col-12 text-center mb-3">
+                            <img 
+                              src={currentGateway.logo} 
+                              alt="Gateway Logo Preview" 
+                              style={{ 
+                                height: "80px", 
+                                border: `1px solid ${colors.lightGrayBorder}`, 
+                                borderRadius: "8px",
+                                objectFit: "contain",
+                                backgroundColor: colors.pureWhite,
+                                padding: "10px"
+                              }}
+                            />
+                          </div>
+                        )}
+                        
                         <div className="row g-3">
                           <div className="col-12">
                             <label className="form-label fw-bold" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem', marginBottom: '8px' }}>Gateway Name</label>
@@ -687,6 +778,27 @@ const PaymentSetup = () => {
                                 <option value="CCAvenue">CCAvenue</option>
                               </select>
                             </div>
+                          </div>
+                          <div className="col-12">
+                            <label className="form-label fw-bold" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem', marginBottom: '8px' }}>Gateway Logo</label>
+                            <div className="input-group">
+                              <span className="input-group-text" style={{ backgroundColor: colors.pureWhite, border: `1px solid ${colors.lightGrayBorder}`, borderRight: 'none' }}>
+                                <i className="bi bi-image"></i>
+                              </span>
+                              <input
+                                type="file"
+                                className="form-control"
+                                name="logo"
+                                accept="image/*"
+                                onChange={handleGatewayImageChange}
+                                style={{ 
+                                  border: `1px solid ${colors.lightGrayBorder}`, 
+                                  fontSize: isMobile ? '0.875rem' : '1rem',
+                                  borderLeft: 'none'
+                                }}
+                              />
+                            </div>
+                            <small className="text-muted" style={{ fontSize: '0.75rem' }}>Upload custom logo or leave blank to use default</small>
                           </div>
                           <div className="col-12">
                             <label className="form-label fw-bold" style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem', marginBottom: '8px' }}>API Key</label>
@@ -847,6 +959,18 @@ const PaymentSetup = () => {
                             </h6>
                             <p className="mb-0" style={{ fontSize: isMobile ? '0.8rem' : '0.9rem', color: colors.darkGrayText }}>
                               The fee charged for each transaction processed through this gateway.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="card mb-3 border" style={{ borderRadius: "8px", backgroundColor: colors.pureWhite }}>
+                          <div className="card-body p-3">
+                            <h6 className="fw-bold mb-2" style={{ color: colors.blackText, fontSize: isMobile ? '0.9rem' : '1rem' }}>
+                              <i className="bi bi-image me-2" style={{ color: colors.primaryRed }}></i>
+                              Gateway Logo
+                            </h6>
+                            <p className="mb-0" style={{ fontSize: isMobile ? '0.8rem' : '0.9rem', color: colors.darkGrayText }}>
+                              Upload a custom logo for the payment gateway or use the default logo based on the gateway type.
                             </p>
                           </div>
                         </div>
