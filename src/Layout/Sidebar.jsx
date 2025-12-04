@@ -76,11 +76,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faClipboard,
         path: "/Admin/bill-companies",
       },
-      {
-        name: "Payment Setup",
-        icon: faUsers,
-        path: "/Admin/payment-setup",
-      },
+      // {
+      //   name: "Payment Setup",
+      //   icon: faUsers,
+      //   path: "/Admin/payment-setup",
+      // },
       {
         name: "Transactions",
         icon: faList,
