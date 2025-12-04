@@ -735,7 +735,7 @@ const BillPayments = () => {
   };
 
   return (
-    <div style={{minHeight: '100vh', backgroundColor: colors.lightBg }}>
+    <div style={{minHeight: '100vh', }}>
       {/* Header */}
       <div style={{ 
         backgroundColor: colors.white, 

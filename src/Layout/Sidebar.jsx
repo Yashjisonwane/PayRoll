@@ -57,7 +57,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/Admin/dashboard",
       },
       {
-        name: "Assign Credit",
+        name: " Credit",
         icon: faWallet,
         path: "/Admin/AddCredit",
       },
@@ -77,6 +77,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/Admin/bill-companies",
       },
       {
+        name: "Payment Setup",
+        icon: faUsers,
+        path: "/Admin/payment-setup",
+      },
+      {
         name: "Transactions",
         icon: faList,
         path: "/Admin/transactions",
@@ -89,16 +94,17 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faChartBar,
         path: "/employer/dashboard",
       },
+           {
+        name: "My Credits",
+        icon: faWallet,
+        path: "/employer/credits/balance",
+      },
       {
         name: "Job Vacancies",
         icon: faWallet,
         path: "/employer/AddEmployee",
       },
-      {
-        name: "My Credits",
-        icon: faWallet,
-        path: "/employer/credits/balance",
-      },
+ 
       {
         name: "Payments",
         icon: faHandHoldingUsd,
