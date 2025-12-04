@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaBriefcase, FaMapMarkerAlt, FaMoneyBillWave, FaPlus, FaTimes, FaEye, FaSearch, FaFilter, FaUser, FaCalendarAlt, FaEdit, FaTrash, FaCheck, FaClock } from 'react-icons/fa';
+import { FaBriefcase, FaMapMarkerAlt, FaMoneyBillWave, FaPlus, FaTimes, FaEye, FaSearch, FaFilter, FaUser, FaCalendarAlt, FaEdit, FaTrash, FaCheck, FaClock, FaUserCheck, FaStar } from 'react-icons/fa';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const JobVacancies = () => {
@@ -171,6 +171,11 @@ const JobVacancies = () => {
   const getApplicationsForJob = useMemo(() => {
     return jobApplications.filter(app => app.jobId === selectedJobId);
   }, [jobApplications, selectedJobId]);
+
+  // Memoized shortlisted candidates
+  const shortlistedCandidates = useMemo(() => {
+    return jobApplications.filter(app => app.status === "Shortlisted" || app.status === "Interview Scheduled");
+  }, [jobApplications]);
 
   // Get job by ID
   const getJobById = (id) => {
@@ -354,7 +359,25 @@ const JobVacancies = () => {
                   fontSize: screenSize.isMobile ? "0.85rem" : "1rem"
                 }}
               >
-                Applications
+                Vacancy Applications
+              </button>
+            </li>
+            <li className="nav-item" role="presentation">
+              <button 
+                className={`nav-link ${activeTab === "shortlisted" ? "active" : ""}`} 
+                id="shortlisted-tab" 
+                data-bs-toggle="tab" 
+                data-bs-target="#shortlisted" 
+                type="button" 
+                role="tab"
+                onClick={() => setActiveTab("shortlisted")}
+                style={{ 
+                  color: activeTab === "shortlisted" ? "#C62828" : "#4A4A4A", 
+                  fontWeight: "500",
+                  fontSize: screenSize.isMobile ? "0.85rem" : "1rem"
+                }}
+              >
+                Shortlisted Job Seekers
               </button>
             </li>
           </ul>
@@ -673,6 +696,155 @@ const JobVacancies = () => {
             </div>
           )}
         </div>
+
+        {/* Shortlisted Candidates Tab */}
+        <div className={`tab-pane fade ${activeTab === "shortlisted" ? "show active" : ""}`} id="shortlisted" role="tabpanel">
+          {shortlistedCandidates.length === 0 ? (
+            <div className="card shadow-sm" style={{ borderRadius: "14px", border: "1px solid #E2E2E2" }}>
+              <div className="card-body text-center p-5">
+                <FaUserCheck size={48} className="text-muted mb-3" />
+                <h5 className="text-muted">No shortlisted candidates</h5>
+                <p className="text-muted">Shortlisted candidates will appear here</p>
+              </div>
+            </div>
+          ) : (
+            <div className="card shadow-sm" style={{ borderRadius: "14px", border: "1px solid #E2E2E2" }}>
+              <div className="card-body p-0">
+                {/* Desktop Table View */}
+                <div className="d-none d-md-block table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead>
+                      <tr style={{ background: "#FFF5F5" }}>
+                        <th style={{ color: "#4A4A4A" }}>Candidate</th>
+                        <th style={{ color: "#4A4A4A" }}>Job Applied</th>
+                        <th style={{ color: "#4A4A4A" }}>Skills</th>
+                        <th style={{ color: "#4A4A4A" }}>Experience</th>
+                        <th style={{ color: "#4A4A4A" }}>Status</th>
+                        <th style={{ color: "#4A4A4A" }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {shortlistedCandidates.map((candidate) => {
+                        const job = getJobById(candidate.jobId);
+                        return (
+                          <tr key={candidate.id}>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="me-2 rounded-circle d-flex align-items-center justify-content-center" 
+                                     style={{ width: "36px", height: "36px", backgroundColor: "#F7EFE9" }}>
+                                  <FaUser size={18} color="#C62828" />
+                                </div>
+                                <div>
+                                  <div className="fw-semibold">{candidate.applicantName}</div>
+                                  <div className="text-muted small">{candidate.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{job ? job.title : "Unknown Position"}</td>
+                            <td>
+                              <div className="d-flex flex-wrap">
+                                {candidate.skills.split(', ').slice(0, 3).map((skill, index) => (
+                                  <span key={index} className="badge bg-light text-dark me-1 mb-1" style={{ fontSize: "0.7rem" }}>
+                                    {skill}
+                                  </span>
+                                ))}
+                                {candidate.skills.split(', ').length > 3 && (
+                                  <span className="badge bg-light text-dark" style={{ fontSize: "0.7rem" }}>
+                                    +{candidate.skills.split(', ').length - 3} more
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td>{candidate.experience}</td>
+                            <td>
+                              <span className={`badge ${getStatusBadgeClass(candidate.status)}`}>
+                                {candidate.status}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="btn-group" role="group">
+                                <button 
+                                  className="btn btn-sm px-2 py-1" 
+                                  style={secondaryButtonStyle}
+                                  onClick={() => viewApplicationDetails(candidate)}
+                                  title="View Details"
+                                >
+                                  <FaEye size={14} color="#4A4A4A" />
+                                </button>
+                                <button 
+                                  className="btn btn-sm px-2 py-1" 
+                                  style={secondaryButtonStyle}
+                                  onClick={() => updateApplicationStatus(candidate.id, "Interview Scheduled")}
+                                  title="Schedule Interview"
+                                >
+                                  <FaCalendarAlt size={14} color="#007bff" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Mobile Card View */}
+                <div className="d-md-none p-3">
+                  {shortlistedCandidates.map((candidate) => {
+                    const job = getJobById(candidate.jobId);
+                    return (
+                      <div className="card mb-3 shadow-sm" style={{ borderRadius: "10px", border: "1px solid #E2E2E2" }} key={candidate.id}>
+                        <div className="card-body p-3">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <h6 className="fw-bold mb-0">{candidate.applicantName}</h6>
+                            <span className={`badge ${getStatusBadgeClass(candidate.status)}`} style={{ fontSize: "0.7rem" }}>
+                              {candidate.status}
+                            </span>
+                          </div>
+                          <p className="text-muted small mb-2">{job ? job.title : "Unknown Position"}</p>
+                          <div className="mb-2">
+                            <div className="text-muted small mb-1">Experience: {candidate.experience}</div>
+                            <div className="text-muted small mb-2">Email: {candidate.email}</div>
+                            <div className="d-flex flex-wrap mb-2">
+                              {candidate.skills.split(', ').slice(0, 3).map((skill, index) => (
+                                <span key={index} className="badge bg-light text-dark me-1 mb-1" style={{ fontSize: "0.7rem" }}>
+                                  {skill}
+                                </span>
+                              ))}
+                              {candidate.skills.split(', ').length > 3 && (
+                                <span className="badge bg-light text-dark" style={{ fontSize: "0.7rem" }}>
+                                  +{candidate.skills.split(', ').length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="d-flex justify-content-between mt-3">
+                            <button 
+                              className="btn btn-sm text-white px-3 py-1 flex-fill" 
+                              style={primaryButtonStyle}
+                              onClick={() => viewApplicationDetails(candidate)}
+                            >
+                              <FaEye size={12} className="me-1" />
+                              View
+                            </button>
+                            <button 
+                              className="btn btn-sm px-3 py-1 flex-fill" 
+                              style={secondaryButtonStyle}
+                              onClick={() => updateApplicationStatus(candidate.id, "Interview Scheduled")}
+                            >
+                              <FaCalendarAlt size={12} color="#007bff" className="me-1" />
+                              Interview
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Post/Edit Job Modal */}
@@ -687,7 +859,7 @@ const JobVacancies = () => {
           }}>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h5 className="fw-bold mb-0" style={{ color: "#C62828" }}>
-                {editingJob ? "Edit Job Vacancy" : "Post New Vacancy"}
+                {editingJob ? "Edit Vacancy" : "Post New Vacancy"}
               </h5>
               <button 
                 className="btn btn-sm p-0" 
@@ -830,7 +1002,7 @@ const JobVacancies = () => {
                     className="btn text-white w-100 py-2" 
                     style={primaryButtonStyle}
                   >
-                    {editingJob ? "Update Job" : "Post Vacancy"}
+                    {editingJob ? "Update Vacancy" : "Post Vacancy"}
                   </button>
                 </div>
                 <div className={screenSize.isMobile ? "col-12" : "col-6"}>

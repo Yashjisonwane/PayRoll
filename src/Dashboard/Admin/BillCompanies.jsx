@@ -14,13 +14,13 @@ export default function BillCompaniesPage() {
 
   // --- State for detecting mobile view ---
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
+
   // Update isMobile state on window resize
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -62,10 +62,10 @@ export default function BillCompaniesPage() {
       setCompanies(companies.map(c => (c.id === currentCompany.id ? currentCompany : c)));
     } else {
       // Add new company with default status if not provided
-      const newCompany = { 
-        ...currentCompany, 
-        id: Date.now(), 
-        status: currentCompany.status || "Active" 
+      const newCompany = {
+        ...currentCompany,
+        id: Date.now(),
+        status: currentCompany.status || "Active"
       };
       setCompanies([...companies, newCompany]);
     }
@@ -90,12 +90,12 @@ export default function BillCompaniesPage() {
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', minHeight: '100vh', padding: isMobile ? '10px' : '20px' }}>
-      
+
       {/* --- HEADER --- */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: '20px',
         backgroundColor: colors.white,
         padding: isMobile ? '10px 15px' : '15px 20px',
@@ -105,10 +105,10 @@ export default function BillCompaniesPage() {
         gap: isMobile ? '15px' : '0'
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{ 
-            height: isMobile ? '30px' : '40px', 
-            width: isMobile ? '4px' : '5px', 
-            backgroundColor: colors.primary, 
+          <div style={{
+            height: isMobile ? '30px' : '40px',
+            width: isMobile ? '4px' : '5px',
+            backgroundColor: colors.primary,
             marginRight: '15px',
             borderRadius: '2px'
           }}></div>
@@ -126,7 +126,7 @@ export default function BillCompaniesPage() {
           placeholder="Search by company name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
+          style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px' }}
         />
       </div>
 
@@ -137,10 +137,10 @@ export default function BillCompaniesPage() {
           <div style={{ padding: '10px' }}>
             {filteredCompanies.length > 0 ? (
               filteredCompanies.map(company => (
-                <div key={company.id} style={{ 
-                  border: `1px solid ${colors.border}`, 
-                  borderRadius: '8px', 
-                  padding: '15px', 
+                <div key={company.id} style={{
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '8px',
+                  padding: '15px',
                   marginBottom: '15px'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -161,8 +161,8 @@ export default function BillCompaniesPage() {
                     <p style={{ margin: '0 0 5px', fontSize: '14px' }}><strong>Billing Code:</strong> {company.billingCode}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => openEditModal(company)} style={{...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}`}}>Edit</button>
-                    <button onClick={() => handleDelete(company.id)} style={{...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}`}}>Delete</button>
+                    <button onClick={() => openEditModal(company)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}` }}>Edit</button>
+                    <button onClick={() => handleDelete(company.id)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}` }}>Delete</button>
                   </div>
                 </div>
               ))
@@ -204,8 +204,8 @@ export default function BillCompaniesPage() {
                       </span>
                     </td>
                     <td style={styles.td}>
-                      <button onClick={() => openEditModal(company)} style={{...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}`}}>Edit</button>
-                      <button onClick={() => handleDelete(company.id)} style={{...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}`, marginLeft: '8px'}}>Delete</button>
+                      <button onClick={() => openEditModal(company)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}` }}>Edit</button>
+                      <button onClick={() => handleDelete(company.id)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}`, marginLeft: '8px' }}>Delete</button>
                     </td>
                   </tr>
                 ))
@@ -234,10 +234,10 @@ export default function BillCompaniesPage() {
           }} onClick={(e) => e.stopPropagation()}>
             <button onClick={closeModal} style={styles.closeButton}>×</button>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <div style={{ 
-                height: '30px', 
-                width: '4px', 
-                backgroundColor: colors.primaryDark, 
+              <div style={{
+                height: '30px',
+                width: '4px',
+                backgroundColor: colors.primaryDark,
                 marginRight: '15px',
                 borderRadius: '2px'
               }}></div>
@@ -246,21 +246,31 @@ export default function BillCompaniesPage() {
               </h2>
             </div>
             <form onSubmit={handleSave}>
+
+              {/* Company Name */}
+              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
+                Company Name
+              </label>
               <input
                 type="text"
                 name="name"
-                placeholder="Company Name"
+                placeholder="Enter company name"
                 value={currentCompany.name || ''}
                 onChange={handleInputChange}
                 required
-                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
+                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
               />
+
+              {/* Category */}
+              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
+                Category
+              </label>
               <select
                 name="category"
                 value={currentCompany.category || ''}
                 onChange={handleInputChange}
                 required
-                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
+                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
               >
                 <option value="">Select Category</option>
                 <option value="Electricity">Electricity</option>
@@ -270,34 +280,60 @@ export default function BillCompaniesPage() {
                 <option value="Gas">Gas</option>
                 <option value="Other">Other</option>
               </select>
+
+              {/* Billing Code */}
+              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
+                Billing Code / Reference Number
+              </label>
               <input
                 type="text"
                 name="billingCode"
-                placeholder="Billing Code / Reference Number"
+                placeholder="Enter billing code"
                 value={currentCompany.billingCode || ''}
                 onChange={handleInputChange}
                 required
-                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
+                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
               />
+
+              {/* Status */}
+              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
+                Status
+              </label>
               <select
                 name="status"
                 value={currentCompany.status || 'Active'}
                 onChange={handleInputChange}
                 required
-                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
+                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
+
+              {/* Buttons */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-                <button type="button" onClick={closeModal} style={{...styles.button(colors.white, colors.darkGray, isMobile ? 'small' : 'medium'), background: colors.white, border: `1px solid ${colors.border}`}}>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  style={{
+                    ...styles.button(colors.white, colors.darkGray, isMobile ? 'small' : 'medium'),
+                    background: colors.white,
+                    border: `1px solid ${colors.border}`
+                  }}
+                >
                   Cancel
                 </button>
-                <button type="submit" style={styles.button(colors.primary, colors.white, isMobile ? 'small' : 'medium')}>
+
+                <button
+                  type="submit"
+                  style={styles.button(colors.primary, colors.white, isMobile ? 'small' : 'medium')}
+                >
                   Save
                 </button>
               </div>
+
             </form>
+
           </div>
         </div>
       )}
