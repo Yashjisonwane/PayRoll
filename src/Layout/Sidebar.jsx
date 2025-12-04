@@ -77,6 +77,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/Admin/bill-companies",
       },
       {
+        name: "Payment Setup",
+        icon: faUsers,
+        path: "/Admin/payment-setup",
+      },
+      {
         name: "Transactions",
         icon: faList,
         path: "/Admin/transactions",

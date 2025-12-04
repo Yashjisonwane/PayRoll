@@ -19,7 +19,7 @@ import AllTransactions from "./Dashboard/Admin/AllTransactions";
 import EmployerList from "./Dashboard/Admin/EmployerList";
 import JobPortal from "./Dashboard/Admin/JobPortal";
 import BillCompanies from "./Dashboard/Admin/BillCompanies";
-
+import PaymentSetup from "./Dashboard/Admin/PaymentSetup";
 // Employer
 import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
 import CreditBalance from "./Dashboard/Employer/MyCredit";
@@ -99,6 +99,7 @@ function App() {
                 <Route path="/admin/EmployerList" element={<EmployerList />} />
                 <Route path="/admin/job-portal" element={<JobPortal />} />
                 <Route path="/admin/bill-companies" element={<BillCompanies />} />
+                <Route path="/admin/payment-setup" element={<PaymentSetup />} />
 
                 {/* ---------------- EMPLOYER ---------------- */}
                 <Route path="/employer/dashboard" element={<EmployerDashboard />} />

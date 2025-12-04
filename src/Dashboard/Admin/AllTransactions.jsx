@@ -341,7 +341,7 @@ const Transactions = () => {
       <div className="card mb-4 shadow-sm" style={{ border: `1px solid ${colors.lightGrayBorder}` }}>
         <div className="card-body p-0">
           <ul className="nav nav-tabs nav-fill" style={{ borderBottom: `1px solid ${colors.lightGrayBorder}` }}>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <button 
                 className={`nav-link ${activeTab === "all" ? "active" : ""}`}
                 style={{ 
@@ -355,7 +355,7 @@ const Transactions = () => {
               >
                 All Transactions
               </button>
-            </li>
+            </li> */}
             <li className="nav-item">
               <button 
                 className={`nav-link ${activeTab === "employer" ? "active" : ""}`}
