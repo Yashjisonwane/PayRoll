@@ -940,7 +940,7 @@ const PaymentSetup = () => {
                       value={currentBank.branch || ''}
                       onChange={handleBankInputChange}
                       required
-                      style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875' : '1rem' }}
+                      style={{ border: `1px solid ${colors.lightGrayBorder}`, fontSize: isMobile ? '0.875rem' : '1rem' }}
                     />
                   </div>
                   <div className="mb-3">

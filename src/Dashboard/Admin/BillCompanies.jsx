@@ -14,23 +14,25 @@ export default function BillCompaniesPage() {
 
   // --- State for detecting mobile view ---
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
+  
   // Update isMobile state on window resize
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-
+    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // --- Initial Mock Data (यह आप API से लाएंगे) ---
   const initialCompanies = [
-    { id: 1, name: "Delhi Electricity Board", category: "Electricity", billingCode: "DEL-VSB-001", status: "Active" },
-    { id: 2, name: "Airtel Mobile", category: "Mobile", billingCode: "AIR-MOB-002", status: "Active" },
-    { id: 3, name: "Mahanagar Gas Limited", category: "Gas", billingCode: "MGL-GAS-003", status: "Inactive" },
-    { id: 4, name: "ACT Fibernet", category: "Internet", billingCode: "ACT-NET-004", status: "Active" },
+    { id: 1, name: "HDFC Home Loan", category: "Mortgage", billingCode: "HDFC-MRT-001", status: "Active", level: "National" },
+    { id: 2, name: "LIC Life Insurance", category: "Insurance", billingCode: "LIC-INS-002", status: "Active", level: "National" },
+    { id: 3, name: "Reliance General Insurance", category: "Insurance", billingCode: "REL-INS-003", status: "Active", level: "National" },
+    { id: 4, name: "Bajaj Auto EMI", category: "EMI", billingCode: "BAJ-EMI-004", status: "Active", level: "National" },
+    { id: 5, name: "Delhi Electricity Board", category: "Utilities", billingCode: "DEL-UTL-005", status: "Active", level: "State" },
+    { id: 6, name: "Airtel Mobile", category: "Utilities", billingCode: "AIR-MOB-006", status: "Active", level: "National" },
   ];
 
   // --- State Management ---
@@ -41,7 +43,7 @@ export default function BillCompaniesPage() {
 
   // --- Handlers ---
   const openAddModal = () => {
-    setCurrentCompany({ status: "Active" }); // Reset for new company with default status
+    setCurrentCompany({ status: "Active", level: "National" }); // Reset for new company with default status and level
     setIsModalOpen(true);
   };
 
@@ -61,11 +63,12 @@ export default function BillCompaniesPage() {
       // Edit existing company
       setCompanies(companies.map(c => (c.id === currentCompany.id ? currentCompany : c)));
     } else {
-      // Add new company with default status if not provided
-      const newCompany = {
-        ...currentCompany,
-        id: Date.now(),
-        status: currentCompany.status || "Active"
+      // Add new company with default status and level if not provided
+      const newCompany = { 
+        ...currentCompany, 
+        id: Date.now(), 
+        status: currentCompany.status || "Active",
+        level: currentCompany.level || "National"
       };
       setCompanies([...companies, newCompany]);
     }
@@ -90,12 +93,12 @@ export default function BillCompaniesPage() {
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', minHeight: '100vh', padding: isMobile ? '10px' : '20px' }}>
-
+      
       {/* --- HEADER --- */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
         marginBottom: '20px',
         backgroundColor: colors.white,
         padding: isMobile ? '10px 15px' : '15px 20px',
@@ -105,10 +108,10 @@ export default function BillCompaniesPage() {
         gap: isMobile ? '15px' : '0'
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{
-            height: isMobile ? '30px' : '40px',
-            width: isMobile ? '4px' : '5px',
-            backgroundColor: colors.primary,
+          <div style={{ 
+            height: isMobile ? '30px' : '40px', 
+            width: isMobile ? '4px' : '5px', 
+            backgroundColor: colors.primary, 
             marginRight: '15px',
             borderRadius: '2px'
           }}></div>
@@ -126,7 +129,7 @@ export default function BillCompaniesPage() {
           placeholder="Search by company name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px' }}
+          style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
         />
       </div>
 
@@ -137,10 +140,10 @@ export default function BillCompaniesPage() {
           <div style={{ padding: '10px' }}>
             {filteredCompanies.length > 0 ? (
               filteredCompanies.map(company => (
-                <div key={company.id} style={{
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: '8px',
-                  padding: '15px',
+                <div key={company.id} style={{ 
+                  border: `1px solid ${colors.border}`, 
+                  borderRadius: '8px', 
+                  padding: '15px', 
                   marginBottom: '15px'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -159,10 +162,51 @@ export default function BillCompaniesPage() {
                   <div style={{ marginBottom: '10px' }}>
                     <p style={{ margin: '0 0 5px', fontSize: '14px' }}><strong>Category:</strong> {company.category}</p>
                     <p style={{ margin: '0 0 5px', fontSize: '14px' }}><strong>Billing Code:</strong> {company.billingCode}</p>
+                    <p style={{ margin: '0 0 5px', fontSize: '14px' }}><strong>Level:</strong> {company.level}</p>
                   </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => openEditModal(company)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}` }}>Edit</button>
-                    <button onClick={() => handleDelete(company.id)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}` }}>Delete</button>
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <button 
+                      onClick={() => openEditModal(company)} 
+                      title="Edit Company"
+                      style={{ 
+                        backgroundColor: colors.primary,
+                        padding: "4px",
+                        borderRadius: "4px",
+                        fontSize: "10px",
+                        fontWeight: "500",
+                        width: "28px",
+                        height: "28px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: colors.white,
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <i className="bi bi-pencil-fill" style={{ fontSize: "12px" }}></i>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(company.id)} 
+                      title="Delete Company"
+                      style={{ 
+                        backgroundColor: colors.primary,
+                        padding: "4px",
+                        borderRadius: "4px",
+                        fontSize: "10px",
+                        fontWeight: "500",
+                        width: "28px",
+                        height: "28px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: colors.white,
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <i className="bi bi-trash-fill" style={{ fontSize: "12px" }}></i>
+                    </button>
                   </div>
                 </div>
               ))
@@ -180,6 +224,7 @@ export default function BillCompaniesPage() {
                 <th style={styles.th}>Company Name</th>
                 <th style={styles.th}>Category</th>
                 <th style={styles.th}>Billing Code</th>
+                <th style={styles.th}>Level</th>
                 <th style={styles.th}>Status</th>
                 <th style={styles.th}>Actions</th>
               </tr>
@@ -191,6 +236,7 @@ export default function BillCompaniesPage() {
                     <td style={styles.td}>{company.name}</td>
                     <td style={styles.td}>{company.category}</td>
                     <td style={styles.td}>{company.billingCode}</td>
+                    <td style={styles.td}>{company.level}</td>
                     <td style={styles.td}>
                       <span style={{
                         padding: '4px 8px',
@@ -204,14 +250,56 @@ export default function BillCompaniesPage() {
                       </span>
                     </td>
                     <td style={styles.td}>
-                      <button onClick={() => openEditModal(company)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}` }}>Edit</button>
-                      <button onClick={() => handleDelete(company.id)} style={{ ...styles.actionButton, color: colors.primary, border: `1px solid ${colors.primary}`, marginLeft: '8px' }}>Delete</button>
+                      <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                        <button 
+                          onClick={() => openEditModal(company)} 
+                          title="Edit Company"
+                          style={{ 
+                            backgroundColor: colors.primary,
+                            padding: "4px",
+                            borderRadius: "4px",
+                            fontSize: "10px",
+                            fontWeight: "500",
+                            width: "28px",
+                            height: "28px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: colors.white,
+                            border: "none",
+                            cursor: "pointer"
+                          }}
+                        >
+                          <i className="bi bi-pencil-fill" style={{ fontSize: "12px" }}></i>
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(company.id)} 
+                          title="Delete Company"
+                          style={{ 
+                            backgroundColor: colors.primary,
+                            padding: "4px",
+                            borderRadius: "4px",
+                            fontSize: "10px",
+                            fontWeight: "500",
+                            width: "28px",
+                            height: "28px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: colors.white,
+                            border: "none",
+                            cursor: "pointer"
+                          }}
+                        >
+                          <i className="bi bi-trash-fill" style={{ fontSize: "12px" }}></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" style={{ ...styles.td, textAlign: 'center', padding: '20px', color: colors.darkGray }}>
+                  <td colSpan="6" style={{ ...styles.td, textAlign: 'center', padding: '20px', color: colors.darkGray }}>
                     No companies found.
                   </td>
                 </tr>
@@ -234,10 +322,10 @@ export default function BillCompaniesPage() {
           }} onClick={(e) => e.stopPropagation()}>
             <button onClick={closeModal} style={styles.closeButton}>×</button>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-              <div style={{
-                height: '30px',
-                width: '4px',
-                backgroundColor: colors.primaryDark,
+              <div style={{ 
+                height: '30px', 
+                width: '4px', 
+                backgroundColor: colors.primaryDark, 
                 marginRight: '15px',
                 borderRadius: '2px'
               }}></div>
@@ -246,94 +334,71 @@ export default function BillCompaniesPage() {
               </h2>
             </div>
             <form onSubmit={handleSave}>
-
-              {/* Company Name */}
-              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
-                Company Name
-              </label>
               <input
                 type="text"
                 name="name"
-                placeholder="Enter company name"
+                placeholder="Company Name (e.g., HDFC Home Loan, LIC, Reliance Insurance)"
                 value={currentCompany.name || ''}
                 onChange={handleInputChange}
                 required
-                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
+                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
               />
-
-              {/* Category */}
-              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
-                Category
-              </label>
               <select
                 name="category"
                 value={currentCompany.category || ''}
                 onChange={handleInputChange}
                 required
-                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
+                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
               >
                 <option value="">Select Category</option>
-                <option value="Electricity">Electricity</option>
-                <option value="Water">Water</option>
-                <option value="Mobile">Mobile</option>
-                <option value="Internet">Internet</option>
-                <option value="Gas">Gas</option>
+                <option value="Mortgage">Mortgage</option>
+                <option value="EMI">EMI</option>
+                <option value="Insurance">Insurance</option>
+                <option value="Utilities">Utilities</option>
                 <option value="Other">Other</option>
               </select>
-
-              {/* Billing Code */}
-              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
-                Billing Code / Reference Number
-              </label>
               <input
                 type="text"
                 name="billingCode"
-                placeholder="Enter billing code"
+                placeholder="Billing Code / Reference Number"
                 value={currentCompany.billingCode || ''}
                 onChange={handleInputChange}
                 required
-                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
+                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
               />
-
-              {/* Status */}
-              <label style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px", display: "block" }}>
-                Status
-              </label>
+              <select
+                name="level"
+                value={currentCompany.level || 'National'}
+                onChange={handleInputChange}
+                required
+                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
+              >
+                <option value="">Select Level</option>
+                <option value="Local">Local</option>
+                <option value="Regional">Regional</option>
+                <option value="State">State</option>
+                <option value="National">National</option>
+                <option value="International">International</option>
+              </select>
               <select
                 name="status"
                 value={currentCompany.status || 'Active'}
                 onChange={handleInputChange}
                 required
-                style={{ ...styles.input(colors.border), padding: isMobile ? '8px' : '10px' }}
+                style={{...styles.input(colors.border), padding: isMobile ? '8px' : '10px', fontSize: isMobile ? '14px' : '16px'}}
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
-
-              {/* Buttons */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  style={{
-                    ...styles.button(colors.white, colors.darkGray, isMobile ? 'small' : 'medium'),
-                    background: colors.white,
-                    border: `1px solid ${colors.border}`
-                  }}
-                >
+                <button type="button" onClick={closeModal} style={{...styles.button(colors.white, colors.darkGray, isMobile ? 'small' : 'medium'), background: colors.white, border: `1px solid ${colors.border}`}}>
                   Cancel
                 </button>
-
-                <button
-                  type="submit"
-                  style={styles.button(colors.primary, colors.white, isMobile ? 'small' : 'medium')}
-                >
+                <button type="submit" style={styles.button(colors.primary, colors.white, isMobile ? 'small' : 'medium')}>
                   Save
                 </button>
               </div>
-
             </form>
-
           </div>
         </div>
       )}
@@ -354,14 +419,6 @@ const styles = {
     transition: 'background-color 0.3s',
     fontSize: size === 'small' ? '14px' : '16px',
   }),
-  actionButton: {
-    background: 'none',
-    padding: '6px 12px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    transition: 'all 0.2s',
-  },
   input: (borderColor) => ({
     width: '100%',
     padding: '10px',

@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 
 const COLORS = {
-  primary: "#C62828",           // Primary Red (Buttons, Logo, Menu Icon)
-  primaryDark: "#B71C1C",       // Dark Red / Logo Text Accent
-  white: "#FFFFFF",             // Pure White
-  black: "#000000",             // Black Text
-  text: "#4A4A4A",             // Dark Gray Text
-  border: "#E2E2E2",            // Light Gray Border
-  chartLine: "#4BA8FF",         // Green-Blue Chart Line
-  blueLabel: "#8BAFE3",         // Blue Label Badge (Payroll Guidance)
-  oliveLabel: "#95A98A",        // Olive Green Label (Payroll Compliance)
-  // Additional colors for UI elements
+  primary: "#C62828",
+  primaryDark: "#B71C1C",
+  white: "#FFFFFF",
+  black: "#000000",
+  text: "#4A4A4A",
+  border: "#E2E2E2",
+  chartLine: "#4BA8FF",
+  blueLabel: "#8BAFE3",
+  oliveLabel: "#95A98A",
   success: "#2E7D32",
   warning: "#F57C00",
   danger: "#D32F2F",
@@ -100,14 +99,12 @@ const EmployeeVendorPayments = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Track window width for responsive adjustments
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Responsive breakpoints
   const isMobile = windowWidth < 768;
   const isTablet = windowWidth >= 768 && windowWidth < 1024;
 
@@ -137,7 +134,6 @@ const EmployeeVendorPayments = () => {
     }
   };
 
-  // Bank account form state
   const [bankForm, setBankForm] = useState({
     bankName: "",
     accountNumber: "",
@@ -147,12 +143,9 @@ const EmployeeVendorPayments = () => {
     isPrimary: false
   });
 
-  // Vendor profile form state
   const [profileForm, setProfileForm] = useState({...vendorProfile});
 
-  // Export PDF function
   const handleExportPDF = () => {
-    // Create a simple HTML representation of payment data
     let htmlContent = `
       <html>
         <head>
@@ -205,8 +198,6 @@ const EmployeeVendorPayments = () => {
       </html>
     `;
     
-    // In a real implementation, you would use a library like jsPDF or html2pdf
-    // For this example, we'll create a simple text file download
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -218,9 +209,7 @@ const EmployeeVendorPayments = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Import PDF function
   const handleImportPDF = () => {
-    // Create a file input element
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.pdf,.html,.csv';
@@ -228,8 +217,6 @@ const EmployeeVendorPayments = () => {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // In a real implementation, you would parse file and update payments state
-        // For this example, we'll just show an alert
         alert(`File "${file.name}" would be processed here. In a real implementation, this would parse file and update payments data.`);
       }
     };
@@ -237,7 +224,6 @@ const EmployeeVendorPayments = () => {
     input.click();
   };
 
-  // Handle adding a new bank account
   const handleAddBankAccount = (e) => {
     e.preventDefault();
     const newAccount = {
@@ -245,7 +231,6 @@ const EmployeeVendorPayments = () => {
       id: bankAccounts.length + 1
     };
     
-    // If this is set as primary, update all other accounts
     if (bankForm.isPrimary) {
       setBankAccounts(bankAccounts.map(account => ({
         ...account,
@@ -255,7 +240,6 @@ const EmployeeVendorPayments = () => {
       setBankAccounts([...bankAccounts, newAccount]);
     }
     
-    // Reset form and close modal
     setBankForm({
       bankName: "",
       accountNumber: "",
@@ -267,7 +251,6 @@ const EmployeeVendorPayments = () => {
     setShowAddBankModal(false);
   };
 
-  // Handle updating vendor profile
   const handleUpdateProfile = (e) => {
     e.preventDefault();
     setVendorProfile(profileForm);
@@ -275,7 +258,6 @@ const EmployeeVendorPayments = () => {
     alert("Profile updated successfully!");
   };
 
-  // Handle setting primary bank account
   const handleSetPrimaryBank = (id) => {
     setBankAccounts(bankAccounts.map(account => ({
       ...account,
@@ -283,7 +265,6 @@ const EmployeeVendorPayments = () => {
     })));
   };
 
-  // Handle deleting bank account
   const handleDeleteBankAccount = (id) => {
     if (window.confirm("Are you sure you want to delete this bank account?")) {
       setBankAccounts(bankAccounts.filter(account => account.id !== id));
@@ -291,12 +272,7 @@ const EmployeeVendorPayments = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-      }}
-    >
+    <div style={{ minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: isMobile ? "15px" : "20px" }}>
         {/* Header Section with Tabs */}
         <div style={{ 
@@ -486,7 +462,6 @@ const EmployeeVendorPayments = () => {
               marginBottom: isMobile ? "20px" : "24px", 
               boxShadow: "0 2px 8px rgba(0,0,0,0.05)" 
             }}>
-              {/* Mobile Filter Toggle */}
               {isMobile && (
                 <button
                   style={{
@@ -634,7 +609,6 @@ const EmployeeVendorPayments = () => {
               </div>
               
               {isMobile ? (
-                // Mobile Card View
                 <div style={{ padding: isMobile ? "15px" : "20px" }}>
                   {filteredPayments.map((payment) => (
                     <div 
@@ -706,7 +680,6 @@ const EmployeeVendorPayments = () => {
                   ))}
                 </div>
               ) : (
-                // Desktop Table View
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
@@ -842,7 +815,6 @@ const EmployeeVendorPayments = () => {
         {/* Bank Accounts Tab */}
         {activeTab === "bank" && (
           <>
-            {/* Bank Accounts Header with Add Button */}
             <div style={{ 
               display: "flex", 
               justifyContent: "space-between", 
@@ -882,7 +854,6 @@ const EmployeeVendorPayments = () => {
               </button>
             </div>
 
-            {/* Bank Accounts List */}
             <div style={{ 
               backgroundColor: COLORS.white, 
               borderRadius: "12px", 
@@ -1042,7 +1013,6 @@ const EmployeeVendorPayments = () => {
         {/* Vendor Profile Tab */}
         {activeTab === "profile" && (
           <>
-            {/* Profile Header with Edit Button */}
             <div style={{ 
               display: "flex", 
               justifyContent: "space-between", 
@@ -1066,7 +1036,7 @@ const EmployeeVendorPayments = () => {
                   color: COLORS.white,
                   cursor: "pointer",
                   fontSize: "14px",
-                  fontWeight: 600,
+                  fontWeight: "600",
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
@@ -1085,7 +1055,6 @@ const EmployeeVendorPayments = () => {
               </button>
             </div>
 
-            {/* Profile Details */}
             <div style={{ 
               backgroundColor: COLORS.white, 
               borderRadius: "12px", 
@@ -1141,149 +1110,351 @@ const EmployeeVendorPayments = () => {
             </div>
           </>
         )}
+      </div>
 
-        {/* Payment Details Modal */}
-        {selectedPayment && (
+      {/* Payment Details Modal */}
+      {selectedPayment && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+          padding: "20px"
+        }}>
           <div style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 99,
-            padding: "20px"
+            background: COLORS.white,
+            padding: isMobile ? "20px" : "24px",
+            width: isMobile ? "95%" : "500px",
+            maxWidth: "90vw",
+            borderRadius: "12px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            maxHeight: "90vh",
+            overflowY: "auto"
           }}>
-            <div style={{
-              background: COLORS.white,
-              padding: isMobile ? "20px" : "24px",
-              width: isMobile ? "95%" : "500px",
-              maxWidth: "90vw",
-              borderRadius: "12px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center", 
+              marginBottom: "20px",
+              paddingBottom: "12px",
+              borderBottom: `1px solid ${COLORS.border}`,
             }}>
-              <div style={{ 
-                display: "flex", 
-                justifyContent: "space-between", 
-                alignItems: "center", 
-                marginBottom: "20px",
-                paddingBottom: "12px",
-                borderBottom: `1px solid ${COLORS.border}`,
+              <h2 style={{ 
+                margin: 0, 
+                fontWeight: 600, 
+                fontSize: isMobile ? "18px" : "20px", 
+                color: COLORS.black 
               }}>
-                <h2 style={{ 
-                  margin: 0, 
-                  fontWeight: 600, 
-                  fontSize: isMobile ? "18px" : "20px", 
-                  color: COLORS.black 
+                Payment Details
+              </h2>
+              <button
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: COLORS.text,
+                  padding: "4px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={() => setSelectedPayment(null)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <div style={{ 
+              backgroundColor: COLORS.lightGray, 
+              borderRadius: "8px", 
+              padding: "16px", 
+              marginBottom: "16px" 
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Reference</span>
+                <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{selectedPayment.reference}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Date</span>
+                <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{formatDate(selectedPayment.date)}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Paid By</span>
+                <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{selectedPayment.paidBy}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0" }}>
+                <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Amount</span>
+                <span style={{ 
+                  fontWeight: 500, 
+                  fontSize: isMobile ? "16px" : "18px", 
+                  fontWeight: 700, 
+                  color: COLORS.oliveLabel 
                 }}>
-                  Payment Details
-                </h2>
-                <button
+                  ${selectedPayment.amount.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ 
+              backgroundColor: COLORS.lightGray, 
+              borderRadius: "8px", 
+              padding: "16px", 
+              marginBottom: "16px" 
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+                <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Status</span>
+                <span style={{
+                  fontWeight: 500,
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  backgroundColor: getStatusColor(selectedPayment.status) + "20",
+                  color: getStatusColor(selectedPayment.status)
+                }}>
+                  {selectedPayment.status}
+                </span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0" }}>
+                <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Description</span>
+                <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{selectedPayment.description}</span>
+              </div>
+            </div>
+
+            <div style={{
+              marginTop: "24px",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "12px",
+              flexDirection: isMobile ? "column" : "row"
+            }}>
+              <button
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  backgroundColor: COLORS.primary,
+                  border: "none",
+                  color: COLORS.white,
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  transition: "all 0.2s ease",
+                  width: isMobile ? "100%" : "auto"
+                }}
+                onClick={() => alert("Run payment functionality")}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "8px" }}>
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Run Payment
+              </button>
+              <button
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  backgroundColor: COLORS.lightGray,
+                  border: "none",
+                  color: COLORS.text,
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  transition: "all 0.2s ease",
+                  width: isMobile ? "100%" : "auto"
+                }}
+                onClick={() => setSelectedPayment(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Bank Account Modal */}
+      {showAddBankModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+          padding: "20px"
+        }}>
+          <div style={{
+            background: COLORS.white,
+            padding: isMobile ? "20px" : "24px",
+            width: isMobile ? "95%" : "500px",
+            maxWidth: "90vw",
+            borderRadius: "12px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            maxHeight: "90vh",
+            overflowY: "auto"
+          }}>
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center", 
+              marginBottom: "20px",
+              paddingBottom: "12px",
+              borderBottom: `1px solid ${COLORS.border}`,
+            }}>
+              <h2 style={{ 
+                margin: 0, 
+                fontWeight: 600, 
+                fontSize: isMobile ? "18px" : "20px", 
+                color: COLORS.black 
+              }}>
+                Add Bank Account
+              </h2>
+              <button
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: COLORS.text,
+                  padding: "4px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={() => setShowAddBankModal(false)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleAddBankAccount}>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Bank Name</label>
+                <input
+                  type="text"
+                  value={bankForm.bankName}
+                  onChange={(e) => setBankForm({...bankForm, bankName: e.target.value})}
+                  required
                   style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: COLORS.text,
-                    padding: "4px",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
                   }}
-                  onClick={() => setSelectedPayment(null)}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Account Number</label>
+                <input
+                  type="text"
+                  value={bankForm.accountNumber}
+                  onChange={(e) => setBankForm({...bankForm, accountNumber: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Account Type</label>
+                <select
+                  value={bankForm.accountType}
+                  onChange={(e) => setBankForm({...bankForm, accountType: e.target.value})}
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
+                  <option value="Savings">Savings</option>
+                  <option value="Current">Current</option>
+                  <option value="Salary">Salary</option>
+                </select>
               </div>
-
-              <div style={{ 
-                backgroundColor: COLORS.lightGray, 
-                borderRadius: "8px", 
-                padding: "16px", 
-                marginBottom: "16px" 
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                  <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Reference</span>
-                  <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{selectedPayment.reference}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                  <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Date</span>
-                  <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{formatDate(selectedPayment.date)}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                  <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Paid By</span>
-                  <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{selectedPayment.paidBy}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0" }}>
-                  <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Amount</span>
-                  <span style={{ 
-                    fontWeight: 500, 
-                    fontSize: isMobile ? "16px" : "18px", 
-                    fontWeight: 700, 
-                    color: COLORS.oliveLabel 
-                  }}>
-                    ${selectedPayment.amount.toLocaleString()}
-                  </span>
-                </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>IFSC Code</label>
+                <input
+                  type="text"
+                  value={bankForm.ifscCode}
+                  onChange={(e) => setBankForm({...bankForm, ifscCode: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
               </div>
-
-              <div style={{ 
-                backgroundColor: COLORS.lightGray, 
-                borderRadius: "8px", 
-                padding: "16px", 
-                marginBottom: "16px" 
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                  <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Status</span>
-                  <span style={{
-                    fontWeight: 500,
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    backgroundColor: getStatusColor(selectedPayment.status) + "20",
-                    color: getStatusColor(selectedPayment.status)
-                  }}>
-                    {selectedPayment.status}
-                  </span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0" }}>
-                  <span style={{ fontWeight: 600, color: COLORS.text, fontSize: "14px" }}>Description</span>
-                  <span style={{ fontWeight: 500, color: COLORS.black, fontSize: "14px" }}>{selectedPayment.description}</span>
-                </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Branch</label>
+                <input
+                  type="text"
+                  value={bankForm.branch}
+                  onChange={(e) => setBankForm({...bankForm, branch: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "24px" }}>
+                <label style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  fontSize: "14px", 
+                  fontWeight: 600, 
+                  color: COLORS.text 
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={bankForm.isPrimary}
+                    onChange={(e) => setBankForm({...bankForm, isPrimary: e.target.checked})}
+                    style={{ marginRight: "8px" }}
+                  />
+                  Set as Primary Account
+                </label>
               </div>
 
               <div style={{
-                marginTop: "24px",
                 display: "flex",
                 justifyContent: "flex-end",
-                gap: "12px",
-                flexDirection: isMobile ? "column" : "row"
+                gap: "12px"
               }}>
                 <button
-                  style={{
-                    padding: "10px 16px",
-                    borderRadius: "8px",
-                    backgroundColor: COLORS.primary,
-                    border: "none",
-                    color: COLORS.white,
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    transition: "all 0.2s ease",
-                    width: isMobile ? "100%" : "auto"
-                  }}
-                  onClick={() => alert("Run payment functionality")}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "8px" }}>
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                  Run Payment
-                </button>
-                <button
+                  type="button"
                   style={{
                     padding: "10px 16px",
                     borderRadius: "8px",
@@ -1294,446 +1465,259 @@ const EmployeeVendorPayments = () => {
                     fontSize: "14px",
                     fontWeight: 600,
                     transition: "all 0.2s ease",
-                    width: isMobile ? "100%" : "auto"
-                  }}
-                  onClick={() => setSelectedPayment(null)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Add Bank Account Modal */}
-        {showAddBankModal && (
-          <div style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 99,
-            padding: "20px"
-          }}>
-            <div style={{
-              background: COLORS.white,
-              padding: isMobile ? "20px" : "24px",
-              width: isMobile ? "95%" : "500px",
-              maxWidth: "90vw",
-              borderRadius: "12px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-            }}>
-              <div style={{ 
-                display: "flex", 
-                justifyContent: "space-between", 
-                alignItems: "center", 
-                marginBottom: "20px",
-                paddingBottom: "12px",
-                borderBottom: `1px solid ${COLORS.border}`,
-              }}>
-                <h2 style={{ 
-                  margin: 0, 
-                  fontWeight: 600, 
-                  fontSize: isMobile ? "18px" : "20px", 
-                  color: COLORS.black 
-                }}>
-                  Add Bank Account
-                </h2>
-                <button
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: COLORS.text,
-                    padding: "4px",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
                   }}
                   onClick={() => setShowAddBankModal(false)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "8px",
+                    backgroundColor: COLORS.primary,
+                    border: "none",
+                    color: COLORS.white,
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  Add Account
                 </button>
               </div>
-
-              <form onSubmit={handleAddBankAccount}>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Bank Name</label>
-                  <input
-                    type="text"
-                    value={bankForm.bankName}
-                    onChange={(e) => setBankForm({...bankForm, bankName: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Account Number</label>
-                  <input
-                    type="text"
-                    value={bankForm.accountNumber}
-                    onChange={(e) => setBankForm({...bankForm, accountNumber: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Account Type</label>
-                  <select
-                    value={bankForm.accountType}
-                    onChange={(e) => setBankForm({...bankForm, accountType: e.target.value})}
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  >
-                    <option value="Savings">Savings</option>
-                    <option value="Current">Current</option>
-                    <option value="Salary">Salary</option>
-                  </select>
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>IFSC Code</label>
-                  <input
-                    type="text"
-                    value={bankForm.ifscCode}
-                    onChange={(e) => setBankForm({...bankForm, ifscCode: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Branch</label>
-                  <input
-                    type="text"
-                    value={bankForm.branch}
-                    onChange={(e) => setBankForm({...bankForm, branch: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "24px" }}>
-                  <label style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    fontSize: "14px", 
-                    fontWeight: 600, 
-                    color: COLORS.text 
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={bankForm.isPrimary}
-                      onChange={(e) => setBankForm({...bankForm, isPrimary: e.target.checked})}
-                      style={{ marginRight: "8px" }}
-                    />
-                    Set as Primary Account
-                  </label>
-                </div>
-
-                <div style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "12px"
-                }}>
-                  <button
-                    type="button"
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "8px",
-                      backgroundColor: COLORS.lightGray,
-                      border: "none",
-                      color: COLORS.text,
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      transition: "all 0.2s ease",
-                    }}
-                    onClick={() => setShowAddBankModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "8px",
-                      backgroundColor: COLORS.primary,
-                      border: "none",
-                      color: COLORS.white,
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    Add Account
-                  </button>
-                </div>
-              </form>
-            </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Edit Profile Modal */}
-        {showEditProfileModal && (
+      {/* Edit Profile Modal */}
+      {showEditProfileModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+          padding: "20px"
+        }}>
           <div style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 99,
-            padding: "20px"
+            background: COLORS.white,
+            padding: isMobile ? "20px" : "24px",
+            width: isMobile ? "95%" : "600px",
+            maxWidth: "90vw",
+            borderRadius: "12px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            maxHeight: "90vh",
+            overflowY: "auto"
           }}>
-            <div style={{
-              background: COLORS.white,
-              padding: isMobile ? "20px" : "24px",
-              width: isMobile ? "95%" : "600px",
-              maxWidth: "90vw",
-              borderRadius: "12px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center", 
+              marginBottom: "20px",
+              paddingBottom: "12px",
+              borderBottom: `1px solid ${COLORS.border}`,
             }}>
-              <div style={{ 
-                display: "flex", 
-                justifyContent: "space-between", 
-                alignItems: "center", 
-                marginBottom: "20px",
-                paddingBottom: "12px",
-                borderBottom: `1px solid ${COLORS.border}`,
+              <h2 style={{ 
+                margin: 0, 
+                fontWeight: 600, 
+                fontSize: isMobile ? "18px" : "20px", 
+                color: COLORS.black 
               }}>
-                <h2 style={{ 
-                  margin: 0, 
-                  fontWeight: 600, 
-                  fontSize: isMobile ? "18px" : "20px", 
-                  color: COLORS.black 
-                }}>
-                  Edit Vendor Profile
-                </h2>
-                <button
+                Edit Vendor Profile
+              </h2>
+              <button
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: COLORS.text,
+                  padding: "4px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={() => setShowEditProfileModal(false)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProfile}>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Business Name</label>
+                <input
+                  type="text"
+                  value={profileForm.businessName}
+                  onChange={(e) => setProfileForm({...profileForm, businessName: e.target.value})}
+                  required
                   style={{
-                    background: "transparent",
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Contact Person</label>
+                <input
+                  type="text"
+                  value={profileForm.contactPerson}
+                  onChange={(e) => setProfileForm({...profileForm, contactPerson: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Email</label>
+                <input
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Phone</label>
+                <input
+                  type="tel"
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Address</label>
+                <input
+                  type="text"
+                  value={profileForm.address}
+                  onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Tax ID</label>
+                <input
+                  type="text"
+                  value={profileForm.taxId}
+                  onChange={(e) => setProfileForm({...profileForm, taxId: e.target.value})}
+                  required
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease"
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: "24px" }}>
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Description</label>
+                <textarea
+                  value={profileForm.description}
+                  onChange={(e) => setProfileForm({...profileForm, description: e.target.value})}
+                  rows="4"
+                  style={{
+                    width: "100%",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    fontSize: "14px",
+                    transition: "border-color 0.2s ease",
+                    resize: "vertical"
+                  }}
+                />
+              </div>
+
+              <div style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px"
+              }}>
+                <button
+                  type="button"
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "8px",
+                    backgroundColor: COLORS.lightGray,
                     border: "none",
-                    cursor: "pointer",
                     color: COLORS.text,
-                    padding: "4px",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    transition: "all 0.2s ease",
                   }}
                   onClick={() => setShowEditProfileModal(false)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "8px",
+                    backgroundColor: COLORS.primary,
+                    border: "none",
+                    color: COLORS.white,
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  Update Profile
                 </button>
               </div>
-
-              <form onSubmit={handleUpdateProfile}>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Business Name</label>
-                  <input
-                    type="text"
-                    value={profileForm.businessName}
-                    onChange={(e) => setProfileForm({...profileForm, businessName: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Contact Person</label>
-                  <input
-                    type="text"
-                    value={profileForm.contactPerson}
-                    onChange={(e) => setProfileForm({...profileForm, contactPerson: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Email</label>
-                  <input
-                    type="email"
-                    value={profileForm.email}
-                    onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Phone</label>
-                  <input
-                    type="tel"
-                    value={profileForm.phone}
-                    onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Address</label>
-                  <input
-                    type="text"
-                    value={profileForm.address}
-                    onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Tax ID</label>
-                  <input
-                    type="text"
-                    value={profileForm.taxId}
-                    onChange={(e) => setProfileForm({...profileForm, taxId: e.target.value})}
-                    required
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease"
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "24px" }}>
-                  <label style={{ display: "block", fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "8px" }}>Description</label>
-                  <textarea
-                    value={profileForm.description}
-                    onChange={(e) => setProfileForm({...profileForm, description: e.target.value})}
-                    rows="4"
-                    style={{
-                      width: "100%",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      fontSize: "14px",
-                      transition: "border-color 0.2s ease",
-                      resize: "vertical"
-                    }}
-                  />
-                </div>
-
-                <div style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "12px"
-                }}>
-                  <button
-                    type="button"
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "8px",
-                      backgroundColor: COLORS.lightGray,
-                      border: "none",
-                      color: COLORS.text,
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      transition: "all 0.2s ease",
-                    }}
-                    onClick={() => setShowEditProfileModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "8px",
-                      backgroundColor: COLORS.primary,
-                      border: "none",
-                      color: COLORS.white,
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    Update Profile
-                  </button>
-                </div>
-              </form>
-            </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

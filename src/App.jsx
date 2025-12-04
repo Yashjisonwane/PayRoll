@@ -26,8 +26,8 @@ import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
 import CreditBalance from "./Dashboard/Employer/MyCredit";
 import PayEmployee from "./Dashboard/Employer/PaymentEmployer";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
-import AddEmployee from "./Dashboard/Employer/JobVacancies";
-import JobVacancies from "./Dashboard/Employer/JobVacancies"; // Added this import
+// import AddEmployee from "./Dashboard/Employer/AddEmployee"; // Fixed this import
+import JobVacancies from "./Dashboard/Employer/JobVacancies";
 
 // Employee
 import EmployeeDashboard from "./Dashboard/Employee/EmployeeDashboard";
@@ -95,9 +95,9 @@ function App() {
               <Routes>
                 {/* ---------------- ADMIN ---------------- */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/AddCredit" element={<AddCredit />} />
+                <Route path="/admin/add-credit" element={<AddCredit />} />
                 <Route path="/admin/transactions" element={<AllTransactions />} />
-                <Route path="/admin/EmployerList" element={<EmployerList />} />
+                <Route path="/admin/employer-list" element={<EmployerList />} />
                 <Route path="/admin/job-portal" element={<JobPortal />} />
                 <Route path="/admin/bill-companies" element={<BillCompanies />} />
                 <Route path="/admin/payment-setup" element={<PaymentSetup />} />
@@ -107,7 +107,7 @@ function App() {
                 <Route path="/employer/credits/balance" element={<CreditBalance />} />
                 <Route path="/employer/payment" element={<PayEmployee />} />
                 <Route path="/employer/transactions" element={<EmployerTransactions />} />
-                <Route path="/employer/AddEmployee" element={<AddEmployee />} />
+                {/* <Route path="/employer/add-employee" element={<AddEmployee />} /> */}
                 <Route path="/employer/job-vacancies" element={<JobVacancies />} />
 
                 {/* ---------------- EMPLOYEE ---------------- */}

@@ -10,7 +10,7 @@ const colors = {
   blackText: '#000000',
   darkGrayText: '#4A4A4A',
   lightGrayBorder: '#E2E2E2',
-  // lightBackground: '#F9F9F9', // Removed background color
+  lightBackground: '#F9F9F9', // Added back this color as it's used in table
 };
 
 const Transactions = () => {
@@ -34,6 +34,7 @@ const Transactions = () => {
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [activeTab, setActiveTab] = useState("all"); // "all", "employer", "employee", "vendor"
 
   // Mock data for transactions
   useEffect(() => {
@@ -49,7 +50,8 @@ const Transactions = () => {
           reference: "Bank Transfer",
           mode: "Bank",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer" // New field to categorize transactions
         },
         {
           id: "TXN-002",
@@ -60,7 +62,8 @@ const Transactions = () => {
           reference: "Invoice #1234",
           mode: "UPI",
           status: "Completed",
-          processedBy: "System"
+          processedBy: "System",
+          category: "employer"
         },
         {
           id: "TXN-003",
@@ -71,7 +74,8 @@ const Transactions = () => {
           reference: "Manual Assignment",
           mode: "Cash",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer"
         },
         {
           id: "TXN-004",
@@ -82,7 +86,8 @@ const Transactions = () => {
           reference: "Vendor Payout",
           mode: "Bank",
           status: "Pending",
-          processedBy: "Employer"
+          processedBy: "Employer",
+          category: "vendor"
         },
         {
           id: "TXN-005",
@@ -93,7 +98,8 @@ const Transactions = () => {
           reference: "Bank Deposit",
           mode: "Bank",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer"
         },
         {
           id: "TXN-006",
@@ -104,7 +110,8 @@ const Transactions = () => {
           reference: "Invoice #1235",
           mode: "UPI",
           status: "Completed",
-          processedBy: "Employer"
+          processedBy: "Employer",
+          category: "vendor"
         },
         {
           id: "TXN-007",
@@ -115,7 +122,8 @@ const Transactions = () => {
           reference: "Bank Transfer",
           mode: "Bank",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer"
         },
         {
           id: "TXN-008",
@@ -126,7 +134,8 @@ const Transactions = () => {
           reference: "Vendor Payout",
           mode: "Cash",
           status: "Completed",
-          processedBy: "Employer"
+          processedBy: "Employer",
+          category: "vendor"
         },
         {
           id: "TXN-009",
@@ -137,7 +146,8 @@ const Transactions = () => {
           reference: "Bank Deposit",
           mode: "Bank",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer"
         },
         {
           id: "TXN-010",
@@ -148,7 +158,8 @@ const Transactions = () => {
           reference: "Invoice #1236",
           mode: "UPI",
           status: "Pending",
-          processedBy: "Employer"
+          processedBy: "Employer",
+          category: "vendor"
         },
         {
           id: "TXN-011",
@@ -159,7 +170,8 @@ const Transactions = () => {
           reference: "Manual Assignment",
           mode: "Cash",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer"
         },
         {
           id: "TXN-012",
@@ -170,7 +182,74 @@ const Transactions = () => {
           reference: "Bank Transfer",
           mode: "Bank",
           status: "Completed",
-          processedBy: "Admin"
+          processedBy: "Admin",
+          category: "employer"
+        },
+        // Employee salary transactions
+        {
+          id: "TXN-013",
+          date: "2025-06-15",
+          employer: "Tech Solutions Inc.",
+          employee: "John Doe",
+          amount: 35000,
+          type: "Salary Payment",
+          reference: "June 2025 Salary",
+          mode: "Bank",
+          status: "Completed",
+          processedBy: "Admin",
+          category: "employee"
+        },
+        {
+          id: "TXN-014",
+          date: "2025-06-14",
+          employer: "Global Industries Ltd.",
+          employee: "Jane Smith",
+          amount: 42000,
+          type: "Salary Payment",
+          reference: "June 2025 Salary",
+          mode: "Bank",
+          status: "Completed",
+          processedBy: "Admin",
+          category: "employee"
+        },
+        {
+          id: "TXN-015",
+          date: "2025-06-13",
+          employer: "Creative Agency",
+          employee: "Mike Johnson",
+          amount: 28000,
+          type: "Salary Payment",
+          reference: "June 2025 Salary",
+          mode: "Bank",
+          status: "Completed",
+          processedBy: "Admin",
+          category: "employee"
+        },
+        {
+          id: "TXN-016",
+          date: "2025-06-12",
+          employer: "Tech Solutions Inc.",
+          employee: "Sarah Williams",
+          amount: 38000,
+          type: "Salary Payment",
+          reference: "June 2025 Salary",
+          mode: "Bank",
+          status: "Completed",
+          processedBy: "Admin",
+          category: "employee"
+        },
+        {
+          id: "TXN-017",
+          date: "2025-06-11",
+          employer: "Global Industries Ltd.",
+          employee: "Robert Brown",
+          amount: 45000,
+          type: "Salary Payment",
+          reference: "June 2025 Salary",
+          mode: "Bank",
+          status: "Completed",
+          processedBy: "Admin",
+          category: "employee"
         }
       ];
       
@@ -180,19 +259,29 @@ const Transactions = () => {
     }, 1000);
   }, []);
 
-  // Filter transactions based on search term
+  // Filter transactions based on search term and active tab
   useEffect(() => {
-    const filtered = transactions.filter(transaction => 
+    let filtered = transactions;
+    
+    // Filter by active tab
+    if (activeTab !== "all") {
+      filtered = filtered.filter(transaction => transaction.category === activeTab);
+    }
+    
+    // Filter by search term
+    filtered = filtered.filter(transaction => 
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.employer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.mode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.status.toLowerCase().includes(searchTerm.toLowerCase())
+      transaction.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (transaction.employee && transaction.employee.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    
     setFilteredTransactions(filtered);
     setCurrentPage(1);
-  }, [searchTerm, transactions]);
+  }, [searchTerm, transactions, activeTab]);
 
   // Get current transactions for pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -208,6 +297,7 @@ const Transactions = () => {
       case "Credit Added": return colors.primaryRed;
       case "Credit Assigned": return colors.darkRed;
       case "Payment": return colors.darkGrayText;
+      case "Salary Payment": return colors.darkRed;
       default: return colors.blackText;
     }
   };
@@ -219,6 +309,17 @@ const Transactions = () => {
       case "Pending": return { backgroundColor: "#FFF8E1", color: "#F57C00" };
       case "Failed": return { backgroundColor: "#FFEBEE", color: "#C62828" };
       default: return { backgroundColor: "#F5F5F5", color: "#616161" };
+    }
+  };
+
+  // Get tab title based on active tab
+  const getTabTitle = () => {
+    switch(activeTab) {
+      case "all": return "All Transactions";
+      case "employer": return "Employer Payment Logs";
+      case "employee": return "Employee Salary Logs";
+      case "vendor": return "Vendor Payment Logs";
+      default: return "All Transactions";
     }
   };
 
@@ -234,6 +335,74 @@ const Transactions = () => {
         >
           <i className="bi bi-arrow-left me-2"></i>Back to Dashboard
         </button>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="card mb-4 shadow-sm" style={{ border: `1px solid ${colors.lightGrayBorder}` }}>
+        <div className="card-body p-0">
+          <ul className="nav nav-tabs nav-fill" style={{ borderBottom: `1px solid ${colors.lightGrayBorder}` }}>
+            {/* <li className="nav-item">
+              <button 
+                className={`nav-link ${activeTab === "all" ? "active" : ""}`}
+                style={{ 
+                  color: activeTab === "all" ? colors.primaryRed : colors.darkGrayText,
+                  fontWeight: activeTab === "all" ? "bold" : "normal",
+                  borderBottom: activeTab === "all" ? `3px solid ${colors.primaryRed}` : "none",
+                  borderRadius: "0",
+                  fontSize: isMobile ? '0.875rem' : '1rem'
+                }}
+                onClick={() => setActiveTab("all")}
+              >
+                All Transactions
+              </button>
+            </li> */}
+            <li className="nav-item">
+              <button 
+                className={`nav-link ${activeTab === "employer" ? "active" : ""}`}
+                style={{ 
+                  color: activeTab === "employer" ? colors.primaryRed : colors.darkGrayText,
+                  fontWeight: activeTab === "employer" ? "bold" : "normal",
+                  borderBottom: activeTab === "employer" ? `3px solid ${colors.primaryRed}` : "none",
+                  borderRadius: "0",
+                  fontSize: isMobile ? '0.875rem' : '1rem'
+                }}
+                onClick={() => setActiveTab("employer")}
+              >
+                Employer Payment Logs
+              </button>
+            </li>
+            <li className="nav-item">
+              <button 
+                className={`nav-link ${activeTab === "employee" ? "active" : ""}`}
+                style={{ 
+                  color: activeTab === "employee" ? colors.primaryRed : colors.darkGrayText,
+                  fontWeight: activeTab === "employee" ? "bold" : "normal",
+                  borderBottom: activeTab === "employee" ? `3px solid ${colors.primaryRed}` : "none",
+                  borderRadius: "0",
+                  fontSize: isMobile ? '0.875rem' : '1rem'
+                }}
+                onClick={() => setActiveTab("employee")}
+              >
+                Employee Salary Logs
+              </button>
+            </li>
+            <li className="nav-item">
+              <button 
+                className={`nav-link ${activeTab === "vendor" ? "active" : ""}`}
+                style={{ 
+                  color: activeTab === "vendor" ? colors.primaryRed : colors.darkGrayText,
+                  fontWeight: activeTab === "vendor" ? "bold" : "normal",
+                  borderBottom: activeTab === "vendor" ? `3px solid ${colors.primaryRed}` : "none",
+                  borderRadius: "0",
+                  fontSize: isMobile ? '0.875rem' : '1rem'
+                }}
+                onClick={() => setActiveTab("vendor")}
+              >
+                Vendor Payment Logs
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -267,7 +436,7 @@ const Transactions = () => {
       {/* Transactions Table / Cards */}
       <div className="card shadow-sm" style={{ border: `1px solid ${colors.lightGrayBorder}` }}>
         <div className="card-header py-3" style={{ backgroundColor: colors.pureWhite, borderBottom: `1px solid ${colors.lightGrayBorder}` }}>
-          <h5 className="mb-0 fw-bold" style={{ color: colors.blackText, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>Payment Logs</h5>
+          <h5 className="mb-0 fw-bold" style={{ color: colors.blackText, fontSize: isMobile ? '1.125rem' : '1.25rem' }}>{getTabTitle()}</h5>
         </div>
         <div className="card-body p-0">
           {loading ? (
@@ -297,6 +466,12 @@ const Transactions = () => {
                         <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Employer</small>
                         <span style={{ fontSize: '0.8rem' }}>{transaction.employer}</span>
                       </div>
+                      {transaction.employee && (
+                        <div className="col-6">
+                          <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Employee</small>
+                          <span style={{ fontSize: '0.8rem' }}>{transaction.employee}</span>
+                        </div>
+                      )}
                       <div className="col-6">
                         <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>Amount</small>
                         <span style={{ fontSize: '0.8rem', fontWeight: '600' }}>₹{transaction.amount.toLocaleString()}</span>
@@ -320,15 +495,16 @@ const Transactions = () => {
                       <button
                         className="btn btn-sm"
                         style={{ 
-                          color: colors.primaryRed, 
-                          backgroundColor: "transparent", 
+                          color: colors.pureWhite, 
+                          backgroundColor: colors.primaryRed, 
                           border: "none",
+                          borderRadius: "4px",
                           padding: "0.25rem 0.5rem",
                           fontSize: '0.8rem'
                         }}
                         onClick={() => setSelectedTransaction(transaction)}
                       >
-                        <i className="bi bi-eye-fill me-1"></i>View
+                        <i className="bi bi-eye-fill"></i>
                       </button>
                     </div>
                   </div>
@@ -344,6 +520,7 @@ const Transactions = () => {
                     <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Transaction ID</th>
                     <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Date</th>
                     <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Employer</th>
+                    {activeTab === "employee" && <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Employee</th>}
                     <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Amount</th>
                     <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Type</th>
                     <th className="border-0 py-3" style={{ color: colors.darkGrayText }}>Mode</th>
@@ -357,6 +534,9 @@ const Transactions = () => {
                       <td className="py-3" style={{ color: colors.blackText }}>{transaction.id}</td>
                       <td className="py-3" style={{ color: colors.blackText }}>{transaction.date}</td>
                       <td className="py-3" style={{ color: colors.blackText }}>{transaction.employer}</td>
+                      {activeTab === "employee" && (
+                        <td className="py-3" style={{ color: colors.blackText }}>{transaction.employee}</td>
+                      )}
                       <td className="py-3" style={{ color: colors.blackText }}>₹{transaction.amount.toLocaleString()}</td>
                       <td className="py-3">
                         <span style={{ color: getTypeColor(transaction.type), fontWeight: "600" }}>
@@ -372,10 +552,16 @@ const Transactions = () => {
                       <td className="py-3 text-center">
                         <button
                           className="btn btn-sm"
-                          style={{ color: colors.primaryRed, backgroundColor: "transparent", border: "none" }}
+                          style={{ 
+                            color: colors.pureWhite, 
+                            backgroundColor: colors.primaryRed, 
+                            border: "none",
+                            borderRadius: "4px",
+                            padding: "0.25rem 0.5rem"
+                          }}
                           onClick={() => setSelectedTransaction(transaction)}
                         >
-                          <i className="bi bi-eye-fill"></i> View
+                          <i className="bi bi-eye-fill"></i>
                         </button>
                       </td>
                     </tr>
@@ -454,6 +640,12 @@ const Transactions = () => {
                   <h6 style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Employer</h6>
                   <p style={{ color: colors.blackText, fontSize: isMobile ? '0.875rem' : '1rem' }}>{selectedTransaction.employer}</p>
                 </div>
+                {selectedTransaction.employee && (
+                  <div className="mb-3">
+                    <h6 style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Employee</h6>
+                    <p style={{ color: colors.blackText, fontSize: isMobile ? '0.875rem' : '1rem' }}>{selectedTransaction.employee}</p>
+                  </div>
+                )}
                 <div className="mb-3">
                   <h6 style={{ color: colors.darkGrayText, fontSize: isMobile ? '0.875rem' : '1rem' }}>Amount</h6>
                   <p style={{ color: colors.blackText, fontSize: isMobile ? '0.875rem' : '1rem' }}>₹{selectedTransaction.amount.toLocaleString()}</p>
