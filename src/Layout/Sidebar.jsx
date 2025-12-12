@@ -12,7 +12,10 @@ import {
   faUserGroup,
   faClipboard,
   faBriefcase,
-  faFileInvoiceDollar
+  faFileInvoiceDollar,
+  faBookOpen,
+  faSignInAlt,
+  faUserCheck
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Sidebar.css";
@@ -68,6 +71,16 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/Admin/add-credit",
       },
       {
+        name: "Attendance Management",
+        icon: faUserCheck,
+        path: "/Admin/Attendance-management",
+      },
+      {
+        name: "Training",
+        icon: faBookOpen,
+        path: "/Admin/Admin-Training",
+      },
+      {
         name: "Job Portal",
         icon: faUserGroup,
         path: "/Admin/job-portal",
@@ -110,6 +123,16 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     icon: faUsers,
     path: "/employer/add-employee",
   },
+  {
+    name: "Attendance",
+    icon: faUserCheck,
+    path: "/employer/employer-attendance",
+  },
+  {
+    name: "Training",
+    icon: faBookOpen,
+    path: "/employer/Employer-Training",
+  },
 
       {
         name: "Job Vacancies",
@@ -145,6 +168,21 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faCreditCard,
         path: "/Employee/bill-payment",
       },
+       {
+    name: "Attendance",
+    icon: faUserCheck,
+    path: "/employer/employee-attendance",
+  },
+  {
+    name: "Training",
+    icon: faBookOpen,
+    path: "/employer/Employee-Training",
+  },
+    {
+    name: "Check-In",
+    icon: faSignInAlt,
+    path: "/employer/in-out",
+  },
       {
         name: "Bank Details",
         icon: faFileInvoiceDollar,

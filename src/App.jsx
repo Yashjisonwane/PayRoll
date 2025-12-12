@@ -21,6 +21,8 @@ import EmployerList from "./Dashboard/Admin/EmployerList";
 import JobPortal from "./Dashboard/Admin/JobPortal";
 import BillCompanies from "./Dashboard/Admin/BillCompanies";
 import PaymentSetup from "./Dashboard/Admin/PaymentSetup";
+import AttendanceManagement from "./Dashboard/Admin/AttendanceManagement";
+import AdminTraining from "./Dashboard/Admin/AdminTraining";
 
 // Employer
 import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
@@ -29,6 +31,8 @@ import PayEmployee from "./Dashboard/Employer/PaymentEmployer";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
 import AddEmployee from "./Dashboard/Employer/AddEmployee"; // Fixed this import
 import JobVacancies from "./Dashboard/Employer/JobVacancies";
+import EmployerAttendance from "./Dashboard/Employer/EmployerAttendance";
+import EmployerTraining from "./Dashboard/Employer/EmployerTraining";
 
 // Employee
 import EmployeeDashboard from "./Dashboard/Employee/EmployeeDashboard";
@@ -36,6 +40,9 @@ import MySalary from "./Dashboard/Employee/MySalary";
 import BillPayment from "./Dashboard/Employee/BillPayment";
 import MonthlySalary from "./Dashboard/Employee/MonthlySalary";
 import JobApplication from "./Dashboard/Employee/JobApplication";
+import EmployeeAttendance from "./Dashboard/Employee/EmployeeAttendance";
+import CheckInOut from "./Dashboard/Employee/CheckInOut";
+import EmployeeTraining from "./Dashboard/Employee/EmployeeTraining";
 
 // job portal 
 import JobDashboard from "./Dashboard/JobPortal/JobDashboard";
@@ -102,6 +109,9 @@ function App() {
                 <Route path="/admin/job-portal" element={<JobPortal />} />
                 <Route path="/admin/bill-companies" element={<BillCompanies />} />
                 <Route path="/admin/payment-setup" element={<PaymentSetup />} />
+                <Route path="/Admin/Attendance-management" element={<AttendanceManagement />} />
+                <Route path="/Admin/Admin-Training" element={<AdminTraining />} />
+
 
                 {/* ---------------- EMPLOYER ---------------- */}
                 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
@@ -110,6 +120,9 @@ function App() {
                 <Route path="/employer/transactions" element={<EmployerTransactions />} />
                 {/* <Route path="/employer/add-employee" element={<AddEmployee />} /> */}
                 <Route path="/employer/job-vacancies" element={<JobVacancies />} />
+                <Route path="/employer/employer-attendance" element={<EmployerAttendance />} />
+                 <Route path="/employer/Employer-Training" element={<EmployerTraining />} />
+
 
                 {/* ---------------- EMPLOYEE ---------------- */}
                 <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
@@ -118,6 +131,9 @@ function App() {
                 <Route path="/employee/monthly-salary" element={<MonthlySalary />} />
                 <Route path="/employee/job-application" element={<JobApplication />} />
                 <Route path="/employer/add-employee" element={<AddEmployee />} />
+                <Route path="/employer/employee-attendance" element={<EmployeeAttendance />} />
+                <Route path="/employer/in-out" element={<CheckInOut />} />
+                <Route path="/employer/Employee-Training" element={<EmployeeTraining />} />
 
                 {/* ---------------- JOB PORTAL ---------------- */}
                 <Route path="/job-portal/dashboard" element={<JobDashboard />} />
