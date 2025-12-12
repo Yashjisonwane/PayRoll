@@ -15,6 +15,13 @@ export default function JobPortal() {
     modalOverlay: "rgba(0, 0, 0, 0.6)",
   };
 
+  // State for employers
+  const [employers, setEmployers] = useState([
+    { id: 1, name: "John Doe", company: "Tech Solutions Pvt Ltd", email: "john@techsolutions.com", phone: "9876543210" },
+    { id: 2, name: "Jane Smith", company: "PeopleFirst HR", email: "jane@peoplefirst.com", phone: "9123456789" },
+    { id: 3, name: "Mike Johnson", company: "Digital Innovations", email: "mike@digitalinnovations.com", phone: "9898765432" },
+  ]);
+
   // Initial data
   const [vacancies, setVacancies] = useState([
     { 
@@ -27,7 +34,11 @@ export default function JobPortal() {
       postedDate: "2023-10-15",
       salary: "₹12-18 LPA",
       employer: "Tech Solutions Pvt Ltd",
-      level: "Senior"
+      level: "Senior",
+      employmentType: "Full-time",
+      experienceRequired: "5+ years",
+      expiryDate: "2023-12-31",
+      requirements: "React, Redux, CSS, JavaScript"
     },
     { 
       id: 2, 
@@ -39,7 +50,11 @@ export default function JobPortal() {
       postedDate: "2023-10-10",
       salary: "₹8-12 LPA",
       employer: "PeopleFirst HR",
-      level: "Manager"
+      level: "Manager",
+      employmentType: "Full-time",
+      experienceRequired: "5+ years",
+      expiryDate: "2023-12-15",
+      requirements: "MBA in HR, Recruitment Skills"
     },
     { 
       id: 3, 
@@ -51,7 +66,11 @@ export default function JobPortal() {
       postedDate: "2023-09-25",
       salary: "₹15-20 LPA",
       employer: "Digital Innovations",
-      level: "Senior"
+      level: "Senior",
+      employmentType: "Full-time",
+      experienceRequired: "7+ years",
+      expiryDate: "2023-11-30",
+      requirements: "PMP Certification, Agile Methodology"
     },
   ]);
 
@@ -105,7 +124,7 @@ export default function JobPortal() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [activeTab, setActiveTab] = useState("vacancies"); // "vacancies" or "jobseekers"
+  const [activeTab, setActiveTab] = useState("vacancies");
   const [jobSeekerFilter, setJobSeekerFilter] = useState({
     skills: "",
     level: "All",
@@ -202,7 +221,10 @@ export default function JobPortal() {
       postedDate: new Date().toISOString().split('T')[0],
       salary: e.target.salary.value,
       employer: e.target.employer.value,
-      level: e.target.level.value,
+      employmentType: e.target.employmentType.value,
+      experienceRequired: e.target.experienceRequired.value,
+      expiryDate: e.target.expiryDate.value,
+      requirements: e.target.requirements.value,
     };
     setVacancies([...vacancies, newVacancy]);
     closeModal();
@@ -218,7 +240,10 @@ export default function JobPortal() {
       description: e.target.description.value,
       salary: e.target.salary.value,
       employer: e.target.employer.value,
-      level: e.target.level.value,
+      employmentType: e.target.employmentType.value,
+      experienceRequired: e.target.experienceRequired.value,
+      expiryDate: e.target.expiryDate.value,
+      requirements: e.target.requirements.value,
     };
     setVacancies(vacancies.map(v => v.id === selectedVacancy.id ? updatedVacancy : v));
     closeModal();
@@ -248,6 +273,26 @@ export default function JobPortal() {
     closeModal();
   };
 
+  const handleAddEmployer = (e) => {
+    e.preventDefault();
+    const newEmployer = {
+      id: employers.length + 1,
+      name: e.target.name.value,
+      company: e.target.company.value,
+      email: e.target.email.value,
+      phone: e.target.phone.value,
+    };
+    setEmployers([...employers, newEmployer]);
+    closeModal();
+  };
+
+  const handleDeleteEmployer = (employerId) => {
+    if (window.confirm("Are you sure you want to delete this employer?")) {
+      setEmployers(employers.filter(e => e.id !== employerId));
+      closeModal();
+    }
+  };
+
   const handleAddJobSeekerToVacancy = (jobSeekerId) => {
     const existingApplication = applications.find(
       app => app.vacancyId === selectedVacancy.id && app.jobSeekerId === jobSeekerId
@@ -266,7 +311,7 @@ export default function JobPortal() {
       date: new Date().toISOString().split('T')[0],
     };
     setApplications([...applications, newApplication]);
-    alert("Candidate has been sent to the employer!");
+    alert("Candidate has been sent to employer!");
     closeModal();
   };
 
@@ -293,6 +338,125 @@ export default function JobPortal() {
                              js.experience.includes(jobSeekerFilter.experience);
     return matchesSkills && matchesLevel && matchesExperience;
   });
+
+  // Reusable form field component
+  const FormField = ({ label, name, type = "text", placeholder, required = true, options, defaultValue, flex = 1 }) => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex }}>
+        <label style={{ marginBottom: '0.5rem', color: colors.black, fontWeight: '500' }}>{label}</label>
+        {type === "select" ? (
+          <select 
+            name={name} 
+            defaultValue={defaultValue}
+            required={required}
+            style={{
+              ...styles.input(colors.lightGray),
+              fontSize: isMobileView ? '0.9rem' : '1rem',
+              padding: '0.75rem',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }}
+          >
+            {options.map((option, index) => (
+              <option key={index} value={option.value || option}>{option.label || option}</option>
+            ))}
+          </select>
+        ) : (
+          <input 
+            name={name} 
+            type={type}
+            placeholder={placeholder} 
+            defaultValue={defaultValue}
+            required={required}
+            style={{
+              ...styles.input(colors.lightGray),
+              fontSize: isMobileView ? '0.9rem' : '1rem',
+              padding: '0.75rem',
+              border: '1px solid #ccc',
+              borderRadius: '4px'
+            }} 
+          />
+        )}
+      </div>
+    );
+  };
+
+  // Reusable action buttons component
+  const ActionButtons = ({ item, onView, onEdit, onDelete }) => {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
+        {onView && (
+          <button 
+            onClick={() => onView(item)}
+            title="View Details"
+            style={{ 
+              backgroundColor: colors.primary,
+              padding: "4px",
+              borderRadius: "4px",
+              fontSize: "10px",
+              fontWeight: "500",
+              width: "28px",
+              height: "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: colors.white,
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            <i className="bi bi-eye-fill" style={{ fontSize: "12px" }}></i>
+          </button>
+        )}
+        {onEdit && (
+          <button 
+            onClick={() => onEdit(item)}
+            title="Edit Details"
+            style={{ 
+              backgroundColor: colors.primary,
+              padding: "4px",
+              borderRadius: "4px",
+              fontSize: "10px",
+              fontWeight: "500",
+              width: "28px",
+              height: "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: colors.white,
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            <i className="bi bi-pencil-fill" style={{ fontSize: "12px" }}></i>
+          </button>
+        )}
+        {onDelete && (
+          <button 
+            onClick={() => onDelete(item.id)}
+            title="Delete"
+            style={{ 
+              backgroundColor: colors.primary,
+              padding: "4px",
+              borderRadius: "4px",
+              fontSize: "10px",
+              fontWeight: "500",
+              width: "28px",
+              height: "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: colors.white,
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            <i className="bi bi-trash-fill" style={{ fontSize: "12px" }}></i>
+          </button>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif', minHeight: '100vh' }}>
@@ -450,7 +614,7 @@ export default function JobPortal() {
                               color: colors.gray, 
                               fontSize: '0.9rem' 
                             }}>
-                              {v.employer} • {v.level}
+                              {v.employer} • {v.location} • {v.experienceRequired}
                             </p>
                           </div>
                           <div style={{ 
@@ -477,69 +641,12 @@ export default function JobPortal() {
                             </span>
                           </div>
                           <div style={{ display: 'flex', gap: '5px', justifyContent: 'space-between' }}>
-                            <button 
-                              onClick={() => openModal('viewVacancy', v)}
-                              title="View Details"
-                              style={{ 
-                                backgroundColor: colors.primary,
-                                padding: "4px",
-                                borderRadius: "4px",
-                                fontSize: "10px",
-                                fontWeight: "500",
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: colors.white,
-                                border: "none",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <i className="bi bi-eye-fill" style={{ fontSize: "12px" }}></i>
-                            </button>
-                            <button 
-                              onClick={() => openModal('editVacancy', v)}
-                              title="Edit Details"
-                              style={{ 
-                                backgroundColor: colors.primary,
-                                padding: "4px",
-                                borderRadius: "4px",
-                                fontSize: "10px",
-                                fontWeight: "500",
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: colors.white,
-                                border: "none",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <i className="bi bi-pencil-fill" style={{ fontSize: "12px" }}></i>
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteVacancy(v.id)}
-                              title="Delete Vacancy"
-                              style={{ 
-                                backgroundColor: colors.primary,
-                                padding: "4px",
-                                borderRadius: "4px",
-                                fontSize: "10px",
-                                fontWeight: "500",
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: colors.white,
-                                border: "none",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <i className="bi bi-trash-fill" style={{ fontSize: "12px" }}></i>
-                            </button>
+                            <ActionButtons 
+                              item={v}
+                              onView={() => openModal('viewVacancy', v)}
+                              onEdit={() => openModal('editVacancy', v)}
+                              onDelete={handleDeleteVacancy}
+                            />
                           </div>
                         </div>
                       )
@@ -557,7 +664,8 @@ export default function JobPortal() {
                     <tr style={{ backgroundColor: colors.primary, color: colors.white }}>
                       <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Employer</th>
                       <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Job Title</th>
-                      <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Level</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Location</th>
+                      <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Experience</th>
                       <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Applicants</th>
                       <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 'bold' }}>Status</th>
                       <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 'bold' }}>Actions</th>
@@ -574,11 +682,12 @@ export default function JobPortal() {
                               <div>
                                 <strong style={{ color: colors.primary }}>{v.title}</strong>
                                 <div style={{ fontSize: '0.85rem', color: colors.gray, marginTop: '0.25rem' }}>
-                                  {v.location} • {v.salary}
+                                  {v.department} • {v.salary}
                                 </div>
                               </div>
                             </td>
-                            <td style={{ padding: '1rem', color: colors.black }}>{v.level}</td>
+                            <td style={{ padding: '1rem', color: colors.black }}>{v.location}</td>
+                            <td style={{ padding: '1rem', color: colors.black }}>{v.experienceRequired}</td>
                             <td style={{ padding: '1rem' }}>
                               <span style={{ 
                                 padding: '0.25rem 0.75rem', 
@@ -604,78 +713,19 @@ export default function JobPortal() {
                               </span>
                             </td>
                             <td style={{ padding: '1rem', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
-                                <button 
-                                  onClick={() => openModal('viewVacancy', v)}
-                                  title="View Details"
-                                  style={{ 
-                                    backgroundColor: colors.primary,
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                    fontSize: "10px",
-                                    fontWeight: "500",
-                                    width: "28px",
-                                    height: "28px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: colors.white,
-                                    border: "none",
-                                    cursor: "pointer"
-                                  }}
-                                >
-                                  <i className="bi bi-eye-fill" style={{ fontSize: "12px" }}></i>
-                                </button>
-                                <button 
-                                  onClick={() => openModal('editVacancy', v)}
-                                  title="Edit Details"
-                                  style={{ 
-                                    backgroundColor: colors.primary,
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                    fontSize: "10px",
-                                    fontWeight: "500",
-                                    width: "28px",
-                                    height: "28px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: colors.white,
-                                    border: "none",
-                                    cursor: "pointer"
-                                  }}
-                                >
-                                  <i className="bi bi-pencil-fill" style={{ fontSize: "12px" }}></i>
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteVacancy(v.id)}
-                                  title="Delete Vacancy"
-                                  style={{ 
-                                    backgroundColor: colors.primary,
-                                    padding: "4px",
-                                    borderRadius: "4px",
-                                    fontSize: "10px",
-                                    fontWeight: "500",
-                                    width: "28px",
-                                    height: "28px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: colors.white,
-                                    border: "none",
-                                    cursor: "pointer"
-                                  }}
-                                >
-                                  <i className="bi bi-trash-fill" style={{ fontSize: "12px" }}></i>
-                                </button>
-                              </div>
+                              <ActionButtons 
+                                item={v}
+                                onView={() => openModal('viewVacancy', v)}
+                                onEdit={() => openModal('editVacancy', v)}
+                                onDelete={handleDeleteVacancy}
+                              />
                             </td>
                           </tr>
                         )
                       })
                     ) : (
                       <tr>
-                        <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: colors.gray }}>
+                        <td colSpan="7" style={{ padding: '2rem', textAlign: 'center', color: colors.gray }}>
                           No vacancies found matching your criteria.
                         </td>
                       </tr>
@@ -771,7 +821,7 @@ export default function JobPortal() {
                             color: colors.gray, 
                             fontSize: '0.9rem' 
                           }}>
-                            {js.currentCompany} • {js.level}
+                            {js.currentCompany} • {js.level} • {js.experience}
                           </p>
                         </div>
                         <div style={{ 
@@ -784,41 +834,14 @@ export default function JobPortal() {
                             fontSize: '0.9rem', 
                             color: colors.gray 
                           }}>
-                            {js.experience} experience
-                          </span>
-                          <span style={{ 
-                            padding: '0.25rem 0.75rem', 
-                            borderRadius: '20px', 
-                            fontSize: '0.8rem', 
-                            fontWeight: 'bold',
-                            backgroundColor: colors.lightGray, 
-                            color: colors.black
-                          }}>
                             {js.skills.split(',')[0]}{js.skills.split(',').length > 1 ? '...' : ''}
                           </span>
                         </div>
                         <div style={{ display: 'flex', gap: '5px', justifyContent: 'space-between' }}>
-                          <button 
-                            onClick={() => openModal('jobSeekerDetails', js)}
-                            title="View Resume"
-                            style={{ 
-                              backgroundColor: colors.primary,
-                              padding: "4px",
-                              borderRadius: "4px",
-                              fontSize: "10px",
-                              fontWeight: "500",
-                              width: "28px",
-                              height: "28px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: colors.white,
-                              border: "none",
-                              cursor: "pointer"
-                            }}
-                          >
-                            <i className="bi bi-eye-fill" style={{ fontSize: "12px" }}></i>
-                          </button>
+                          <ActionButtons 
+                            item={js}
+                            onView={() => openModal('jobSeekerDetails', js)}
+                          />
                         </div>
                       </div>
                     ))
@@ -858,27 +881,10 @@ export default function JobPortal() {
                           <td style={{ padding: '1rem', color: colors.black }}>{js.experience}</td>
                           <td style={{ padding: '1rem', color: colors.black }}>{js.skills}</td>
                           <td style={{ padding: '1rem', textAlign: 'center' }}>
-                            <button 
-                              onClick={() => openModal('jobSeekerDetails', js)}
-                              title="View Resume"
-                              style={{ 
-                                backgroundColor: colors.primary,
-                                padding: "4px",
-                                borderRadius: "4px",
-                                fontSize: "10px",
-                                fontWeight: "500",
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: colors.white,
-                                border: "none",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <i className="bi bi-eye-fill" style={{ fontSize: "12px" }}></i>
-                            </button>
+                            <ActionButtons 
+                              item={js}
+                              onView={() => openModal('jobSeekerDetails', js)}
+                            />
                           </td>
                         </tr>
                       ))
@@ -912,25 +918,130 @@ export default function JobPortal() {
             {/* Add Vacancy Modal */}
             {modalType === 'addVacancy' && (
               <>
-                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>Add New Vacancy</h2>
+                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary, marginBottom: '1.5rem' }}>Post New Vacancy</h2>
                 <form onSubmit={handleAddVacancy}>
-                  <input name="employer" placeholder="Employer Name" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="title" placeholder="Job Title" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="department" placeholder="Department" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="location" placeholder="Location" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="salary" placeholder="Salary Range (e.g., ₹8-12 LPA)" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <select name="level" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}}>
-                    <option value="">Select Level</option>
-                    <option value="Entry">Entry Level</option>
-                    <option value="Mid-level">Mid-level</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Director">Director</option>
-                  </select>
-                  <textarea name="description" placeholder="Job Description" rows="3" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* Row 1: Job Title and Department */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Job Title"
+                        name="title"
+                        placeholder="e.g. Senior Frontend Developer"
+                      />
+                      <FormField 
+                        label="Department"
+                        name="department"
+                        placeholder="e.g. Engineering"
+                      />
+                    </div>
+                    
+                    {/* Row 2: Employer and Salary */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Employer"
+                        name="employer"
+                        type="select"
+                        options={employers.map(e => e.company)}
+                      />
+                      <FormField 
+                        label="Salary Range"
+                        name="salary"
+                        placeholder="e.g. ₹80,000 - ₹120,000"
+                      />
+                    </div>
+                    
+                    {/* Row 3: Location and Employment Type */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Location"
+                        name="location"
+                        placeholder="e.g. Mumbai, Maharashtra"
+                      />
+                      <FormField 
+                        label="Employment Type"
+                        name="employmentType"
+                        type="select"
+                        options={["Full-time", "Part-time", "Contract", "Internship"]}
+                      />
+                    </div>
+                    
+                    {/* Row 4: Experience Required and Expiry Date */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Experience Required"
+                        name="experienceRequired"
+                        placeholder="e.g. 3+ years"
+                      />
+                      <FormField 
+                        label="Expiry Date"
+                        name="expiryDate"
+                        type="date"
+                      />
+                    </div>
+                    
+                    {/* Row 5: Job Description */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <label style={{ marginBottom: '0.5rem', color: colors.black, fontWeight: '500' }}>Job Description</label>
+                      <textarea 
+                        name="description" 
+                        placeholder="Enter job description..." 
+                        rows="4" 
+                        required 
+                        style={{
+                          ...styles.input(colors.lightGray),
+                          fontSize: isMobileView ? '0.9rem' : '1rem',
+                          padding: '0.75rem',
+                          border: '1px solid #ccc',
+                          borderRadius: '4px'
+                        }} 
+                      />
+                    </div>
+                    
+                    {/* Row 6: Requirements */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <label style={{ marginBottom: '0.5rem', color: colors.black, fontWeight: '500' }}>Requirements</label>
+                      <textarea 
+                        name="requirements" 
+                        placeholder="Enter job requirements..." 
+                        rows="4" 
+                        required 
+                        style={{
+                          ...styles.input(colors.lightGray),
+                          fontSize: isMobileView ? '0.9rem' : '1rem',
+                          padding: '0.75rem',
+                          border: '1px solid #ccc',
+                          borderRadius: '4px'
+                        }} 
+                      />
+                    </div>
+                  </div>
+                  
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
-                    <button type="button" onClick={closeModal} style={{...styles.button(colors.lightGray, colors.black, 'small'), background: colors.lightGray}}>Cancel</button>
-                    <button type="submit" style={styles.button(colors.primary, colors.white, 'small')}>Create</button>
+                    <button 
+                      type="button" 
+                      onClick={closeModal} 
+                      style={{
+                        ...styles.button(colors.lightGray, colors.black, 'small'),
+                        background: colors.lightGray,
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      style={{
+                        ...styles.button(colors.primary, colors.white, 'small'),
+                        backgroundColor: colors.primary,
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Post Vacancy
+                    </button>
                   </div>
                 </form>
               </>
@@ -941,20 +1052,105 @@ export default function JobPortal() {
               <>
                 <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>Edit Vacancy</h2>
                 <form onSubmit={handleEditVacancy}>
-                  <input name="employer" placeholder="Employer Name" defaultValue={selectedVacancy.employer} required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="title" placeholder="Job Title" defaultValue={selectedVacancy.title} required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="department" placeholder="Department" defaultValue={selectedVacancy.department} required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="location" placeholder="Location" defaultValue={selectedVacancy.location} required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="salary" placeholder="Salary Range (e.g., ₹8-12 LPA)" defaultValue={selectedVacancy.salary} required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <select name="level" defaultValue={selectedVacancy.level} required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}}>
-                    <option value="">Select Level</option>
-                    <option value="Entry">Entry Level</option>
-                    <option value="Mid-level">Mid-level</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Director">Director</option>
-                  </select>
-                  <textarea name="description" placeholder="Job Description" defaultValue={selectedVacancy.description} rows="3" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* Row 1: Job Title and Department */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Job Title"
+                        name="title"
+                        defaultValue={selectedVacancy.title}
+                      />
+                      <FormField 
+                        label="Department"
+                        name="department"
+                        defaultValue={selectedVacancy.department}
+                      />
+                    </div>
+                    
+                    {/* Row 2: Employer and Salary */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Employer"
+                        name="employer"
+                        type="select"
+                        options={employers.map(e => e.company)}
+                        defaultValue={selectedVacancy.employer}
+                      />
+                      <FormField 
+                        label="Salary Range"
+                        name="salary"
+                        defaultValue={selectedVacancy.salary}
+                      />
+                    </div>
+                    
+                    {/* Row 3: Location and Employment Type */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Location"
+                        name="location"
+                        defaultValue={selectedVacancy.location}
+                      />
+                      <FormField 
+                        label="Employment Type"
+                        name="employmentType"
+                        type="select"
+                        options={["Full-time", "Part-time", "Contract", "Internship"]}
+                        defaultValue={selectedVacancy.employmentType}
+                      />
+                    </div>
+                    
+                    {/* Row 4: Experience Required and Expiry Date */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Experience Required"
+                        name="experienceRequired"
+                        defaultValue={selectedVacancy.experienceRequired}
+                      />
+                      <FormField 
+                        label="Expiry Date"
+                        name="expiryDate"
+                        type="date"
+                        defaultValue={selectedVacancy.expiryDate}
+                      />
+                    </div>
+                    
+                    {/* Row 5: Job Description */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <label style={{ marginBottom: '0.5rem', color: colors.black, fontWeight: '500' }}>Job Description</label>
+                      <textarea 
+                        name="description" 
+                        defaultValue={selectedVacancy.description}
+                        rows="4" 
+                        required 
+                        style={{
+                          ...styles.input(colors.lightGray),
+                          fontSize: isMobileView ? '0.9rem' : '1rem',
+                          padding: '0.75rem',
+                          border: '1px solid #ccc',
+                          borderRadius: '4px'
+                        }} 
+                      />
+                    </div>
+                    
+                    {/* Row 6: Requirements */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <label style={{ marginBottom: '0.5rem', color: colors.black, fontWeight: '500' }}>Requirements</label>
+                      <textarea 
+                        name="requirements" 
+                        defaultValue={selectedVacancy.requirements}
+                        rows="4" 
+                        required 
+                        style={{
+                          ...styles.input(colors.lightGray),
+                          fontSize: isMobileView ? '0.9rem' : '1rem',
+                          padding: '0.75rem',
+                          border: '1px solid #ccc',
+                          borderRadius: '4px'
+                        }} 
+                      />
+                    </div>
+                  </div>
+                  
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
                     <button type="button" onClick={closeModal} style={{...styles.button(colors.lightGray, colors.black, 'small'), background: colors.lightGray}}>Cancel</button>
                     <button type="submit" style={styles.button(colors.primary, colors.white, 'small')}>Save Changes</button>
@@ -973,8 +1169,8 @@ export default function JobPortal() {
                     <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Title:</strong> {selectedVacancy.title}</p>
                     <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Department:</strong> {selectedVacancy.department}</p>
                     <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Location:</strong> {selectedVacancy.location}</p>
+                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Experience:</strong> {selectedVacancy.experienceRequired}</p>
                     <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Salary:</strong> {selectedVacancy.salary}</p>
-                    <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Level:</strong> {selectedVacancy.level}</p>
                     <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Status:</strong> {selectedVacancy.status}</p>
                     <p style={{ fontSize: isMobileView ? '0.9rem' : '1rem' }}><strong>Posted Date:</strong> {selectedVacancy.postedDate}</p>
                   </div>
@@ -991,154 +1187,99 @@ export default function JobPortal() {
               </>
             )}
 
-            {/* Match Job Seekers Modal */}
-            {modalType === 'matchJobSeekers' && selectedVacancy && (
-              <>
-                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>
-                  Match Job Seekers for {selectedVacancy.title}
-                </h2>
-                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                  {jobSeekers.length > 0 ? (
-                    jobSeekers.map(js => {
-                      const matchScore = calculateMatchScore(selectedVacancy, js);
-                      const isAlreadyApplied = applications.some(
-                        app => app.vacancyId === selectedVacancy.id && app.jobSeekerId === js.id
-                      );
-                      
-                      return (
-                        <div key={js.id} style={{ 
-                          border: `1px solid ${colors.lightGray}`, 
-                          borderRadius: '8px', 
-                          padding: '1rem', 
-                          marginBottom: '1rem',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}>
-                          <div style={{ flex: 1 }}>
-                            <h4 style={{ margin: '0 0 0.5rem 0', color: colors.primary }}>{js.name}</h4>
-                            <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: colors.gray }}>
-                              {js.currentCompany} • {js.level} • {js.experience}
-                            </p>
-                            <p style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
-                              <strong>Skills:</strong> {js.skills}
-                            </p>
-                            <div style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              marginTop: '0.5rem',
-                              gap: '10px'
-                            }}>
-                              <span style={{ 
-                                padding: '0.25rem 0.75rem', 
-                                borderRadius: '20px', 
-                                fontSize: '0.85rem', 
-                                fontWeight: 'bold',
-                                backgroundColor: matchScore >= 70 ? '#e8f5e9' : matchScore >= 40 ? '#fff3e0' : '#ffebee', 
-                                color: matchScore >= 70 ? colors.success : matchScore >= 40 ? colors.warning : colors.secondary
-                              }}>
-                                Match Score: {matchScore}%
-                              </span>
-                              {isAlreadyApplied && (
-                                <span style={{ 
-                                  padding: '0.25rem 0.75rem', 
-                                  borderRadius: '20px', 
-                                  fontSize: '0.85rem', 
-                                  fontWeight: 'bold',
-                                  backgroundColor: colors.lightGray, 
-                                  color: colors.black
-                                }}>
-                                  Already Applied
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <button 
-                              onClick={() => openModal('jobSeekerDetails', js)}
-                              title="View Resume"
-                              style={{ 
-                                backgroundColor: colors.primary,
-                                padding: "6px",
-                                borderRadius: "4px",
-                                fontSize: "10px",
-                                fontWeight: "500",
-                                width: "32px",
-                                height: "32px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: colors.white,
-                                border: "none",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <i className="bi bi-eye-fill" style={{ fontSize: "14px" }}></i>
-                            </button>
-                            {!isAlreadyApplied && (
-                              <button 
-                                onClick={() => handleAddJobSeekerToVacancy(js.id)}
-                                title="Send to Employer"
-                                style={{ 
-                                  backgroundColor: colors.secondary,
-                                  padding: "6px",
-                                  borderRadius: "4px",
-                                  fontSize: "10px",
-                                  fontWeight: "500",
-                                  width: "32px",
-                                  height: "32px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: colors.white,
-                                  border: "none",
-                                  cursor: "pointer"
-                                }}
-                              >
-                                <i className="bi bi-send-fill" style={{ fontSize: "14px" }}></i>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })
-                  ) : (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: colors.gray }}>
-                      No job seekers available.
-                    </div>
-                  )}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
-                  <button onClick={closeModal} style={styles.button(colors.primary, colors.white, 'small')}>Close</button>
-                </div>
-              </>
-            )}
-
             {/* Add Job Seeker Modal */}
             {modalType === 'addJobSeeker' && (
               <>
-                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary }}>
+                <h2 style={{ fontSize: isMobileView ? '1.1rem' : '1.3rem', color: colors.primary, marginBottom: '1.5rem' }}>
                   Add Job Seeker Resume
                 </h2>
                 <form onSubmit={handleAddJobSeeker}>
-                  <input name="name" placeholder="Full Name" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="email" type="email" placeholder="Email Address" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="phone" placeholder="Phone Number" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="education" placeholder="Education" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="currentCompany" placeholder="Current Company" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <input name="experience" placeholder="Experience (e.g., 3 years)" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
-                  <select name="level" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}}>
-                    <option value="">Select Level</option>
-                    <option value="Entry">Entry Level</option>
-                    <option value="Mid-level">Mid-level</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Director">Director</option>
-                  </select>
-                  <input name="skills" placeholder="Key Skills (e.g., React, HR, PMP)" required style={{...styles.input(colors.lightGray), fontSize: isMobileView ? '0.9rem' : '1rem'}} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* Row 1: Name and Email */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Full Name"
+                        name="name"
+                        placeholder="Full Name"
+                      />
+                      <FormField 
+                        label="Email Address"
+                        name="email"
+                        type="email"
+                        placeholder="Email Address"
+                      />
+                    </div>
+                    
+                    {/* Row 2: Phone and Education */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Phone Number"
+                        name="phone"
+                        placeholder="Phone Number"
+                      />
+                      <FormField 
+                        label="Education"
+                        name="education"
+                        placeholder="Education"
+                      />
+                    </div>
+                    
+                    {/* Row 3: Current Company and Experience */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Current Company"
+                        name="currentCompany"
+                        placeholder="Current Company"
+                      />
+                      <FormField 
+                        label="Experience"
+                        name="experience"
+                        placeholder="Experience (e.g., 3 years)"
+                      />
+                    </div>
+                    
+                    {/* Row 4: Level and Skills */}
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobileView ? 'column' : 'row' }}>
+                      <FormField 
+                        label="Level"
+                        name="level"
+                        type="select"
+                        options={["Entry Level", "Mid-level", "Senior", "Manager", "Director"]}
+                      />
+                      <FormField 
+                        label="Key Skills"
+                        name="skills"
+                        placeholder="Key Skills (e.g., React, HR, PMP)"
+                      />
+                    </div>
+                  </div>
+                  
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
-                    <button type="button" onClick={closeModal} style={{...styles.button(colors.lightGray, colors.black, 'small'), background: colors.lightGray}}>Cancel</button>
-                    <button type="submit" style={styles.button(colors.primary, colors.white, 'small')}>Save Resume</button>
+                    <button 
+                      type="button" 
+                      onClick={closeModal} 
+                      style={{
+                        ...styles.button(colors.lightGray, colors.black, 'small'),
+                        background: colors.lightGray,
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      style={{
+                        ...styles.button(colors.primary, colors.white, 'small'),
+                        backgroundColor: colors.primary,
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Save Resume
+                    </button>
                   </div>
                 </form>
               </>

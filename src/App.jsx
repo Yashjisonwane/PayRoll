@@ -1,7 +1,8 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import { useState, useEffect } from "react";
-
+// LandingPage
+import LandingPage from "../LandingPage";
 // Layout
 import Navbar from "./Layout/Navbar";
 import Sidebar from "./Layout/Sidebar";
@@ -26,7 +27,7 @@ import EmployerDashboard from "./Dashboard/Employer/EmployerDashboard";
 import CreditBalance from "./Dashboard/Employer/MyCredit";
 import PayEmployee from "./Dashboard/Employer/PaymentEmployer";
 import EmployerTransactions from "./Dashboard/Employer/EmployerTransactions";
-// import AddEmployee from "./Dashboard/Employer/AddEmployee"; // Fixed this import
+import AddEmployee from "./Dashboard/Employer/AddEmployee"; // Fixed this import
 import JobVacancies from "./Dashboard/Employer/JobVacancies";
 
 // Employee
@@ -73,7 +74,7 @@ function App() {
       {hideLayout ? (
         // -------- AUTH ROUTES --------
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -116,6 +117,7 @@ function App() {
                 <Route path="/employee/bill-payment" element={<BillPayment />} />
                 <Route path="/employee/monthly-salary" element={<MonthlySalary />} />
                 <Route path="/employee/job-application" element={<JobApplication />} />
+                <Route path="/employer/add-employee" element={<AddEmployee />} />
 
                 {/* ---------------- JOB PORTAL ---------------- */}
                 <Route path="/job-portal/dashboard" element={<JobDashboard />} />

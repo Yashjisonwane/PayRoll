@@ -26,6 +26,9 @@ const PaymentEmployer = () => {
     { id: 5, date: '2025-11-28', recipient: 'Amit Singh', type: 'Employee', amount: 75000, method: 'Bank Transfer', status: 'Failed', notes: 'Incorrect account number', accountNumber: '345678901234' },
   ]);
 
+  // State for active tab in payment history
+  const [activeHistoryTab, setActiveHistoryTab] = useState('all');
+
   // Modal visibility states
   const [showPayEmployeeModal, setShowPayEmployeeModal] = useState(false);
   const [showPayVendorModal, setShowPayVendorModal] = useState(false);
@@ -55,7 +58,8 @@ const PaymentEmployer = () => {
     toAccount: '', 
     toIFSC: '', 
     amount: '', 
-    notes: '' 
+    notes: '',
+    recipientName: '' // Added recipient name field
   });
 
   // State for viewing receipt
@@ -64,7 +68,6 @@ const PaymentEmployer = () => {
   // State for filtering
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [filterType, setFilterType] = useState('all');
 
   // --- HANDLER FUNCTIONS ---
 
@@ -141,7 +144,7 @@ const PaymentEmployer = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    if (!bankTransfer.fromAccount || !bankTransfer.toAccount || !bankTransfer.toIFSC || !bankTransfer.amount) {
+    if (!bankTransfer.fromAccount || !bankTransfer.toAccount || !bankTransfer.toIFSC || !bankTransfer.amount || !bankTransfer.recipientName) {
       alert('Please fill in all bank details.');
       setIsLoading(false);
       return;
@@ -152,7 +155,7 @@ const PaymentEmployer = () => {
       const newPayment = {
         id: Date.now(),
         date: new Date().toISOString().split('T')[0],
-        recipient: `Account: ${bankTransfer.toAccount}`,
+        recipient: bankTransfer.recipientName, // Use recipient name instead of account number
         type: 'Bank Transfer',
         amount: parseFloat(bankTransfer.amount),
         method: 'Bank-to-Bank Transfer',
@@ -163,9 +166,9 @@ const PaymentEmployer = () => {
 
       setRecentPayments([newPayment, ...recentPayments]);
       setIsLoading(false);
-      alert(`Bank transfer of ₹${newPayment.amount.toLocaleString()} is ${newPayment.status.toLowerCase()}.`);
+      alert(`Bank transfer of ₹${newPayment.amount.toLocaleString()} to ${bankTransfer.recipientName} is ${newPayment.status.toLowerCase()}.`);
       setShowBankTransferModal(false);
-      setBankTransfer({ fromAccount: '', toAccount: '', toIFSC: '', amount: '', notes: '' }); // Reset form
+      setBankTransfer({ fromAccount: '', toAccount: '', toIFSC: '', amount: '', notes: '', recipientName: '' }); // Reset form
     }, 1500);
   };
 
@@ -206,7 +209,15 @@ const PaymentEmployer = () => {
     const matchesSearch = payment.recipient.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          payment.notes.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || payment.status.toLowerCase() === filterStatus.toLowerCase();
-    const matchesType = filterType === 'all' || payment.type.toLowerCase() === filterType.toLowerCase();
+    
+    // Filter by history tab
+    let matchesType = true;
+    if (activeHistoryTab === 'employee') {
+      matchesType = payment.type === 'Employee';
+    } else if (activeHistoryTab === 'vendor') {
+      matchesType = payment.type === 'Vendor';
+    }
+    
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -303,7 +314,7 @@ const PaymentEmployer = () => {
         <div className="card-header bg-white p-4 border-0">
           <div className="row align-items-center">
             <div className="col-12 col-md-6 mb-3 mb-md-0">
-              <h5 className="fw-bold mb-0">Payment Logs</h5>
+              <h5 className="fw-bold mb-0">Payment History</h5>
               <p className="text-muted small mb-0">View and manage all your payment transactions</p>
             </div>
             <div className="col-12 col-md-6">
@@ -340,20 +351,63 @@ const PaymentEmployer = () => {
                     <option value="pending">Pending</option>
                     <option value="failed">Failed</option>
                   </select>
-                  <select
-                    className="form-select"
-                    style={{ border: "1px solid #E2E2E2", borderRadius: "8px" }}
-                    value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                  >
-                    <option value="all">All Types</option>
-                    <option value="employee">Employee</option>
-                    <option value="vendor">Vendor</option>
-                    <option value="bank transfer">Bank Transfer</option>
-                  </select>
                 </div>
               </div>
             </div>
+          </div>
+          
+          {/* Payment History Tabs */}
+          <div className="mt-3">
+            <ul className="nav nav-tabs" style={{ borderBottom: "1px solid #E2E2E2" }}>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeHistoryTab === 'all' ? 'active' : ''}`}
+                  onClick={() => setActiveHistoryTab('all')}
+                  style={{ 
+                    color: activeHistoryTab === 'all' ? '#FFFFFF' : '#C62828',
+                    backgroundColor: activeHistoryTab === 'all' ? '#C62828' : 'transparent',
+                    border: 'none',
+                    borderBottom: activeHistoryTab === 'all' ? '3px solid #B71C1C' : 'none',
+                    fontWeight: 'bold',
+                    borderRadius: '0'
+                  }}
+                >
+                  All Payments
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeHistoryTab === 'employee' ? 'active' : ''}`}
+                  onClick={() => setActiveHistoryTab('employee')}
+                  style={{ 
+                    color: activeHistoryTab === 'employee' ? '#FFFFFF' : '#C62828',
+                    backgroundColor: activeHistoryTab === 'employee' ? '#C62828' : 'transparent',
+                    border: 'none',
+                    borderBottom: activeHistoryTab === 'employee' ? '3px solid #B71C1C' : 'none',
+                    fontWeight: 'bold',
+                    borderRadius: '0'
+                  }}
+                >
+                  Employee Payments
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeHistoryTab === 'vendor' ? 'active' : ''}`}
+                  onClick={() => setActiveHistoryTab('vendor')}
+                  style={{ 
+                    color: activeHistoryTab === 'vendor' ? '#FFFFFF' : '#C62828',
+                    backgroundColor: activeHistoryTab === 'vendor' ? '#C62828' : 'transparent',
+                    border: 'none',
+                    borderBottom: activeHistoryTab === 'vendor' ? '3px solid #B71C1C' : 'none',
+                    fontWeight: 'bold',
+                    borderRadius: '0'
+                  }}
+                >
+                  Vendor Payments
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
         <div className="card-body p-0">
@@ -363,7 +417,12 @@ const PaymentEmployer = () => {
               <thead style={{ background: "#FFF5F5" }}>
                 <tr>
                   <th>Date</th>
-                  <th>Recipient</th>
+                  {/* DYNAMIC TABLE HEADER */}
+                  <th>
+                    {activeHistoryTab === 'employee' ? 'Employee' : 
+                     activeHistoryTab === 'vendor' ? 'Vendor' : 
+                     'Employee / Vendor'}
+                  </th>
                   <th>Amount</th>
                   <th>Payment Method</th>
                   <th>Status</th>
@@ -475,7 +534,7 @@ const PaymentEmployer = () => {
       {/* Pay Employee Modal */}
       {showPayEmployeeModal && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={{ maxWidth: '500px', width: '95%' }}>
             <div className="modal-content border-0 shadow-lg" style={{ borderRadius: "16px" }}>
               <div className="modal-header border-0 p-4 pb-0">
                 <div className="d-flex align-items-center">
@@ -490,10 +549,10 @@ const PaymentEmployer = () => {
                 <button type="button" className="btn-close" onClick={() => setShowPayEmployeeModal(false)}></button>
               </div>
               <form onSubmit={handlePayEmployee}>
-                <div className="modal-body p-4">
+                <div className="modal-body p-4" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                   <div className="alert alert-info d-flex align-items-center" role="alert">
                     <FaInfoCircle className="me-2" />
-                    <div className="small">Payment will be processed directly to the employee's bank account.</div>
+                    <div className="small">Payment will be processed directly to employee's bank account.</div>
                   </div>
                   
                   <div className="mb-4">
@@ -596,7 +655,7 @@ const PaymentEmployer = () => {
       {/* Pay Vendor Modal */}
       {showPayVendorModal && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={{ maxWidth: '500px', width: '95%' }}>
             <div className="modal-content border-0 shadow-lg" style={{ borderRadius: "16px" }}>
               <div className="modal-header border-0 p-4 pb-0">
                 <div className="d-flex align-items-center">
@@ -611,7 +670,7 @@ const PaymentEmployer = () => {
                 <button type="button" className="btn-close" onClick={() => setShowPayVendorModal(false)}></button>
               </div>
               <form onSubmit={handlePayVendor}>
-                <div className="modal-body p-4">
+                <div className="modal-body p-4" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                   <div className="alert alert-info d-flex align-items-center" role="alert">
                     <FaInfoCircle className="me-2" />
                     <div className="small">Payment will be processed directly to the vendor's bank account.</div>
@@ -717,7 +776,7 @@ const PaymentEmployer = () => {
       {/* Bank Transfer Modal */}
       {showBankTransferModal && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={{ maxWidth: '500px', width: '95%' }}>
             <div className="modal-content border-0 shadow-lg" style={{ borderRadius: "16px" }}>
               <div className="modal-header border-0 p-4 pb-0">
                 <div className="d-flex align-items-center">
@@ -732,7 +791,7 @@ const PaymentEmployer = () => {
                 <button type="button" className="btn-close" onClick={() => setShowBankTransferModal(false)}></button>
               </div>
               <form onSubmit={handleBankTransfer}>
-                <div className="modal-body p-4">
+                <div className="modal-body p-4" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                   <div className="alert alert-info d-flex align-items-center" role="alert">
                     <FaInfoCircle className="me-2" />
                     <div className="small">Transfer funds directly between bank accounts.</div>
@@ -746,6 +805,18 @@ const PaymentEmployer = () => {
                       value={bankTransfer.fromAccount} 
                       onChange={(e) => setBankTransfer({ ...bankTransfer, fromAccount: e.target.value })} 
                       placeholder="Enter your account number"
+                      required 
+                    />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="form-label fw-semibold">Recipient Name</label>
+                    <input 
+                      type="text" 
+                      className="form-control form-control-lg" 
+                      value={bankTransfer.recipientName} 
+                      onChange={(e) => setBankTransfer({ ...bankTransfer, recipientName: e.target.value })} 
+                      placeholder="Enter recipient's name"
                       required 
                     />
                   </div>
@@ -836,7 +907,7 @@ const PaymentEmployer = () => {
       {/* Receipt Modal */}
       {showReceiptModal && selectedPayment && (
         <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" style={{ maxWidth: '450px', width: '95%' }}>
             <div className="modal-content border-0 shadow-lg" style={{ borderRadius: "16px" }}>
               <div className="modal-header border-0 p-4 pb-0">
                 <div className="d-flex align-items-center">
@@ -850,7 +921,7 @@ const PaymentEmployer = () => {
                 </div>
                 <button type="button" className="btn-close" onClick={() => setShowReceiptModal(false)}></button>
               </div>
-              <div className="modal-body p-4">
+              <div className="modal-body p-4" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                 <div className="card bg-light mb-4 border-0">
                   <div className="card-body">
                     <div className="d-flex justify-content-between align-items-center">

@@ -56,15 +56,16 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faChartBar,
         path: "/Admin/dashboard",
       },
-      {
-        name: " Credit",
-        icon: faWallet,
-        path: "/Admin/add-credit",
-      },
+    
       {
         name: "Employers",
         icon: faUsers,
         path: "/Admin/employer-list",
+      },
+        {
+        name: " Credit",
+        icon: faWallet,
+        path: "/Admin/add-credit",
       },
       {
         name: "Job Portal",
@@ -104,6 +105,12 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faWallet,
         path: "/employer/credits/balance",
       },
+        {
+    name: "Employees / Vendors",
+    icon: faUsers,
+    path: "/employer/add-employee",
+  },
+
       {
         name: "Job Vacancies",
         icon: faWallet,

@@ -1140,4 +1140,4 @@ const PaymentSetup = () => {
   );
 };
 
-export default PaymentSetup;
+export default PaymentSetup; 
