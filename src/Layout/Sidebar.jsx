@@ -15,7 +15,10 @@ import {
   faFileInvoiceDollar,
   faBookOpen,
   faSignInAlt,
-  faUserCheck
+  faUserCheck,
+  faClipboardCheck,
+  faUser
+
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Sidebar.css";
@@ -53,6 +56,34 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
   // ---------------- MENUS -----------------
   const allMenus = {
+    SUPERADMIN: [
+      {
+        name: "Dashboard",
+        icon: faChartBar,
+        path: "/SuperAdmin/dashboard",
+      },
+      {
+        name: "Plans Management",
+        icon: faUsers,
+        path: "/SuperAdmin/plans-management",
+      },
+      {
+        name: "Company Management",
+        icon: faUsers,
+        path: "/SuperAdmin/company-management",
+      },    
+      {
+        name: "Payments & Subscriptions",
+        icon: faWallet, 
+        path: "/SuperAdmin/payments-subscriptions",
+      },
+      {
+        name: "Settings",
+        icon: faUser,
+        path: "/SuperAdmin/settings",
+      }
+    ],
+
     ADMIN: [
       {
         name: "Dashboard",
@@ -202,8 +233,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/job-portal/dashboard",
       },
       {
-        name: "Job List",
-        icon: faBriefcase,
+        name: "Applied Jobs",
+        icon: faClipboardCheck,
         path: "/job-portal/job-list",
       },
       {
@@ -212,8 +243,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/job-portal/submit-resume",
       },
       {
-        name: "Apply For Jobs",
-        icon: faUsers,
+        name: "Profile",
+        icon: faUser,
         path: "/job-portal/apply/:jobId",
       }
     ],

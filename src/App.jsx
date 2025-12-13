@@ -46,13 +46,20 @@ import EmployeeTraining from "./Dashboard/Employee/EmployeeTraining";
 
 // job portal 
 import JobDashboard from "./Dashboard/JobPortal/JobDashboard";
-import Apply from "./Dashboard/JobPortal/Apply";
+import UserProfilePage from "./Dashboard/JobPortal/UserProfilePage";
 import JobList from "./Dashboard/JobPortal/JobList";
 import SubmitResume from "./Dashboard/JobPortal/SubmitResume";
 
 // Vendor
 import VendorDashboard from "./Dashboard/Vendor/VendorDashboard";
 import VendorPayments from "./Dashboard/Vendor/Payments/VendorPayments";
+
+
+import SuperAdminDashboard from "./Dashboard/SuperAdmin/SuperAdminDashboard";
+import PlansManagement from "./Dashboard/SuperAdmin/PlansManagement";
+import CompanyManagement from "./Dashboard/SuperAdmin/CompanyManagement";
+import PaymentsSubscriptions from "./Dashboard/SuperAdmin/PaymentsSubscriptions";
+import Settings from "./Dashboard/SuperAdmin/Settings";
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -101,6 +108,14 @@ function App() {
             {/* Right Content */}
             <div className={`right-side-content ${isSidebarCollapsed ? "collapsed" : ""}`}>
               <Routes>
+                
+                 <Route path="/SuperAdmin/dashboard" element={<SuperAdminDashboard />} />
+                  <Route path="/SuperAdmin/plans-management" element={<PlansManagement />} />
+                   <Route path="/SuperAdmin/company-management" element={<CompanyManagement />} />
+                    <Route path="/SuperAdmin/payments-subscriptions" element={<PaymentsSubscriptions />} />
+                     <Route path="/SuperAdmin/settings" element={<Settings />} />
+
+
                 {/* ---------------- ADMIN ---------------- */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/add-credit" element={<AddCredit />} />
@@ -137,7 +152,7 @@ function App() {
 
                 {/* ---------------- JOB PORTAL ---------------- */}
                 <Route path="/job-portal/dashboard" element={<JobDashboard />} />
-                <Route path="/job-portal/apply/:jobId" element={<Apply />} />
+                <Route path="/job-portal/apply/:jobId" element={<UserProfilePage />} />
                 <Route path="/job-portal/job-list" element={<JobList />} />
                 <Route path="/job-portal/submit-resume" element={<SubmitResume />} />
 
