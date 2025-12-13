@@ -128,84 +128,97 @@ const CompanyManagement = () => {
   };
 
   return (
-    <div className="container-fluid" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+    <div className="container-fluid p-0" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       <div className="container py-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1>Company Management</h1>
-          <Button variant="primary" onClick={handleAddCompany}>
+          <h1 className="h3">Company Management</h1>
+          <Button variant="primary" onClick={handleAddCompany} className="d-flex align-items-center">
             <FaPlus className="me-2" />Add Company
           </Button>
         </div>
 
-        <Card className="shadow-sm">
-          <Card.Body className="p-0">
-            <div className="table-responsive">
-              <Table hover className="mb-0">
-                <thead>
-                  <tr>
-                    <th>Company Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Selected Plan</th>
-                    <th>Plan Expiry</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {companies.map(company => (
-                    <tr key={company.id}>
-                      <td className="align-middle">
-                        <div className="d-flex align-items-center">
-                          <FaBuilding className="me-2 text-muted" />
-                          {company.name}
-                        </div>
-                      </td>
-                      <td className="align-middle">{company.email}</td>
-                      <td className="align-middle">{company.phone}</td>
-                      <td className="align-middle">{getPlanName(company.planId)}</td>
-                      <td className="align-middle">{company.planExpiryDate}</td>
-                      <td className="align-middle">
-                        <Badge bg={company.status === 'Active' ? 'success' : 'danger'}>
-                          {company.status}
-                        </Badge>
-                      </td>
-                      <td className="align-middle">
-                        <div className="d-flex flex-column gap-1">
-                          <Button variant="outline-primary" size="sm" onClick={() => handleViewDetails(company)}>
-                            <FaEye className="me-1" /> View Details
-                          </Button>
-                          <div className="d-flex gap-1">
-                            <Button variant="outline-secondary" size="sm" onClick={() => handleGenerateLogin(company)} title="Generate Login ID">
-                              <FaKey />
-                            </Button>
-                            <Button variant="outline-warning" size="sm" onClick={() => handleChangePlan(company)} title="Change Plan">
-                              <FaExchangeAlt />
-                            </Button>
-                            <Button 
-                              variant={company.status === 'Active' ? 'outline-danger' : 'outline-success'} 
-                              size="sm" 
-                              onClick={() => handleBlockUnblock(company.id)}
-                              title={company.status === 'Active' ? 'Block Company' : 'Unblock Company'}
-                            >
-                              {company.status === 'Active' ? <FaBan /> : <FaCheckCircle />}
-                            </Button>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-        </Card>
+        {/* Card View for All Screen Sizes */}
+        <Row>
+          {companies.map(company => (
+            <Col key={company.id} xs={12} sm={6} lg={4} className="mb-4">
+              <Card className="shadow-sm h-100">
+                <Card.Body className="d-flex flex-column">
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div className="d-flex align-items-center">
+                      <FaBuilding className="me-2 text-muted" />
+                      <h5 className="mb-0">{company.name}</h5>
+                    </div>
+                    <Badge bg={company.status === 'Active' ? 'success' : 'danger'}>
+                      {company.status}
+                    </Badge>
+                  </div>
+                  
+                  <div className="mb-3 flex-grow-1">
+                    <div className="mb-2">
+                      <span className="text-muted">Email: </span>
+                      <span>{company.email}</span>
+                    </div>
+                    <div className="mb-2">
+                      <span className="text-muted">Phone: </span>
+                      <span>{company.phone}</span>
+                    </div>
+                    <div className="mb-2">
+                      <span className="text-muted">Plan: </span>
+                      <span>{getPlanName(company.planId)}</span>
+                    </div>
+                    <div className="mb-2">
+                      <span className="text-muted">Plan Expiry: </span>
+                      <span>{company.planExpiryDate}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="d-flex justify-content-between mt-auto">
+                    <div className="d-flex gap-2">
+                      <FaEye 
+                        className="text-primary" 
+                        style={{ cursor: 'pointer' }} 
+                        onClick={() => handleViewDetails(company)}
+                        title="View Details"
+                      />
+                      <FaKey 
+                        className="text-secondary" 
+                        style={{ cursor: 'pointer' }} 
+                        onClick={() => handleGenerateLogin(company)}
+                        title="Generate Login ID"
+                      />
+                      <FaExchangeAlt 
+                        className="text-warning" 
+                        style={{ cursor: 'pointer' }} 
+                        onClick={() => handleChangePlan(company)}
+                        title="Change Plan"
+                      />
+                    </div>
+                    {company.status === 'Active' ? 
+                      <FaBan 
+                        className="text-danger" 
+                        style={{ cursor: 'pointer' }} 
+                        onClick={() => handleBlockUnblock(company.id)}
+                        title="Block Company"
+                      /> : 
+                      <FaCheckCircle 
+                        className="text-success" 
+                        style={{ cursor: 'pointer' }} 
+                        onClick={() => handleBlockUnblock(company.id)}
+                        title="Unblock Company"
+                      />
+                    }
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
       </div>
 
       {/* --- MODALS --- */}
 
       {/* Add Company Modal */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered size="lg">
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered size="lg" fullscreen="sm-down">
         <Modal.Header closeButton>
           <Modal.Title>Add New Company</Modal.Title>
         </Modal.Header>
@@ -270,7 +283,7 @@ const CompanyManagement = () => {
       </Modal>
 
       {/* View Company Details Modal */}
-      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered size="lg">
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered size="lg" fullscreen="sm-down">
         <Modal.Header closeButton>
           <Modal.Title>Company Details</Modal.Title>
         </Modal.Header>
@@ -293,7 +306,7 @@ const CompanyManagement = () => {
       </Modal>
 
       {/* Change Plan Modal */}
-      <Modal show={showChangePlanModal} onHide={() => setShowChangePlanModal(false)} centered>
+      <Modal show={showChangePlanModal} onHide={() => setShowChangePlanModal(false)} centered fullscreen="sm-down">
         <Modal.Header closeButton>
           <Modal.Title>Change Plan for {selectedCompany.name}</Modal.Title>
         </Modal.Header>

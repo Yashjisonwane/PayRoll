@@ -14,7 +14,8 @@ import {
   Container,
   Form,
   InputGroup,
-  Navbar
+  Navbar,
+  ListGroup
 } from 'react-bootstrap';
 import { 
   FaDownload, 
@@ -68,7 +69,7 @@ const SummaryCard = ({ title, count, icon, bgColor }) => {
   };
 
   return (
-    <Col md={4} className="mb-4">
+    <Col xs={12} sm={6} md={4} className="mb-4">
       <Card className="shadow-sm border-0 h-100">
         <Card.Body className="d-flex align-items-center">
           <div className="icon-box rounded-circle p-3 d-flex align-items-center justify-content-center me-3 text-white" style={{ backgroundColor: bgColor }}>
@@ -100,46 +101,91 @@ const SubscriptionTable = ({ data, showInvoiceDownload = true, showNextBilling =
   };
 
   return (
-    <Card className="shadow-sm">
-      <Card.Body className="p-0">
-        <div className="table-responsive">
-          <Table striped bordered hover className="mb-0 align-middle">
-            <thead className="table-light">
-              <tr>
-                <th>Company Name</th>
-                <th>Plan Name</th>
-                <th>Amount Paid</th>
-                <th>{showNextBilling ? 'Next Billing Date' : showExpiryDate ? 'Expiry Date' : 'Payment Mode'}</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.length > 0 ? (
-                data.map(item => (
-                  <tr key={item.id}>
-                    <td>{item.companyName}</td>
-                    <td>{item.planName}</td>
-                    <td>{formatCurrency(item.amount)}</td>
-                    <td>{showNextBilling ? item.nextBillingDate : showExpiryDate ? item.expiryDate : item.paymentMode}</td>
-                    <td>
-                      {showInvoiceDownload && (
-                        <Button variant="primary" size="sm" onClick={() => handleDownloadInvoice(item.id)}>
-                          <FaDownload className="me-1" /> Invoice
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
+    <>
+      {/* Desktop Table View */}
+      <Card className="shadow-sm d-none d-md-block">
+        <Card.Body className="p-0">
+          <div className="table-responsive">
+            <Table striped bordered hover className="mb-0 align-middle">
+              <thead className="table-light">
                 <tr>
-                  <td colSpan="5" className="text-center py-4 text-muted">No records found.</td>
+                  <th>Company Name</th>
+                  <th>Plan Name</th>
+                  <th>Amount Paid</th>
+                  <th>{showNextBilling ? 'Next Billing Date' : showExpiryDate ? 'Expiry Date' : 'Payment Mode'}</th>
+                  <th>Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </Table>
-        </div>
-      </Card.Body>
-    </Card>
+              </thead>
+              <tbody>
+                {data.length > 0 ? (
+                  data.map(item => (
+                    <tr key={item.id}>
+                      <td>{item.companyName}</td>
+                      <td>{item.planName}</td>
+                      <td>{formatCurrency(item.amount)}</td>
+                      <td>{showNextBilling ? item.nextBillingDate : showExpiryDate ? item.expiryDate : item.paymentMode}</td>
+                      <td>
+                        {showInvoiceDownload && (
+                          <Button variant="primary" size="sm" onClick={() => handleDownloadInvoice(item.id)}>
+                            <FaDownload className="me-1" /> Invoice
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-4 text-muted">No records found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+      </Card>
+
+      {/* Mobile Card View */}
+      <div className="d-md-none">
+        {data.length > 0 ? (
+          data.map(item => (
+            <Card key={item.id} className="mb-3 shadow-sm">
+              <Card.Body>
+                <h5 className="card-title">{item.companyName}</h5>
+                <ListGroup variant="flush">
+                  <ListGroup.Item className="px-0">
+                    <strong>Plan:</strong> {item.planName}
+                  </ListGroup.Item>
+                  <ListGroup.Item className="px-0">
+                    <strong>Amount:</strong> {formatCurrency(item.amount)}
+                  </ListGroup.Item>
+                  <ListGroup.Item className="px-0">
+                    <strong>{showNextBilling ? 'Next Billing Date' : showExpiryDate ? 'Expiry Date' : 'Payment Mode'}:</strong> 
+                    {showNextBilling ? item.nextBillingDate : showExpiryDate ? item.expiryDate : item.paymentMode}
+                  </ListGroup.Item>
+                  {item.status && (
+                    <ListGroup.Item className="px-0">
+                      <strong>Status:</strong> 
+                      <Badge bg={item.status === 'Success' ? 'success' : 'warning'} className="ms-2">
+                        {item.status}
+                      </Badge>
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
+                {showInvoiceDownload && (
+                  <Button variant="primary" size="sm" className="mt-3" onClick={() => handleDownloadInvoice(item.id)}>
+                    <FaDownload className="me-1" /> Invoice
+                  </Button>
+                )}
+              </Card.Body>
+            </Card>
+          ))
+        ) : (
+          <Card className="mb-3 shadow-sm">
+            <Card.Body className="text-center py-4 text-muted">No records found.</Card.Body>
+          </Card>
+        )}
+      </div>
+    </>
   );
 };
 
@@ -156,7 +202,7 @@ const PaymentsSubscriptions = () => {
         <Navbar bg="white" className="shadow-sm px-4 py-2 mb-4">
           <Container fluid>
             <Form className="d-flex">
-              <InputGroup style={{ width: '300px' }}>
+              <InputGroup style={{ width: '100%', maxWidth: '300px' }}>
                 <InputGroup.Text><FaSearch /></InputGroup.Text>
                 <Form.Control type="text" placeholder="Search..." />
               </InputGroup>
@@ -182,7 +228,7 @@ const PaymentsSubscriptions = () => {
 
           {/* --- Tabs --- */}
           <Tab.Container id="payments-tab" activeKey={activeKey}>
-            <Nav variant="pills" className="mb-4">
+            <Nav variant="pills" className="mb-4 flex-column flex-sm-row">
               <Nav.Item>
                 <Nav.Link eventKey="history" onClick={() => setActiveKey('history')}>Payment History</Nav.Link>
               </Nav.Item>
