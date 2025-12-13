@@ -313,7 +313,7 @@ const JobVacancies = () => {
           fontSize: screenSize.isMobile ? "1.5rem" : screenSize.isTablet ? "1.75rem" : "2rem" 
         }}>Job Vacancies</h2>
         <button 
-          className="btn text-white d-flex align-items-center px-3 py-2" 
+          className="btn text-white d-flex align-items-center justify-content-center px-3 py-2" 
           style={primaryButtonStyle}
           onClick={() => setShowPostForm(true)}
         >
@@ -518,35 +518,67 @@ const JobVacancies = () => {
                             fontSize: screenSize.isMobile ? "0.7rem" : "0.8rem" 
                           }}>{job.views} Views</span>
                         </div>
-                        <div className={`btn-group ${screenSize.isMobile ? 'btn-group-sm' : ''}`} role="group">
-                          <button 
-                            className="btn btn-sm text-white px-2 py-1" 
-                            style={primaryButtonStyle}
-                            onClick={() => viewJobApplications(job.id)}
-                            title="View Applications"
-                          >
-                            <FaEye size={screenSize.isMobile ? 12 : 14} />
-                            {!screenSize.isMobile && <span className="ms-1">View</span>}
-                          </button>
-                          <button 
-                            className="btn btn-sm px-2 py-1" 
-                            style={secondaryButtonStyle}
-                            onClick={() => handleEditJob(job)}
-                            title="Edit Job"
-                          >
-                            <FaEdit size={screenSize.isMobile ? 12 : 14} color="#4A4A4A" />
-                            {!screenSize.isMobile && <span className="ms-1">Edit</span>}
-                          </button>
-                          <button 
-                            className="btn btn-sm px-2 py-1" 
-                            style={secondaryButtonStyle}
-                            onClick={() => handleDeleteJob(job.id)}
-                            title="Delete Job"
-                          >
-                            <FaTrash size={screenSize.isMobile ? 12 : 14} color="#C62828" />
-                            {!screenSize.isMobile && <span className="ms-1">Delete</span>}
-                          </button>
-                        </div>
+                        {/* Responsive Button Group */}
+                        {screenSize.isMobile ? (
+                          // Mobile: Stack buttons vertically
+                          <div className="d-flex flex-column gap-1">
+                            <button 
+                              className="btn btn-sm text-white w-100 py-1" 
+                              style={primaryButtonStyle}
+                              onClick={() => viewJobApplications(job.id)}
+                            >
+                              <FaEye size={12} className="me-1" />
+                              View
+                            </button>
+                            <div className="d-flex gap-1">
+                              <button 
+                                className="btn btn-sm flex-fill py-1" 
+                                style={secondaryButtonStyle}
+                                onClick={() => handleEditJob(job)}
+                              >
+                                <FaEdit size={12} color="#4A4A4A" />
+                              </button>
+                              <button 
+                                className="btn btn-sm flex-fill py-1" 
+                                style={secondaryButtonStyle}
+                                onClick={() => handleDeleteJob(job.id)}
+                              >
+                                <FaTrash size={12} color="#C62828" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          // Desktop: Horizontal button group
+                          <div className="btn-group" role="group">
+                            <button 
+                              className="btn btn-sm text-white px-2 py-1" 
+                              style={primaryButtonStyle}
+                              onClick={() => viewJobApplications(job.id)}
+                              title="View Applications"
+                            >
+                              <FaEye size={14} />
+                              <span className="ms-1">View</span>
+                            </button>
+                            <button 
+                              className="btn btn-sm px-2 py-1" 
+                              style={secondaryButtonStyle}
+                              onClick={() => handleEditJob(job)}
+                              title="Edit Job"
+                            >
+                              <FaEdit size={14} color="#4A4A4A" />
+                              <span className="ms-1">Edit</span>
+                            </button>
+                            <button 
+                              className="btn btn-sm px-2 py-1" 
+                              style={secondaryButtonStyle}
+                              onClick={() => handleDeleteJob(job.id)}
+                              title="Delete Job"
+                            >
+                              <FaTrash size={14} color="#C62828" />
+                              <span className="ms-1">Delete</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -661,31 +693,34 @@ const JobVacancies = () => {
                             <div className="text-muted small mb-1">Experience: {application.experience}</div>
                             <div className="text-muted small">Email: {application.email}</div>
                           </div>
-                          <div className="d-flex justify-content-between mt-3">
+                          {/* Responsive Button Group for Mobile */}
+                          <div className="d-grid gap-2 mt-3">
                             <button 
-                              className="btn btn-sm text-white px-3 py-1 flex-fill" 
+                              className="btn btn-sm text-white py-2" 
                               style={primaryButtonStyle}
                               onClick={() => viewApplicationDetails(application)}
                             >
                               <FaEye size={12} className="me-1" />
-                              View
+                              View Details
                             </button>
-                            <button 
-                              className="btn btn-sm px-3 py-1 flex-fill mx-1" 
-                              style={secondaryButtonStyle}
-                              onClick={() => updateApplicationStatus(application.id, "Shortlisted")}
-                            >
-                              <FaCheck size={12} color="#28a745" className="me-1" />
-                              Shortlist
-                            </button>
-                            <button 
-                              className="btn btn-sm px-3 py-1 flex-fill" 
-                              style={secondaryButtonStyle}
-                              onClick={() => updateApplicationStatus(application.id, "Interview Scheduled")}
-                            >
-                              <FaCalendarAlt size={12} color="#007bff" className="me-1" />
-                              Interview
-                            </button>
+                            <div className="d-flex gap-2">
+                              <button 
+                                className="btn btn-sm flex-fill py-2" 
+                                style={secondaryButtonStyle}
+                                onClick={() => updateApplicationStatus(application.id, "Shortlisted")}
+                              >
+                                <FaCheck size={12} color="#28a745" className="me-1" />
+                                Shortlist
+                              </button>
+                              <button 
+                                className="btn btn-sm flex-fill py-2" 
+                                style={secondaryButtonStyle}
+                                onClick={() => updateApplicationStatus(application.id, "Interview Scheduled")}
+                              >
+                                <FaCalendarAlt size={12} color="#007bff" className="me-1" />
+                                Interview
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -818,22 +853,23 @@ const JobVacancies = () => {
                               )}
                             </div>
                           </div>
-                          <div className="d-flex justify-content-between mt-3">
+                          {/* Responsive Button Group for Mobile */}
+                          <div className="d-grid gap-2 mt-3">
                             <button 
-                              className="btn btn-sm text-white px-3 py-1 flex-fill" 
+                              className="btn btn-sm text-white py-2" 
                               style={primaryButtonStyle}
                               onClick={() => viewApplicationDetails(candidate)}
                             >
                               <FaEye size={12} className="me-1" />
-                              View
+                              View Details
                             </button>
                             <button 
-                              className="btn btn-sm px-3 py-1 flex-fill" 
+                              className="btn btn-sm py-2" 
                               style={secondaryButtonStyle}
                               onClick={() => updateApplicationStatus(candidate.id, "Interview Scheduled")}
                             >
                               <FaCalendarAlt size={12} color="#007bff" className="me-1" />
-                              Interview
+                              Schedule Interview
                             </button>
                           </div>
                         </div>
@@ -862,7 +898,7 @@ const JobVacancies = () => {
                 {editingJob ? "Edit Vacancy" : "Post New Vacancy"}
               </h5>
               <button 
-                className="btn btn-sm p-0" 
+                className="btn btn-sm p-2" 
                 onClick={() => {
                   setShowPostForm(false);
                   setEditingJob(null);
@@ -1039,7 +1075,7 @@ const JobVacancies = () => {
                 Applications for {getJobById(selectedJobId)?.title}
               </h5>
               <button 
-                className="btn btn-sm p-0" 
+                className="btn btn-sm p-2" 
                 onClick={() => setShowApplications(false)}
                 style={{ color: "#4A4A4A" }}
               >
@@ -1144,31 +1180,34 @@ const JobVacancies = () => {
                           <div className="text-muted small mb-1">Experience: {application.experience}</div>
                           <div className="text-muted small">Applied: {application.appliedDate}</div>
                         </div>
-                        <div className="d-flex justify-content-between mt-3">
+                        {/* Responsive Button Group for Mobile */}
+                        <div className="d-grid gap-2 mt-3">
                           <button 
-                            className="btn btn-sm text-white px-3 py-1 flex-fill" 
+                            className="btn btn-sm text-white py-2" 
                             style={primaryButtonStyle}
                             onClick={() => viewApplicationDetails(application)}
                           >
                             <FaEye size={12} className="me-1" />
-                            View
+                            View Details
                           </button>
-                          <button 
-                            className="btn btn-sm px-3 py-1 flex-fill mx-1" 
-                            style={secondaryButtonStyle}
-                            onClick={() => updateApplicationStatus(application.id, "Shortlisted")}
-                          >
-                            <FaCheck size={12} color="#28a745" className="me-1" />
-                            Shortlist
-                          </button>
-                          <button 
-                            className="btn btn-sm px-3 py-1 flex-fill" 
-                            style={secondaryButtonStyle}
-                            onClick={() => updateApplicationStatus(application.id, "Interview Scheduled")}
-                          >
-                            <FaCalendarAlt size={12} color="#007bff" className="me-1" />
-                            Interview
-                          </button>
+                          <div className="d-flex gap-2">
+                            <button 
+                              className="btn btn-sm flex-fill py-2" 
+                              style={secondaryButtonStyle}
+                              onClick={() => updateApplicationStatus(application.id, "Shortlisted")}
+                            >
+                              <FaCheck size={12} color="#28a745" className="me-1" />
+                              Shortlist
+                            </button>
+                            <button 
+                              className="btn btn-sm flex-fill py-2" 
+                              style={secondaryButtonStyle}
+                              onClick={() => updateApplicationStatus(application.id, "Interview Scheduled")}
+                            >
+                              <FaCalendarAlt size={12} color="#007bff" className="me-1" />
+                              Interview
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1193,7 +1232,7 @@ const JobVacancies = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h5 className="fw-bold mb-0" style={{ color: "#C62828" }}>Application Details</h5>
               <button 
-                className="btn btn-sm p-0" 
+                className="btn btn-sm p-2" 
                 onClick={() => setViewingApplication(null)}
                 style={{ color: "#4A4A4A" }}
               >
@@ -1258,41 +1297,84 @@ const JobVacancies = () => {
               </div>
             </div>
             
-            <div className={`d-flex ${screenSize.isMobile ? 'flex-column' : 'justify-content-between'} ${screenSize.isMobile ? 'g-2' : ''}`}>
-              <div className={`btn-group ${screenSize.isMobile ? 'flex-column mb-3 w-100' : ''}`} role="group">
+            {/* Responsive Button Group for Application Details Modal */}
+            {screenSize.isMobile ? (
+              // Mobile: Stack buttons vertically
+              <div className="d-grid gap-2">
+                <div className="d-flex gap-2">
+                  <button 
+                    className="btn flex-fill py-2" 
+                    style={secondaryButtonStyle}
+                    onClick={() => updateApplicationStatus(viewingApplication.id, "Shortlisted")}
+                  >
+                    <FaCheck size={14} color="#28a745" className="me-2" />
+                    Shortlist
+                  </button>
+                  <button 
+                    className="btn flex-fill py-2" 
+                    style={secondaryButtonStyle}
+                    onClick={() => updateApplicationStatus(viewingApplication.id, "Interview Scheduled")}
+                  >
+                    <FaCalendarAlt size={14} color="#007bff" className="me-2" />
+                    Interview
+                  </button>
+                </div>
+                <div className="d-flex gap-2">
+                  <button 
+                    className="btn flex-fill py-2" 
+                    style={secondaryButtonStyle}
+                    onClick={() => updateApplicationStatus(viewingApplication.id, "Rejected")}
+                  >
+                    <FaTimes size={14} color="#dc3545" className="me-2" />
+                    Reject
+                  </button>
+                  <button 
+                    className="btn text-white flex-fill py-2" 
+                    style={primaryButtonStyle}
+                    onClick={() => setViewingApplication(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Desktop: Horizontal button group
+              <div className="d-flex justify-content-between">
+                <div className="btn-group" role="group">
+                  <button 
+                    className="btn" 
+                    style={secondaryButtonStyle}
+                    onClick={() => updateApplicationStatus(viewingApplication.id, "Shortlisted")}
+                  >
+                    <FaCheck size={14} color="#28a745" className="me-2" />
+                    Shortlist
+                  </button>
+                  <button 
+                    className="btn" 
+                    style={secondaryButtonStyle}
+                    onClick={() => updateApplicationStatus(viewingApplication.id, "Interview Scheduled")}
+                  >
+                    <FaCalendarAlt size={14} color="#007bff" className="me-2" />
+                    Schedule Interview
+                  </button>
+                  <button 
+                    className="btn" 
+                    style={secondaryButtonStyle}
+                    onClick={() => updateApplicationStatus(viewingApplication.id, "Rejected")}
+                  >
+                    <FaTimes size={14} color="#dc3545" className="me-2" />
+                    Reject
+                  </button>
+                </div>
                 <button 
-                  className={`btn ${screenSize.isMobile ? 'mb-2' : ''}`} 
-                  style={secondaryButtonStyle}
-                  onClick={() => updateApplicationStatus(viewingApplication.id, "Shortlisted")}
+                  className="btn text-white px-4" 
+                  style={primaryButtonStyle}
+                  onClick={() => setViewingApplication(null)}
                 >
-                  <FaCheck size={14} color="#28a745" className="me-2" />
-                  Shortlist
-                </button>
-                <button 
-                  className={`btn ${screenSize.isMobile ? 'mb-2' : ''}`} 
-                  style={secondaryButtonStyle}
-                  onClick={() => updateApplicationStatus(viewingApplication.id, "Interview Scheduled")}
-                >
-                  <FaCalendarAlt size={14} color="#007bff" className="me-2" />
-                  Schedule Interview
-                </button>
-                <button 
-                  className={`btn ${screenSize.isMobile ? 'mb-2' : ''}`} 
-                  style={secondaryButtonStyle}
-                  onClick={() => updateApplicationStatus(viewingApplication.id, "Rejected")}
-                >
-                  <FaTimes size={14} color="#dc3545" className="me-2" />
-                  Reject
+                  Close
                 </button>
               </div>
-              <button 
-                className={`btn text-white px-4 ${screenSize.isMobile ? 'w-100' : ''}`} 
-                style={primaryButtonStyle}
-                onClick={() => setViewingApplication(null)}
-              >
-                Close
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
