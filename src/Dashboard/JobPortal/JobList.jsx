@@ -1,730 +1,274 @@
-// src/pages/JobSeeker/JobList.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Table, Badge, Button, Modal, Form } from 'react-bootstrap';
+// src/Dashboard/JobPortal/JobList.jsx
+
+// NOTE: All import statements MUST be at the very top of the file.
+import React, { useState, useMemo } from 'react';
+import { Row, Col, Card, Button, Badge, Form, InputGroup, Modal, Table } from 'react-bootstrap'; // Added Table import
 import { 
-  FaBriefcase, 
-  FaBuilding, 
   FaMapMarkerAlt, 
-  FaMoneyBillWave, 
-  FaCalendarAlt,
+  FaBriefcase, 
+  FaRupeeSign, 
   FaSearch,
-  FaFilter,
-  FaArrowLeft,
-  FaBookmark,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaClock,
-  FaGraduationCap,
+  FaCalendarAlt,
   FaEye,
-  FaShare,
-  FaHeart
+  FaTrash,
+  FaFileAlt
 } from 'react-icons/fa';
 
-// Color Palette
-const colors = {
-  primaryRed: '#C62828',
-  darkRed: '#B71C1C',
-  white: '#FFFFFF',
-  black: '#000000',
-  darkGray: '#4A4A4A',
-  lightGray: '#E2E2E2',
-  lightBg: '#FFFFFF',
-  successGreen: '#28A745',
-  warningOrange: '#FFC107',
-};
+// --- Dummy Applied Jobs Data ---
+const appliedJobsData = [
+  {
+    id: 1,
+    jobTitle: 'Senior Frontend Developer',
+    company: 'Tech Solutions Inc.',
+    location: 'Bangalore, India',
+    salary: '₹15-25 LPA',
+    jobType: 'Full-Time',
+    appliedDate: new Date('2023-10-20'),
+    status: 'Shortlisted',
+    logo: 'https://i.pravatar.cc/150?img=1',
+    resumeName: 'John_Doe_Resume.pdf',
+    coverLetter: 'I am very excited about this opportunity...'
+  },
+  {
+    id: 2,
+    jobTitle: 'Product Manager',
+    company: 'Innovate Corp',
+    location: 'Mumbai, India',
+    salary: '₹25-35 LPA',
+    jobType: 'Full-Time',
+    appliedDate: new Date('2023-10-18'),
+    status: 'Pending',
+    logo: 'https://i.pravatar.cc/150?img=2',
+    resumeName: 'John_Doe_Resume.pdf',
+    coverLetter: 'With my extensive experience in product...'
+  },
+  {
+    id: 3,
+    jobTitle: 'UX Designer',
+    company: 'Creative Minds',
+    location: 'Pune, India',
+    salary: '₹8-12 LPA',
+    jobType: 'Part-Time',
+    appliedDate: new Date('2023-10-15'),
+    status: 'Not Selected',
+    logo: 'https://i.pravatar.cc/150?img=3',
+    resumeName: 'John_Doe_Resume.pdf',
+    coverLetter: 'My design philosophy aligns perfectly...'
+  },
+  {
+    id: 4,
+    jobTitle: 'Backend Developer (Node.js)',
+    company: 'Digital Dynamics',
+    location: 'Remote',
+    salary: '₹12-20 LPA',
+    jobType: 'Full-Time',
+    appliedDate: new Date('2023-10-10'),
+    status: 'Pending',
+    logo: 'https://i.pravatar.cc/150?img=4',
+    resumeName: 'John_Doe_Resume.pdf',
+    coverLetter: 'I have a strong background in Node.js...'
+  },
+  {
+    id: 5,
+    jobTitle: 'Data Scientist',
+    company: 'DataWise Analytics',
+    location: 'Hyderabad, India',
+    salary: '₹18-30 LPA',
+    jobType: 'Contract',
+    appliedDate: new Date('2023-10-05'),
+    status: 'Shortlisted',
+    logo: 'https://i.pravatar.cc/150?img=5',
+    resumeName: 'John_Doe_Resume.pdf',
+    coverLetter: 'My analytical skills and experience in ML...'
+  },
+];
 
+// --- Main Applied Jobs Page Component ---
 const JobList = () => {
-  const navigate = useNavigate();
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
+  const [appliedJobs, setAppliedJobs] = useState(appliedJobsData);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterLocation, setFilterLocation] = useState('all');
-  const [filterSalary, setFilterSalary] = useState('all');
-  const [filterExperience, setFilterExperience] = useState('all');
-  const [filterType, setFilterType] = useState('all');
-  const [sortBy, setSortBy] = useState('postedDate');
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [savedJobs, setSavedJobs] = useState([]);
-  
-  // Track window width for responsive adjustments
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
-  const [jobs, setJobs] = useState([
-    { 
-      id: 1, 
-      title: 'Senior React Developer', 
-      company: 'Tech Solutions Pvt. Ltd.',
-      location: 'Bangalore, India',
-      salary: '₹12-15 LPA',
-      postedDate: '2023-07-01',
-      experience: '3-5 years',
-      jobType: 'Full-time',
-      category: 'IT',
-      description: 'We are looking for an experienced React developer to join our team. You will be responsible for developing and implementing user interface components using React.js concepts and workflows.',
-      requirements: ['3+ years of experience with React.js', 'Strong proficiency in HTML, CSS, and modern JavaScript', 'Experience with state management libraries'],
-      status: 'Open'
-    },
-    { 
-      id: 2, 
-      title: 'Frontend Developer', 
-      company: 'Digital Innovations',
-      location: 'Mumbai, India',
-      salary: '₹8-10 LPA',
-      postedDate: '2023-07-05',
-      experience: '2-4 years',
-      jobType: 'Full-time',
-      category: 'IT',
-      description: 'Join our frontend team to build amazing user experiences. You will be responsible for translating UI/UX design wireframes to actual code that will produce visual elements of application.',
-      requirements: ['2+ years of experience in frontend development', 'Proficiency in HTML5, CSS3, and JavaScript', 'Experience with modern JavaScript frameworks'],
-      status: 'Open'
-    },
-    { 
-      id: 3, 
-      title: 'UI/UX Designer', 
-      company: 'Creative Minds',
-      location: 'Pune, India',
-      salary: '₹6-8 LPA',
-      postedDate: '2023-07-03',
-      experience: '1-3 years',
-      jobType: 'Full-time',
-      category: 'Design',
-      description: 'Looking for a creative designer to enhance our product design. You will be responsible for creating beautiful and intuitive user interfaces.',
-      requirements: ['1-3 years of design experience', 'Proficiency in design tools', 'Strong portfolio showcasing your work'],
-      status: 'Open'
-    },
-    { 
-      id: 4, 
-      title: 'Full Stack Developer', 
-      company: 'Tech Innovations',
-      location: 'Hyderabad, India',
-      salary: '₹10-14 LPA',
-      postedDate: '2023-07-02',
-      experience: '3-6 years',
-      jobType: 'Full-time',
-      category: 'IT',
-      description: 'We are seeking a talented full stack developer to work on our cutting-edge projects. You will work on both frontend and backend development.',
-      requirements: ['3-6 years of full stack development', 'Experience with React and Node.js', 'Knowledge of databases', 'Understanding of RESTful APIs'],
-      status: 'Open'
-    },
-    { 
-      id: 5, 
-      title: 'Mobile App Developer', 
-      company: 'AppWorks',
-      location: 'Remote',
-      salary: '₹8-12 LPA',
-      postedDate: '2023-07-01',
-      experience: '2-5 years',
-      jobType: 'Remote',
-      category: 'IT',
-      description: 'Join our mobile team to build innovative apps for millions of users. You will work on both iOS and Android platforms.',
-      requirements: ['2-5 years of mobile development', 'Experience with React Native or Flutter', 'Knowledge of app store guidelines'],
-      status: 'Open'
-    },
-    { 
-      id: 6, 
-      title: 'Data Scientist', 
-      company: 'DataDriven Inc.',
-      location: 'Delhi, India',
-      salary: '₹15-20 LPA',
-      postedDate: '2023-06-25',
-      experience: '3-6 years',
-      jobType: 'Full-time',
-      category: 'IT',
-      description: 'Join our data science team to build predictive models and analyze complex datasets. You will work with cutting-edge machine learning technologies.',
-      requirements: ['3-6 years of data science experience', 'Strong Python skills', 'Experience with machine learning frameworks', 'Knowledge of statistics'],
-      status: 'Open'
-    },
-    { 
-      id: 7, 
-      title: 'Backend Developer', 
-      company: 'ServerSide Tech',
-      location: 'Chennai, India',
-      salary: '₹9-13 LPA',
-      postedDate: '2023-06-20',
-      experience: '2-5 years',
-      jobType: 'Full-time',
-      category: 'IT',
-      description: 'Looking for a backend developer to build scalable APIs and maintain our server infrastructure. You will work with modern backend technologies.',
-      requirements: ['2-5 years of backend development', 'Experience with Java or Node.js', 'Knowledge of databases', 'Understanding of RESTful APIs'],
-      status: 'Open'
-    },
-    { 
-      id: 8, 
-      title: 'HR Manager', 
-      company: 'People First',
-      location: 'Hyderabad, India',
-      salary: '₹8-12 LPA',
-      postedDate: '2023-06-15',
-      experience: '3-6 years',
-      jobType: 'Full-time',
-      category: 'HR',
-      description: 'Looking for an experienced HR manager to lead our human resources initiatives. You will manage recruitment, employee relations, and organizational development.',
-      requirements: ['3-6 years of HR experience', 'Strong communication skills', 'Knowledge of HR policies', 'Experience with recruitment systems'],
-      status: 'Open'
-    }
-  ]);
+  // Memoize unique values for filter dropdown
+  const uniqueStatuses = useMemo(() => ['all', ...new Set(appliedJobs.map(job => job.status))], [appliedJobs]);
 
-  const containerStyle = {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: windowWidth < 768 ? '0 10px' : '0 15px',
-  };
+  // Filter logic
+  const filteredJobs = useMemo(() => {
+    let result = appliedJobs;
 
-  const cardStyle = {
-    backgroundColor: colors.white,
-    border: `1px solid ${colors.lightGray}`,
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    marginBottom: '20px',
-    transition: 'transform 0.3s ease',
-    height: '100%',
-    overflow: 'hidden',
-  };
-
-  const headerStyle = {
-    backgroundColor: colors.primaryRed,
-    color: colors.white,
-    padding: '12px 16px',
-    fontWeight: '600',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: windowWidth < 768 ? '12px' : '14px',
-  };
-
-  const buttonStyle = {
-    backgroundColor: colors.primaryRed,
-    color: colors.white,
-    border: 'none',
-    padding: windowWidth < 768 ? '6px 12px' : '8px 16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    fontWeight: '500',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    fontSize: windowWidth < 768 ? '11px' : '12px',
-  };
-
-  const secondaryButtonStyle = {
-    backgroundColor: 'transparent',
-    color: colors.primaryRed,
-    border: `1px solid ${colors.primaryRed}`,
-    padding: windowWidth < 768 ? '6px 12px' : '8px 16px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    fontWeight: '500',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    fontSize: windowWidth < 768 ? '11px' : '12px',
-  };
-
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const applyFiltersAndSort = () => {
-    let filtered = [...jobs];
-    
-    // Apply search filter
+    // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(job => 
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase())
+      result = result.filter(job =>
+        job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.location.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
-    // Apply filters
-    if (filterLocation !== 'all') {
-      filtered = filtered.filter(job => job.location === filterLocation);
+
+    // Status filter
+    if (filterStatus !== 'all') {
+      result = result.filter(job => job.status === filterStatus);
     }
-    
-    if (filterSalary !== 'all') {
-      const [min, max] = filterSalary.split('-').map(s => parseInt(s.trim()));
-      filtered = filtered.filter(job => {
-        const jobMin = parseInt(job.salary.split('-')[0].replace(/[₹, LPA]/g, '').trim());
-        return jobMin >= min && jobMin <= max;
-      });
-    }
-    
-    if (filterExperience !== 'all') {
-      const [min, max] = filterExperience.split('-').map(s => parseInt(s.replace(' years', '').trim()));
-      filtered = filtered.filter(job => {
-        const jobMin = parseInt(job.experience.split('-')[0].replace(' years', '').trim());
-        return jobMin >= min && jobMin <= max;
-      });
-    }
-    
-    if (filterType !== 'all') {
-      filtered = filtered.filter(job => job.jobType === filterType);
-    }
-    
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
-      
-      if (sortBy === 'postedDate') {
-        aValue = new Date(a[sortBy]);
-        bValue = new Date(b[sortBy]);
-      }
-      
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-    
-    return filtered;
+
+    return result;
+  }, [appliedJobs, searchTerm, filterStatus]);
+
+  // --- Handler Functions ---
+  const handleViewJob = (jobId) => {
+    alert(`Viewing job with ID: ${jobId}. In a real app, this would navigate to the job page.`);
   };
 
-  const filteredJobs = applyFiltersAndSort();
-
-  // Get unique values for filters
-  const locations = [...new Set(jobs.map(job => job.location))];
-  const salaryRanges = ['0-5 LPA', '5-10 LPA', '10-15 LPA', '15-20 LPA', '20+ LPA'];
-  const experienceLevels = ['0-2 years', '2-4 years', '4-6 years', '6+ years'];
-  const jobTypes = ['Full-time', 'Remote', 'Part-time'];
-  
-  // Function to handle Apply Now button click
-  const handleApplyNow = (jobId) => {
-    navigate(`/job-portal/apply/${jobId}`);
+  const handleViewApplication = (application) => {
+    setSelectedApplication(application);
+    setShowApplicationModal(true);
   };
 
-  // Function to handle View Details button click
-  const handleViewDetails = (job) => {
-    setSelectedJob(job);
-    setShowJobDetailsModal(true);
-  };
-
-  // Function to handle Share Job button click
-  const handleShareJob = (job) => {
-    if (navigator.share) {
-      navigator.share({
-        title: job.title,
-        text: `Check out this job opportunity: ${job.title} at ${job.company}`,
-        url: window.location.href
-      });
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      const jobUrl = window.location.href;
-      navigator.clipboard.writeText(jobUrl);
-      alert('Job link copied to clipboard');
+  const handleWithdrawApplication = (jobId) => {
+    const jobToWithdraw = appliedJobs.find(job => job.id === jobId);
+    if (window.confirm(`Are you sure you want to withdraw your application for "${jobToWithdraw.jobTitle}" at "${jobToWithdraw.company}"?`)) {
+      setAppliedJobs(appliedJobs.filter(job => job.id !== jobId));
+      alert('Application withdrawn successfully.');
     }
+  };
+
+  // Helper function to format date
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
   
-  // Responsive job list component
-  const ResponsiveJobList = () => {
-    if (windowWidth < 768) {
-      // Mobile view - card layout
-      return (
-        <div className="job-cards">
-          {filteredJobs.map(job => (
-            <Card key={job.id} className="mb-3" style={{ border: `1px solid ${colors.lightGray}` }}>
-              <Card.Body>
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <div className="flex-grow-1">
-                    <h5 style={{ fontSize: '14px', fontWeight: '600', margin: '0' }}>{job.title}</h5>
-                    <p style={{ fontSize: '12px', color: colors.darkGray, margin: '0' }}>{job.company}</p>
-                  </div>
-                  <div className="d-flex flex-column align-items-end">
-                    <Badge 
-                      bg={
-                        job.status === 'Open' ? 'success' : 
-                        job.status === 'Closed' ? 'danger' : 'warning'
-                      }
-                      style={{ fontSize: '11px' }}
-                    >
-                      {job.status}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="mb-2">
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMapMarkerAlt className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.darkGray }}>{job.location}</span>
-                  </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaMoneyBillWave className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.black }}>{job.salary}</span>
-                  </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaClock className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.black }}>{formatDate(job.postedDate)}</span>
-                  </div>
-                  <div className="d-flex align-items-center mb-1">
-                    <FaGraduationCap className="me-2" size={12} color={colors.darkGray} />
-                    <span style={{ fontSize: '12px', color: colors.black }}>{job.experience}</span>
-                  </div>
-                </div>
-                
-                <div className="d-flex justify-content-between">
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                    onClick={() => handleViewDetails(job)}
-                  >
-                    <FaEye className="me-1" /> View
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                    onClick={() => handleShareJob(job)}
-                  >
-                    <FaShare className="me-1" /> Share
-                  </Button>
-                  <Button 
-                    variant="link" 
-                    size="sm"
-                    style={buttonStyle}
-                    onClick={() => handleApplyNow(job.id)}
-                  >
-                    Apply Now
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          ))}
-        </div>
-      );
-    } else {
-      // Desktop view - table layout
-      return (
-        <div className="table-responsive">
-          <Table hover className="align-middle" style={{ fontSize: '13px' }}>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Company</th>
-                <th>Location</th>
-                <th>Salary</th>
-                <th>Experience</th>
-                <th>Posted</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredJobs.map(job => (
-                <tr key={job.id}>
-                  <td style={{ fontWeight: '600', fontSize: '12px' }}>{job.title}</td>
-                  <td style={{ fontSize: '12px' }}>{job.company}</td>
-                  <td style={{ fontSize: '12px' }}>{job.location}</td>
-                  <td style={{ fontSize: '12px' }}>{job.salary}</td>
-                  <td style={{ fontSize: '12px' }}>{job.experience}</td>
-                  <td style={{ fontSize: '12px' }}>{formatDate(job.postedDate)}</td>
-                  <td>
-                    <div className="d-flex gap-1">
-                      <Button 
-                        variant="link" 
-                        size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                        onClick={() => handleViewDetails(job)}
-                        title="View Details"
-                      >
-                        <FaEye />
-                      </Button>
-                      <Button 
-                        variant="link" 
-                        size="sm"
-                        style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                        onClick={() => handleShareJob(job)}
-                        title="Share Job"
-                      >
-                        <FaShare />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      );
+  // Helper function for status badge variant
+  const getStatusBadgeVariant = (status) => {
+    switch (status) {
+      case 'Shortlisted':
+        return 'success';
+      case 'Pending':
+        return 'info';
+      case 'Not Selected':
+      case 'Rejected':
+        return 'danger';
+      default:
+        return 'secondary';
     }
   };
 
   return (
-    <div style={{ backgroundColor: colors.lightBg, minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ 
-        backgroundColor: colors.white, 
-          borderBottom: `1px solid ${colors.lightGray}`,
-          padding: windowWidth < 768 ? '8px 0' : '12px 0',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 15px' }}>
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <Button 
-                variant="link" 
-                className="me-3 p-0"
-                onClick={() => navigate('/job-portal/dashboard')}
-                style={{ color: colors.primaryRed }}
-              >
-                <FaArrowLeft size={18} />
-              </Button>
-              <h2 style={{ color: colors.black, margin: 0, fontSize: windowWidth < 768 ? '18px' : '20px' }}>
-                Job Vacancies
-              </h2>
-            </div>
-            <div className="d-flex align-items-center">
-              <div className="input-group me-2" style={{ maxWidth: windowWidth < 576 ? '150px' : '250px' }}>
-                <span className="input-group-text" style={{ backgroundColor: colors.lightGray, border: 'none' }}>
-                  <FaSearch size={14} color={colors.darkGray} />
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search jobs..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ fontSize: '12px' }}
-                />
-              </div>
-              <Button 
-                variant="outline-secondary"
-                className="ms-2"
-                onClick={() => setShowFilterModal(true)}
-                style={{ fontSize: '12px' }}
-              >
-                <FaFilter className="me-1" />
-                {windowWidth < 576 ? '' : 'Filter'}
-              </Button>
-            </div>
-            </div>
-        </div>
-      </div>
+    <div className="container-fluid" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+      <div className="container py-4">
+        {/* Header Section */}
+        <header className="mb-4">
+          <h1 className="h2">Applied Jobs</h1>
+          <p className="text-muted">Track the status of your job applications.</p>
+        </header>
 
-      <div style={containerStyle} className="py-4">
-        {/* Results Count */}
-        <div className="mb-3">
-          <h5 style={{ color: colors.darkGray, fontSize: '14px', fontWeight: '500', marginBottom: '10px' }}>
-            Found {filteredJobs.length} active job openings
-          </h5>
-        </div>
+        {/* Search and Filter Bar */}
+        <Row className="g-3 mb-4 align-items-end">
+          <Col md={8}>
+            <InputGroup>
+              <InputGroup.Text><FaSearch /></InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Search by Job Title, Company, or Location..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+          <Col md={4}>
+            <Form.Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+              <option value="all">All Status</option>
+              {uniqueStatuses.slice(1).map(status => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </Form.Select>
+          </Col>
+        </Row>
 
-        {/* Job List */}
-        <Card style={cardStyle}>
-          <div style={headerStyle}>
-            <FaBriefcase className="me-2" />
-            Job Vacancies
-          </div>
-          <Card.Body className="p-3">
-            {filteredJobs.length > 0 ? (
-              <ResponsiveJobList />
-            ) : (
-              <div className="text-center py-5">
-                  <FaBriefcase size={40} color={colors.lightGray} />
-                  <p style={{ color: colors.darkGray, marginTop: '10px', fontSize: '14px' }}>
-                    No job openings found
-                  </p>
-              </div>
-            )}
+        {/* Job List Table */}
+        <Card className="shadow-sm">
+          <Card.Body className="p-0">
+            <div className="table-responsive">
+              <Table hover className="mb-0">
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredJobs.length > 0 ? (
+                    filteredJobs.map(job => (
+                      <tr key={job.id}>
+                        <td>{job.jobTitle}</td>
+                        <td>{job.company}</td>
+                        <td><FaMapMarkerAlt className="me-2" />{job.location}</td>
+                        <td>{formatDate(job.appliedDate)}</td>
+                        <td><Badge bg={getStatusBadgeVariant(job.status)}>{job.status}</Badge></td>
+                        <td>
+                          <div className="d-flex gap-2">
+                            <Button variant="outline-primary" size="sm" onClick={() => handleViewJob(job.id)}>
+                              <FaEye className="me-1" /> View
+                            </Button>
+                            <Button variant="outline-secondary" size="sm" onClick={() => handleViewApplication(job)}>
+                              <FaFileAlt className="me-1" /> App
+                            </Button>
+                            <Button variant="outline-danger" size="sm" onClick={() => handleWithdrawApplication(job.id)}>
+                              <FaTrash className="me-1" /> Withdraw
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="text-center py-4 text-muted">
+                        No applied jobs found matching your criteria.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
           </Card.Body>
         </Card>
       </div>
 
-      {/* Job Details Modal */}
-      <Modal 
-        show={showJobDetailsModal} 
-        onHide={() => setShowJobDetailsModal(false)} 
-        centered 
-        size="lg"
-        scrollable
-      >
-        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
-          <Modal.Title className="d-flex align-items-center">
-            <FaBriefcase className="me-2" />
-            Job Details
-          </Modal.Title>
+      {/* Application Detail Modal */}
+      <Modal show={showApplicationModal} onHide={() => setShowApplicationModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Application Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedJob && (
+          {selectedApplication && (
             <>
-              <Row className="mb-3">
-                <Col md={8}>
-                  <h4 style={{ color: colors.black, fontWeight: '600', fontSize: '18px' }}>{selectedJob.title}</h4>
-                  <h5 style={{ color: colors.darkGray, fontSize: '16px' }}>{selectedJob.company}</h5>
+              <h5>{selectedApplication.jobTitle}</h5>
+              <p className="text-muted">{selectedApplication.company}</p>
+              <hr />
+              <Row>
+                <Col md={6}>
+                  <p><strong>Applied Date:</strong> {formatDate(selectedApplication.appliedDate)}</p>
+                  <p><strong>Resume:</strong> {selectedApplication.resumeName}</p>
                 </Col>
-                <Col md={4} className="text-md-end">
-                  <h5 style={{ color: colors.primaryRed, fontWeight: '600', fontSize: '16px' }}>{selectedJob.salary}</h5>
-                  <div className="mt-2">
-                    <Button 
-                      variant="link" 
-                      size="sm"
-                      style={{ color: colors.primaryRed, padding: '0', fontSize: '12px' }}
-                      onClick={() => handleShareJob(selectedJob)}
-                    >
-                      <FaShare className="me-1" /> Share
-                    </Button>
-                  </div>
+                <Col md={6}>
+                  <p><strong>Status:</strong> <Badge bg={getStatusBadgeVariant(selectedApplication.status)}>{selectedApplication.status}</Badge></p>
                 </Col>
               </Row>
-              
-              <Row className="mb-3">
-                <Col md={4}>
-                  <div className="d-flex align-items-center mb-2">
-                    <FaMapMarkerAlt className="me-2" color={colors.primaryRed} />
-                    <span style={{ fontSize: '13px', color: colors.darkGray }}>{selectedJob.location}</span>
-                  </div>
-                </Col>
-                <Col md={4}>
-                  <div className="d-flex align-items-center mb-2">
-                    <FaGraduationCap className="me-2" color={colors.primaryRed} />
-                    <span style={{ fontSize: '13px', color: colors.darkGray }}>{selectedJob.experience}</span>
-                  </div>
-                </Col>
-                <Col md={4}>
-                  <div className="d-flex align-items-center mb-2">
-                    <FaClock className="me-2" color={colors.primaryRed} />
-                    <span style={{ fontSize: '13px', color: colors.darkGray }}>Posted: {formatDate(selectedJob.postedDate)}</span>
-                  </div>
-                </Col>
-              </Row>
-              
-              <div className="mb-3">
-                <h6 style={{ color: colors.black, fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>Job Description</h6>
-                <p style={{ fontSize: '13px', color: colors.black, lineHeight: '1.5' }}>{selectedJob.description}</p>
-              </div>
-              
-              <div className="mb-3">
-                <h6 style={{ color: colors.black, fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>Requirements</h6>
-                <ul style={{ fontSize: '13px', color: colors.black, paddingLeft: '20px' }}>
-                  {selectedJob.requirements.map((req, index) => (
-                    <li key={index} style={{ marginBottom: '5px' }}>{req}</li>
-                  ))}
-                </ul>
-              </div>
+              <hr />
+              <h6>Cover Letter</h6>
+              <p>{selectedApplication.coverLetter}</p>
             </>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="secondary"
-            onClick={() => setShowJobDetailsModal(false)}
-            style={{ fontSize: '13px' }}
-          >
+          <Button variant="secondary" onClick={() => setShowApplicationModal(false)}>
             Close
           </Button>
-          <Button 
-            style={buttonStyle}
-            onClick={() => {
-              setShowJobDetailsModal(false);
-              handleApplyNow(selectedJob.id);
-            }}
-          >
-            Apply for this Position
-          </Button>
         </Modal.Footer>
-      </Modal>
-
-      {/* Filter Modal */}
-      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} centered size="md">
-        <Modal.Header closeButton style={{ backgroundColor: colors.primaryRed, color: colors.white }}>
-          <Modal.Title>Filter Jobs</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Location</Form.Label>
-              <Form.Select
-                value={filterLocation}
-                onChange={(e) => setFilterLocation(e.target.value)}
-                style={{ fontSize: '13px' }}
-              >
-                <option value="all">All Locations</option>
-                {locations.map(location => (
-                  <option key={location} value={location}>{location}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Salary Range</Form.Label>
-              <Form.Select
-                value={filterSalary}
-                onChange={(e) => setFilterSalary(e.target.value)}
-                style={{ fontSize: '13px' }}
-              >
-                <option value="all">All Salaries</option>
-                {salaryRanges.map(range => (
-                  <option key={range} value={range}>{range}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Experience</Form.Label>
-              <Form.Select
-                value={filterExperience}
-                onChange={(e) => setFilterExperience(e.target.value)}
-                style={{ fontSize: '13px' }}
-              >
-                <option value="all">All Experience</option>
-                {experienceLevels.map(level => (
-                  <option key={level} value={level}>{level}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '13px' }}>Job Type</Form.Label>
-              <Form.Select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                style={{ fontSize: '13px' }}
-              >
-                <option value="all">All Types</option>
-                {jobTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            
-            <div className="d-flex justify-content-end">
-              <Button 
-                variant="secondary" 
-                className="me-2"
-                onClick={() => {
-                  setFilterLocation('all');
-                  setFilterSalary('all');
-                  setFilterExperience('all');
-                  setFilterType('all');
-                  setShowFilterModal(false);
-                }}
-                style={{ fontSize: '13px' }}
-              >
-                Reset Filters
-              </Button>
-              <Button 
-                style={buttonStyle}
-                onClick={() => setShowFilterModal(false)}
-              >
-                Apply Filters
-              </Button>
-            </div>
-          </Form>
-        </Modal.Body>
       </Modal>
     </div>
   );

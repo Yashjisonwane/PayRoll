@@ -12,7 +12,13 @@ import {
   faUserGroup,
   faClipboard,
   faBriefcase,
-  faFileInvoiceDollar
+  faFileInvoiceDollar,
+  faBookOpen,
+  faSignInAlt,
+  faUserCheck,
+  faClipboardCheck,
+  faUser
+
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Sidebar.css";
@@ -50,6 +56,34 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
   // ---------------- MENUS -----------------
   const allMenus = {
+    SUPERADMIN: [
+      {
+        name: "Dashboard",
+        icon: faChartBar,
+        path: "/SuperAdmin/dashboard",
+      },
+      {
+        name: "Plans Management",
+        icon: faUsers,
+        path: "/SuperAdmin/plans-management",
+      },
+      {
+        name: "Company Management",
+        icon: faUsers,
+        path: "/SuperAdmin/company-management",
+      },    
+      {
+        name: "Payments & Subscriptions",
+        icon: faWallet, 
+        path: "/SuperAdmin/payments-subscriptions",
+      },
+      {
+        name: "Settings",
+        icon: faUser,
+        path: "/SuperAdmin/settings",
+      }
+    ],
+
     ADMIN: [
       {
         name: "Dashboard",
@@ -66,6 +100,16 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         name: " Credit",
         icon: faWallet,
         path: "/Admin/add-credit",
+      },
+      {
+        name: "Attendance Management",
+        icon: faUserCheck,
+        path: "/Admin/Attendance-management",
+      },
+      {
+        name: "Training",
+        icon: faBookOpen,
+        path: "/Admin/Admin-Training",
       },
       {
         name: "Job Portal",
@@ -110,6 +154,16 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     icon: faUsers,
     path: "/employer/add-employee",
   },
+  {
+    name: "Attendance",
+    icon: faUserCheck,
+    path: "/employer/employer-attendance",
+  },
+  {
+    name: "Training",
+    icon: faBookOpen,
+    path: "/employer/Employer-Training",
+  },
 
       {
         name: "Job Vacancies",
@@ -145,6 +199,21 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         icon: faCreditCard,
         path: "/Employee/bill-payment",
       },
+       {
+    name: "Attendance",
+    icon: faUserCheck,
+    path: "/employer/employee-attendance",
+  },
+  {
+    name: "Training",
+    icon: faBookOpen,
+    path: "/employer/Employee-Training",
+  },
+    {
+    name: "Check-In",
+    icon: faSignInAlt,
+    path: "/employer/in-out",
+  },
       {
         name: "Bank Details",
         icon: faFileInvoiceDollar,
@@ -164,8 +233,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/job-portal/dashboard",
       },
       {
-        name: "Job List",
-        icon: faBriefcase,
+        name: "Applied Jobs",
+        icon: faClipboardCheck,
         path: "/job-portal/job-list",
       },
       {
@@ -174,8 +243,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         path: "/job-portal/submit-resume",
       },
       {
-        name: "Apply For Jobs",
-        icon: faUsers,
+        name: "Profile",
+        icon: faUser,
         path: "/job-portal/apply/:jobId",
       }
     ],

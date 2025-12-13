@@ -40,6 +40,7 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const roleRedirectMap = {
+    SUPERADMIN: "/SuperAdmin/dashboard",
     ADMIN: "/Admin/dashboard",
     EMPLOYER: "/Employer/dashboard",
     EMPLOYEE: "/Employee/dashboard",
@@ -48,6 +49,7 @@ const Login = () => {
   };
 
   const dummyUsers = {
+    SUPERADMIN: { id: 99, email: "superadmin@gmail.com", role: "SUPERADMIN" },
     ADMIN: { id: 100, email: "admin@mvp.com", role: "ADMIN" },
     EMPLOYER: { id: 101, email: "employer@mvp.com", role: "EMPLOYER" },
     EMPLOYEE: { id: 102, email: "employee@mvp.com", role: "EMPLOYEE" },
