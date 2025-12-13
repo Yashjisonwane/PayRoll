@@ -83,7 +83,7 @@ const OverviewCard = ({ title, count, icon, bgColor, textColor, change, isPositi
 
   return (
     <Card className="h-100 shadow-sm border-0">
-      <Card.Body className="p-4">
+      <Card.Body className="p-3 p-md-4">
         <div className="d-flex align-items-center">
           <div 
             className="icon-box rounded-circle p-3 d-flex align-items-center justify-content-center me-3"
@@ -92,10 +92,10 @@ const OverviewCard = ({ title, count, icon, bgColor, textColor, change, isPositi
             {icon}
           </div>
           <div className="flex-grow-1">
-            <h3 className="mb-1" style={{ color: textColor, fontWeight: '700' }}>
+            <h3 className="mb-1 fs-4 fs-md-3" style={{ color: textColor, fontWeight: '700' }}>
               {title.includes('Revenue') ? formatCurrency(count) : count.toLocaleString()}
             </h3>
-            <p className="text-muted mb-0">{title}</p>
+            <p className="text-muted mb-0 fs-6">{title}</p>
           </div>
           {change !== undefined && (
             <div className={`d-flex align-items-center ${isPositiveChange ? 'text-success' : 'text-danger'}`}>
@@ -114,23 +114,23 @@ const RevenueChart = () => {
   return (
     <Card className="shadow-sm border-0">
       <Card.Header className="bg-white border-0 pt-4 pb-0">
-        <Card.Title as="h5" className="mb-0">Revenue Trend (Last 6 Months)</Card.Title>
+        <Card.Title as="h5" className="mb-0 fs-6 fs-md-5">Revenue Trend (Last 6 Months)</Card.Title>
       </Card.Header>
       <Card.Body>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={revenueData}>
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={revenueData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
+            <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
             <Tooltip formatter={(value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value)} />
             <Legend />
             <Line 
               type="monotone" 
               dataKey="revenue" 
               stroke="#ffc107" 
-              strokeWidth={3}
-              dot={{ fill: '#ffc107', r: 6 }}
-              activeDot={{ r: 8 }}
+              strokeWidth={2}
+              dot={{ fill: '#ffc107', r: 4 }}
+              activeDot={{ r: 6 }}
               name="Revenue"
             />
           </LineChart>
@@ -144,11 +144,11 @@ const RevenueChart = () => {
 const SuperAdminDashboard = () => {
   return (
     <div className="container-fluid" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <div className="container py-5">
-        <h1 className="mb-4">Dashboard Overview</h1>
+      <div className="container py-3 py-md-5">
+        <h1 className="mb-3 mb-md-4 fs-3 fs-md-2">Dashboard Overview</h1>
         
         {/* Metrics Cards */}
-        <Row xs={1} sm={2} md={2} lg={3} className="g-4 mb-4">
+        <Row xs={1} sm={2} md={2} lg={3} className="g-3 g-md-4 mb-4">
           {dashboardMetrics.map((metric, index) => (
             <Col key={index}>
               <OverviewCard
