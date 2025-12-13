@@ -1,7 +1,7 @@
 // src/pages/Admin/CompanyManagement.js
 
 import React, { useState } from 'react';
-import { Button, Row, Col, Card, Table, Form, Modal, Badge, ListGroup, InputGroup } from 'react-bootstrap';
+import { Button, Row, Col, Card, Table, Form, Modal, Badge, ListGroup, InputGroup, Alert } from 'react-bootstrap';
 import { 
   FaPlus, FaEye, FaKey, FaExchangeAlt, FaBan, FaCheckCircle, FaBuilding, FaEnvelope, FaPhone, FaGlobe
 } from 'react-icons/fa';
@@ -59,12 +59,21 @@ const CompanyManagement = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
+  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
 
   // Data for modals
   const [selectedCompany, setSelectedCompany] = useState({});
   const [newCompany, setNewCompany] = useState({
     name: '', email: '', phone: '', website: '', planId: '', planStartDate: '', planExpiryDate: ''
   });
+  
+  // Password reset states
+  const [passwordResetData, setPasswordResetData] = useState({
+    newPassword: '',
+    confirmPassword: '',
+    sendEmail: true
+  });
+  const [passwordResetSuccess, setPasswordResetSuccess] = useState(false);
 
   // --- Handler Functions ---
   const handleAddCompany = () => {
@@ -105,12 +114,35 @@ const CompanyManagement = () => {
     }
   };
 
-  const handleGenerateLogin = (company) => {
-    alert(`Login ID for ${company.name} has been generated: ${company.email.replace(/[@.]/g, '')}_admin`);
+  const handleOpenPasswordResetModal = (company) => {
+    setSelectedCompany(company);
+    setPasswordResetData({
+      newPassword: '',
+      confirmPassword: '',
+      sendEmail: true
+    });
+    setPasswordResetSuccess(false);
+    setShowPasswordResetModal(true);
   };
 
-  const handleResetPassword = (company) => {
-    alert(`Password for ${company.name} has been reset and sent to ${company.email}.`);
+  const handlePasswordResetChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setPasswordResetData({
+      ...passwordResetData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleSavePasswordReset = () => {
+    // Here you would typically make an API call to reset the password
+    // For this example, we'll just show a success message
+    setPasswordResetSuccess(true);
+    
+    // After showing success, close the modal after 2 seconds
+    setTimeout(() => {
+      setShowPasswordResetModal(false);
+      setPasswordResetSuccess(false);
+    }, 2000);
   };
 
   const getPlanName = (planId) => {
@@ -138,6 +170,7 @@ const CompanyManagement = () => {
         </div>
 
         {/* Card View for All Screen Sizes */}
+        {/* The grid system (Row, Col) with xs, sm, lg props makes the layout responsive. */}
         <Row>
           {companies.map(company => (
             <Col key={company.id} xs={12} sm={6} lg={4} className="mb-4">
@@ -183,8 +216,8 @@ const CompanyManagement = () => {
                       <FaKey 
                         className="text-secondary" 
                         style={{ cursor: 'pointer' }} 
-                        onClick={() => handleGenerateLogin(company)}
-                        title="Generate Login ID"
+                        onClick={() => handleOpenPasswordResetModal(company)}
+                        title="Reset Password"
                       />
                       <FaExchangeAlt 
                         className="text-warning" 
@@ -324,6 +357,73 @@ const CompanyManagement = () => {
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowChangePlanModal(false)}>Close</Button>
           <Button variant="primary" onClick={handleSavePlanChange}>Save Changes</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Simplified Password Reset Modal */}
+      <Modal show={showPasswordResetModal} onHide={() => setShowPasswordResetModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Reset Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {passwordResetSuccess ? (
+            <Alert variant="success">
+              Password has been successfully reset for {selectedCompany.name}. 
+              {passwordResetData.sendEmail && ' An email with the new password has been sent to ' + selectedCompany.email + '.'}
+            </Alert>
+          ) : (
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Company</Form.Label>
+                <Form.Control type="text" value={`${selectedCompany.name} (${selectedCompany.email})`} readOnly />
+              </Form.Group>
+              
+              <Form.Group className="mb-3">
+                <Form.Label>New Password</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  name="newPassword"
+                  value={passwordResetData.newPassword}
+                  onChange={handlePasswordResetChange}
+                  placeholder="Enter new password"
+                />
+              </Form.Group>
+              
+              <Form.Group className="mb-3">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control 
+                  type="password" 
+                  name="confirmPassword"
+                  value={passwordResetData.confirmPassword}
+                  onChange={handlePasswordResetChange}
+                  placeholder="Confirm new password"
+                />
+              </Form.Group>
+              
+              <Form.Group className="mb-3">
+                <Form.Check 
+                  type="checkbox" 
+                  id="sendEmail"
+                  name="sendEmail"
+                  label="Send password via email"
+                  checked={passwordResetData.sendEmail}
+                  onChange={handlePasswordResetChange}
+                />
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowPasswordResetModal(false)}>Cancel</Button>
+          {!passwordResetSuccess && (
+            <Button 
+              variant="danger" // Changed to red
+              onClick={handleSavePasswordReset}
+              disabled={!passwordResetData.newPassword || passwordResetData.newPassword !== passwordResetData.confirmPassword}
+            >
+              Reset Password
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
     </div>
